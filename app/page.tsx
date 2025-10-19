@@ -2,21 +2,8 @@ import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Icons } from "@/lib/icons"
 import Link from "next/link"
-import {
-  Brain,
-  Users,
-  BookOpen,
-  Search,
-  MessageCircle,
-  Megaphone,
-  BarChart3,
-  ArrowRight,
-  CheckCircle,
-  Globe,
-  Shield,
-  Lightbulb,
-} from "lucide-react"
 
 export default function HomePage() {
   return (
@@ -41,7 +28,7 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button size="lg" asChild className="text-lg px-8 py-6">
                 <Link href="/self-test">
-                  Take Self-Test <ArrowRight className="ml-2 h-5 w-5" />
+                  Take Self-Test <Icons.ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6 bg-transparent">
@@ -84,7 +71,7 @@ export default function HomePage() {
             <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
               <CardHeader>
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <Brain className="h-6 w-6 text-primary" />
+                  <Icons.Brain className="h-6 w-6 text-primary" />
                 </div>
                 <CardTitle>Self-Test Application</CardTitle>
                 <CardDescription>
@@ -94,7 +81,7 @@ export default function HomePage() {
               <CardContent>
                 <Button variant="ghost" asChild className="w-full justify-between">
                   <Link href="/self-test">
-                    Start Assessment <ArrowRight className="h-4 w-4" />
+                    Start Assessment <Icons.ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </CardContent>
@@ -104,7 +91,7 @@ export default function HomePage() {
             <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-secondary/20">
               <CardHeader>
                 <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
-                  <Search className="h-6 w-6 text-secondary" />
+                  <Icons.Search className="h-6 w-6 text-secondary" />
                 </div>
                 <CardTitle>Find Support Directory</CardTitle>
                 <CardDescription>
@@ -114,7 +101,7 @@ export default function HomePage() {
               <CardContent>
                 <Button variant="ghost" asChild className="w-full justify-between">
                   <Link href="/directory">
-                    Browse Directory <ArrowRight className="h-4 w-4" />
+                    Browse Directory <Icons.ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </CardContent>
@@ -124,7 +111,7 @@ export default function HomePage() {
             <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-accent/20">
               <CardHeader>
                 <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                  <BookOpen className="h-6 w-6 text-accent" />
+                  <Icons.BookOpen className="h-6 w-6 text-accent" />
                 </div>
                 <CardTitle>Online Learning</CardTitle>
                 <CardDescription>
@@ -134,7 +121,7 @@ export default function HomePage() {
               <CardContent>
                 <Button variant="ghost" asChild className="w-full justify-between">
                   <Link href="/learning">
-                    Explore Courses <ArrowRight className="h-4 w-4" />
+                    Explore Courses <Icons.ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </CardContent>
@@ -144,7 +131,7 @@ export default function HomePage() {
             <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
               <CardHeader>
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <MessageCircle className="h-6 w-6 text-primary" />
+                  <Icons.MessageCircle className="h-6 w-6 text-primary" />
                 </div>
                 <CardTitle>Community Forum</CardTitle>
                 <CardDescription>
@@ -154,7 +141,7 @@ export default function HomePage() {
               <CardContent>
                 <Button variant="ghost" asChild className="w-full justify-between">
                   <Link href="/community">
-                    Join Community <ArrowRight className="h-4 w-4" />
+                    Join Community <Icons.ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </CardContent>
@@ -164,7 +151,7 @@ export default function HomePage() {
             <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-secondary/20">
               <CardHeader>
                 <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
-                  <Lightbulb className="h-6 w-6 text-secondary" />
+                  <Icons.Lightbulb className="h-6 w-6 text-secondary" />
                 </div>
                 <CardTitle>Apps & Tools Repository</CardTitle>
                 <CardDescription>
@@ -174,7 +161,7 @@ export default function HomePage() {
               <CardContent>
                 <Button variant="ghost" asChild className="w-full justify-between">
                   <Link href="/apps-tools">
-                    Browse Tools <ArrowRight className="h-4 w-4" />
+                    Browse Tools <Icons.ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </CardContent>
@@ -184,7 +171,7 @@ export default function HomePage() {
             <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-accent/20">
               <CardHeader>
                 <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                  <Megaphone className="h-6 w-6 text-accent" />
+                  <Icons.Megaphone className="h-6 w-6 text-accent" />
                 </div>
                 <CardTitle>Advocacy Center</CardTitle>
                 <CardDescription>
@@ -194,7 +181,7 @@ export default function HomePage() {
               <CardContent>
                 <Button variant="ghost" asChild className="w-full justify-between">
                   <Link href="/advocacy">
-                    Get Involved <ArrowRight className="h-4 w-4" />
+                    Get Involved <Icons.ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </CardContent>
@@ -222,7 +209,7 @@ export default function HomePage() {
                 <h3 className="text-2xl font-bold mb-6">Why ANDA Matters</h3>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <CheckCircle className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
+                    <Icons.CheckCircle className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
                     <div>
                       <h4 className="font-semibold mb-1">Addressing the Gap</h4>
                       <p className="text-muted-foreground">
@@ -231,7 +218,7 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <CheckCircle className="h-6 w-6 text-secondary mt-0.5 flex-shrink-0" />
+                    <Icons.CheckCircle className="h-6 w-6 text-secondary mt-0.5 flex-shrink-0" />
                     <div>
                       <h4 className="font-semibold mb-1">Cultural Sensitivity</h4>
                       <p className="text-muted-foreground">
@@ -240,7 +227,7 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <CheckCircle className="h-6 w-6 text-accent mt-0.5 flex-shrink-0" />
+                    <Icons.CheckCircle className="h-6 w-6 text-accent mt-0.5 flex-shrink-0" />
                     <div>
                       <h4 className="font-semibold mb-1">Scalable Solutions</h4>
                       <p className="text-muted-foreground">
@@ -253,22 +240,22 @@ export default function HomePage() {
 
               <div className="grid grid-cols-2 gap-6">
                 <div className="text-center p-6 bg-background rounded-lg border">
-                  <Globe className="h-8 w-8 text-primary mx-auto mb-3" />
+                  <Icons.Globe className="h-8 w-8 text-primary mx-auto mb-3" />
                   <div className="text-2xl font-bold text-primary">Pan-African</div>
                   <div className="text-sm text-muted-foreground">Reach</div>
                 </div>
                 <div className="text-center p-6 bg-background rounded-lg border">
-                  <Shield className="h-8 w-8 text-secondary mx-auto mb-3" />
+                  <Icons.Shield className="h-8 w-8 text-secondary mx-auto mb-3" />
                   <div className="text-2xl font-bold text-secondary">Safe Spaces</div>
                   <div className="text-sm text-muted-foreground">Community</div>
                 </div>
                 <div className="text-center p-6 bg-background rounded-lg border">
-                  <Users className="h-8 w-8 text-accent mx-auto mb-3" />
+                  <Icons.Users className="h-8 w-8 text-accent mx-auto mb-3" />
                   <div className="text-2xl font-bold text-accent">Inclusive</div>
                   <div className="text-sm text-muted-foreground">Support</div>
                 </div>
                 <div className="text-center p-6 bg-background rounded-lg border">
-                  <BarChart3 className="h-8 w-8 text-primary mx-auto mb-3" />
+                  <Icons.BarChart3 className="h-8 w-8 text-primary mx-auto mb-3" />
                   <div className="text-2xl font-bold text-primary">Evidence</div>
                   <div className="text-sm text-muted-foreground">Based</div>
                 </div>
@@ -312,7 +299,7 @@ export default function HomePage() {
                 <Link href="/" className="inline-block">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                      <Brain className="h-5 w-5 text-primary-foreground" />
+                      <Icons.Brain className="h-5 w-5 text-primary-foreground" />
                     </div>
                     <div>
                       <div className="font-bold text-lg">ANDA</div>

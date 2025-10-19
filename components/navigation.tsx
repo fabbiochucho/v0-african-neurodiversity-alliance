@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { AndaLogo } from "@/components/anda-logo"
-import { Menu, X, ChevronDown } from "lucide-react"
+import { Icons } from "@/lib/icons"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 export function Navigation() {
@@ -27,7 +27,7 @@ export function Navigation() {
 
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center text-foreground hover:text-primary transition-colors">
-                Resources <ChevronDown className="ml-1 h-4 w-4" />
+                Resources <Icons.ChevronDown className="ml-1 h-4 w-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem asChild>
@@ -72,7 +72,7 @@ export function Navigation() {
           {/* Mobile menu button */}
           <div className="md:hidden">
             <Button variant="ghost" size="sm" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle menu">
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isOpen ? <Icons.X className="h-6 w-6" /> : <Icons.Menu className="h-6 w-6" />}
             </Button>
           </div>
         </div>
