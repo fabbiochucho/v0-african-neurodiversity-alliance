@@ -331,6 +331,9 @@ export default function HomePage() {
                 <Link href="/self-test" className="block text-muted-foreground hover:text-foreground transition-colors">
                   Self-Test
                 </Link>
+                <Link href="/iep" className="block text-muted-foreground hover:text-foreground transition-colors">
+                  IEP Generator
+                </Link>
                 <Link href="/directory" className="block text-muted-foreground hover:text-foreground transition-colors">
                   Find Support
                 </Link>

@@ -34,6 +34,9 @@ export function Navigation() {
                   <Link href="/self-test">Self-Test Tool</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
+                  <Link href="/iep">IEP Generator</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link href="/directory">Find Support</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -94,6 +97,13 @@ export function Navigation() {
                 onClick={() => setIsOpen(false)}
               >
                 Self-Test Tool
+              </Link>
+              <Link
+                href="/iep"
+                className="block px-3 py-2 text-foreground hover:text-primary transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                IEP Generator
               </Link>
               <Link
                 href="/directory"
