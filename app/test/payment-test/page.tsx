@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -12,12 +12,17 @@ const SUBSCRIPTION_TIERS = [
   { id: 'institutional', name: 'Institutional', price: 99, description: '$99/year' },
 ];
 
+const createClientComponentClient = createBrowserClient;
+
 export default function PaymentTestPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [selectedTier, setSelectedTier] = useState('premium');
-  const supabase = createClientComponentClient();
+  const [selectedTier, setSelectedTier] = useState('');
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  );
 
   const testInitializePayment = async (tier: string) => {
     setLoading(true);

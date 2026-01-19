@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'; // Import createClientComponentClient
 
 export default function AuthTestPage() {
   const [email, setEmail] = useState('');
@@ -14,7 +15,10 @@ export default function AuthTestPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  ); // Declare createClientComponentClient
 
   const testSignUp = async () => {
     setLoading(true);

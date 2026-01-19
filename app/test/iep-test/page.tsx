@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'; // Corrected import
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +14,7 @@ export default function IEPTestPage() {
   const [learnerName, setLearnerName] = useState('');
   const [age, setAge] = useState('');
   const [domains, setDomains] = useState<string[]>([]);
-  const supabase = createClientComponentClient();
+  const supabase = createClientComponentClient(); // Corrected variable declaration
 
   const testCreateLearner = async () => {
     setLoading(true);
