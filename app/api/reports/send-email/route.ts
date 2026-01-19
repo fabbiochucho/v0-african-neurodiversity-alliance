@@ -1,0 +1,108 @@
+import { createClient } from "@/lib/supabase/server"
+import { NextResponse } from "next/server"
+
+export async function POST(request: Request) {
+  try {
+    const supabase = await createClient()
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { report_id, recipient_email } = await request.json()
+
+    if (!report_id || !recipient_email) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    }
+
+    // Get report
+    const { data: report } = await supabase.from("reports").select("*").eq("id", report_id).single()
+
+    if (!report) {
+      return NextResponse.json({ error: "Report not found" }, { status: 404 })
+    }
+
+    // Send email (integrate with email service)
+    const emailSent = await sendReportEmail(recipient_email, report, user.email || "")
+
+    if (!emailSent) {
+      return NextResponse.json({ error: "Failed to send email" }, { status: 500 })
+    }
+
+    // Update report status
+    await supabase
+      .from("reports")
+      .update({ email_sent: true, email_sent_at: new Date().toISOString() })
+      .eq("id", report_id)
+
+    return NextResponse.json({ message: "Report sent successfully" })
+  } catch (err) {
+    console.error(err)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
+async function sendReportEmail(recipientEmail: string, report: any, senderEmail: string): Promise<boolean> {
+  try {
+    // This will be replaced with Resend integration
+    console.log(`[v0] Would send email to ${recipientEmail} with report ${report.id}`)
+
+    // Placeholder for actual email service integration
+    // const response = await fetch('https://api.resend.com/emails', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+    //     'Content-Type': 'application/json'
+    //   },
+    //   body: JSON.stringify({
+    //     from: 'reports@anda.com',
+    //     to: recipientEmail,
+    //     subject: 'Your ANDA IEP Progress Report',
+    //     html: generateEmailHTML(report)
+    //   })
+    // })
+
+    return true
+  } catch (err) {
+    console.error("Email send error:", err)
+    return false
+  }
+}
+
+function generateEmailHTML(report: any): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #3C9C87 0%, #0081A7 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; }
+        .content { margin: 20px 0; }
+        .footer { border-top: 1px solid #ddd; padding-top: 20px; margin-top: 20px; text-align: center; font-size: 12px; color: #999; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>ANDA NeuroCare</h1>
+          <p>Progress Report</p>
+        </div>
+        <div class="content">
+          <p>Dear Recipient,</p>
+          <p>Please find your ANDA IEP progress report below:</p>
+          <pre>${report.content}</pre>
+          <p>Best regards,<br>The ANDA Team</p>
+        </div>
+        <div class="footer">
+          <p>&copy; 2025 African Neurodiversity Alliance. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+}
