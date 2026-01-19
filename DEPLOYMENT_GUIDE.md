@@ -73,20 +73,20 @@ git push -u origin main
 
 In Vercel project settings, add the following environment variables:
 
-\`\`\`
-NEXT_PUBLIC_SUPABASE_URL=https://rjokkbuniqkjdvrqxcpu.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+1. Go to Settings → Environment Variables
+2. Add each variable from your secure configuration:
 
-FLUTTERWAVE_SECRET_KEY=your-flutterwave-secret-key
-NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY=your-flutterwave-public-key
+- `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anonymous key
+- `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key
+- `FLUTTERWAVE_SECRET_KEY` - Your Flutterwave secret key
+- `NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY` - Your Flutterwave public key
+- `RESEND_API_KEY` - Your Resend email API key
+- `NEXT_PUBLIC_APP_URL=https://anda-platform.vercel.app`
+- `NODE_ENV=production`
+- `NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=https://anda-platform.vercel.app/auth/callback`
 
-RESEND_API_KEY=your-resend-api-key
-
-NEXT_PUBLIC_APP_URL=https://anda-platform.vercel.app
-NODE_ENV=production
-NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=https://anda-platform.vercel.app/auth/callback
-\`\`\`
+**IMPORTANT:** Never commit actual API keys to GitHub. Use Vercel's environment variable UI or GitHub secrets to manage sensitive values.
 
 **Note:** Vercel will auto-detect POSTGRES_* variables from Supabase integration if available.
 
