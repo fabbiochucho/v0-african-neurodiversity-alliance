@@ -4,6 +4,8 @@ import { redirect } from "next/navigation"
 const FLUTTERWAVE_SECRET = process.env.FLUTTERWAVE_SECRET_KEY || ""
 const FLUTTERWAVE_BASE_URL = "https://api.flutterwave.com/v3"
 
+export const dynamic = "force-dynamic"
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
