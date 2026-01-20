@@ -79,12 +79,13 @@ In Vercel project settings, add the following environment variables:
 - `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anonymous key
 - `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key
-- `FLUTTERWAVE_SECRET_KEY` - Your Flutterwave secret key
-- `NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY` - Your Flutterwave public key
+- `FLUTTERWAVE_SECRET_KEY` - Your Flutterwave secret key (server-side only)
 - `RESEND_API_KEY` - Your Resend email API key
 - `NEXT_PUBLIC_APP_URL=https://anda-platform.vercel.app`
 - `NODE_ENV=production`
 - `NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=https://anda-platform.vercel.app/auth/callback`
+
+**Note:** The Flutterwave public key is fetched from a server endpoint to avoid exposing it as an environment variable.
 
 **IMPORTANT:** Never commit actual API keys to GitHub. Use Vercel's environment variable UI or GitHub secrets to manage sensitive values.
 
