@@ -40,6 +40,9 @@ export function Navigation() {
                   <Link href="/directory">Find Support</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
+                  <Link href="/neurafiki">Neurafiki: Parent Education</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link href="/apps-tools">Apps & Tools</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
