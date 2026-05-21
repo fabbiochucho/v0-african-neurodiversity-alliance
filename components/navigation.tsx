@@ -26,8 +26,10 @@ export function Navigation() {
             </Link>
 
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center text-foreground hover:text-primary transition-colors">
-                Resources <Icons.ChevronDown className="ml-1 h-4 w-4" />
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center text-foreground hover:text-primary transition-colors">
+                  Resources <Icons.ChevronDown className="ml-1 h-4 w-4" />
+                </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem asChild>
