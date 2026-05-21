@@ -4,8 +4,10 @@ import path from 'path';
 export default defineConfig({
   test: {
     globals: true,
-    environment: 'node',
-    include: ['__tests__/**/*.test.ts', '__tests__/**/*.test.tsx'],
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
+    include: ['__tests__/**/*.test.ts', '__tests__/**/*.test.tsx', 'app/**/*.test.ts', 'app/**/*.test.tsx'],
+    exclude: ['node_modules/', '.next/', 'dist/'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
@@ -14,6 +16,8 @@ export default defineConfig({
         '__tests__/',
         'dist/',
         '.next/',
+        '**/*.test.ts',
+        '**/*.test.tsx',
       ],
       all: true,
       lines: 80,

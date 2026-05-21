@@ -2,8 +2,20 @@ import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import { APIError, errorHandler } from "@/lib/error-handler"
 import { validateUUID } from "@/lib/validation"
+import { createRateLimiter, handleRateLimit } from "@/lib/middleware/rate-limit"
+
+const rateLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per window
+  message: "Too many assessment answers submitted. Please try again later.",
+})
 
 export async function POST(request: Request) {
+  // Apply rate limiting
+  const rateLimitResult = rateLimiter(request)
+  const rateLimitError = handleRateLimit(rateLimitResult)
+  if (rateLimitError) return rateLimitError
+
   try {
     const supabase = await createClient()
 

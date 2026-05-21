@@ -12,6 +12,15 @@ export const validateEmail = (email: string): boolean => {
   return emailRegex.test(email) && email.length <= 255;
 };
 
+// Password validation - minimum 8 chars, at least one uppercase, one number, one special char
+export const validatePassword = (password: string): boolean => {
+  if (!password || password.length < 8) return false;
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+  return hasUppercase && hasNumber && hasSpecialChar;
+};
+
 // Text length validation
 export const validateText = (text: string, minLength = 1, maxLength = 500): boolean => {
   return text.length >= minLength && text.length <= maxLength;

@@ -2,7 +2,13 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Poppins } from "next/font/google"
 import { Suspense } from "react"
+import { initializeSentry } from "@/lib/sentry/config"
 import "./globals.css"
+
+// Initialize Sentry error tracking
+if (typeof window !== 'undefined') {
+  initializeSentry()
+}
 
 const poppins = Poppins({
   subsets: ["latin"],
