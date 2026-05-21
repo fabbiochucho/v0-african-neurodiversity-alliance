@@ -67,6 +67,49 @@ export function Navigation() {
 
           {/* Desktop CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                  <Icons.User className="h-4 w-4" />
+                  Account
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard">Dashboard</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/profile">My Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/progress">Progress Tracking</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/my-courses">My Courses</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/my-resources">My Resources</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/my-community">My Community</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/iep/dashboard">My IEPs</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/settings">Settings</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/dashboard">Admin Dashboard</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/moderator/dashboard">Moderator Dashboard</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/logout">Logout</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button variant="outline" asChild>
               <Link href="/login">Sign In</Link>
             </Button>
@@ -143,6 +186,65 @@ export function Navigation() {
               >
                 Research
               </Link>
+              <div className="border-t mt-2 pt-2">
+                <p className="px-3 py-2 text-sm font-semibold">My Account</p>
+                <Link
+                  href="/dashboard"
+                  className="block px-3 py-2 text-foreground hover:text-primary transition-colors text-sm"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/profile"
+                  className="block px-3 py-2 text-foreground hover:text-primary transition-colors text-sm"
+                  onClick={() => setIsOpen(false)}
+                >
+                  My Profile
+                </Link>
+                <Link
+                  href="/progress"
+                  className="block px-3 py-2 text-foreground hover:text-primary transition-colors text-sm"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Progress Tracking
+                </Link>
+                <Link
+                  href="/my-courses"
+                  className="block px-3 py-2 text-foreground hover:text-primary transition-colors text-sm"
+                  onClick={() => setIsOpen(false)}
+                >
+                  My Courses
+                </Link>
+                <Link
+                  href="/my-resources"
+                  className="block px-3 py-2 text-foreground hover:text-primary transition-colors text-sm"
+                  onClick={() => setIsOpen(false)}
+                >
+                  My Resources
+                </Link>
+                <Link
+                  href="/my-community"
+                  className="block px-3 py-2 text-foreground hover:text-primary transition-colors text-sm"
+                  onClick={() => setIsOpen(false)}
+                >
+                  My Community
+                </Link>
+                <Link
+                  href="/iep/dashboard"
+                  className="block px-3 py-2 text-foreground hover:text-primary transition-colors text-sm"
+                  onClick={() => setIsOpen(false)}
+                >
+                  My IEPs
+                </Link>
+                <Link
+                  href="/settings"
+                  className="block px-3 py-2 text-foreground hover:text-primary transition-colors text-sm"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Settings
+                </Link>
+              </div>
               <div className="flex flex-col space-y-2 px-3 py-2">
                 <Button variant="outline" asChild>
                   <Link href="/login">Sign In</Link>
