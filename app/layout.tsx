@@ -2,13 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Poppins } from "next/font/google"
 import { Suspense } from "react"
-import { initializeSentry } from "@/lib/sentry/config"
+import { SentryInitializer } from "@/components/sentry-initializer"
 import "./globals.css"
-
-// Initialize Sentry error tracking
-if (typeof window !== 'undefined') {
-  initializeSentry()
-}
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -39,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={poppins.variable}>
       <body className="font-sans antialiased">
+        <SentryInitializer />
         <Suspense fallback={null}>{children}</Suspense>
       </body>
     </html>

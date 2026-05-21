@@ -6,41 +6,49 @@ const RELEASE = process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'
 
 export function initializeSentry() {
   if (!SENTRY_DSN) {
-    console.warn('[v0] Sentry DSN not configured. Error tracking disabled.')
+    if (ENVIRONMENT !== 'development') {
+      console.error('[v0] Sentry DSN not configured in production. Please add NEXT_PUBLIC_SENTRY_DSN to environment variables.')
+    } else {
+      console.info('[v0] Sentry DSN not configured. Error tracking disabled (dev mode).')
+    }
     return
   }
 
-  Sentry.init({
-    dsn: SENTRY_DSN,
-    environment: ENVIRONMENT,
-    release: RELEASE,
-    tracesSampleRate: ENVIRONMENT === 'production' ? 0.1 : 1.0,
-    integrations: [
-      new Sentry.Replay({
-        maskAllText: true,
-        blockAllMedia: true,
-      }),
-    ],
-    replaysSessionSampleRate: ENVIRONMENT === 'production' ? 0.1 : 1.0,
-    replaysOnErrorSampleRate: 1.0,
-    beforeSend(event, hint) {
-      // Filter out certain errors
-      if (event.exception) {
-        const error = hint.originalException
-        // Don't send network errors in development
-        if (
-          ENVIRONMENT === 'development' &&
-          error instanceof Error &&
-          error.message.includes('Network')
-        ) {
-          return null
+  try {
+    Sentry.init({
+      dsn: SENTRY_DSN,
+      environment: ENVIRONMENT,
+      release: RELEASE,
+      tracesSampleRate: ENVIRONMENT === 'production' ? 0.1 : 1.0,
+      integrations: [
+        new Sentry.Replay({
+          maskAllText: true,
+          blockAllMedia: true,
+        }),
+      ],
+      replaysSessionSampleRate: ENVIRONMENT === 'production' ? 0.1 : 1.0,
+      replaysOnErrorSampleRate: 1.0,
+      beforeSend(event, hint) {
+        // Filter out certain errors
+        if (event.exception) {
+          const error = hint.originalException
+          // Don't send network errors in development
+          if (
+            ENVIRONMENT === 'development' &&
+            error instanceof Error &&
+            error.message.includes('Network')
+          ) {
+            return null
+          }
         }
-      }
-      return event
-    },
-  })
+        return event
+      },
+    })
 
-  console.log('[v0] Sentry initialized successfully')
+    console.log('[v0] Sentry initialized successfully with DSN:', SENTRY_DSN.split('@')[0] + '@...')
+  } catch (error) {
+    console.error('[v0] Failed to initialize Sentry:', error)
+  }
 }
 
 export function captureException(error: Error, context?: Record<string, any>) {
