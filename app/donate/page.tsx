@@ -1,9 +1,62 @@
+"use client"
+
+import { Suspense, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Icons } from "@/lib/icons"
 
+function DonateStatusBanner() {
+  const searchParams = useSearchParams()
+  const success = searchParams.get("success")
+  const error = searchParams.get("error")
+
+  if (success === "thank_you") {
+    return (
+      <div className="max-w-md mx-auto p-4 bg-primary/10 border border-primary/30 rounded-lg text-sm text-primary">
+        Thank you! Your donation was received successfully.
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-md mx-auto p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+        There was a problem processing your donation ({error.replace(/_/g, " ")}). Please try again.
+      </div>
+    )
+  }
+
+  return null
+}
+
 export default function DonatePage() {
+  const [donatingTier, setDonatingTier] = useState<string | null>(null)
+  const [donateError, setDonateError] = useState<string | null>(null)
+
+  const handleDonate = async (amount: number, tierName: string) => {
+    setDonatingTier(tierName)
+    setDonateError(null)
+
+    try {
+      const res = await fetch("/api/payments/flutterwave/donate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount, currency: "USD", tierName }),
+      })
+      const data = await res.json()
+
+      if (!res.ok) throw new Error(data.error || "Failed to start donation checkout")
+      if (!data.paymentLink) throw new Error("No payment link returned")
+
+      window.location.href = data.paymentLink
+    } catch (err) {
+      setDonateError(err instanceof Error ? err.message : "Failed to start donation checkout")
+      setDonatingTier(null)
+    }
+  }
+
   const donationTiers = [
     {
       amount: 5,
@@ -45,6 +98,9 @@ export default function DonatePage() {
               Your donation helps us provide free resources, education, and support to neurodivergent individuals across
               Africa.
             </p>
+            <Suspense fallback={null}>
+              <DonateStatusBanner />
+            </Suspense>
           </div>
         </div>
       </section>
@@ -82,6 +138,12 @@ export default function DonatePage() {
             <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">Choose Your Level of Support</h2>
           </div>
 
+          {donateError && (
+            <div className="max-w-md mx-auto mb-8 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 text-center">
+              {donateError}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
             {donationTiers.map((tier) => (
               <Card
@@ -102,8 +164,13 @@ export default function DonatePage() {
                       </li>
                     ))}
                   </ul>
-                  <Button className="w-full" variant={tier.featured ? "default" : "outline"}>
-                    Donate ${tier.amount}
+                  <Button
+                    className="w-full"
+                    variant={tier.featured ? "default" : "outline"}
+                    disabled={donatingTier === tier.name}
+                    onClick={() => handleDonate(tier.amount, tier.name)}
+                  >
+                    {donatingTier === tier.name ? "Redirecting..." : `Donate $${tier.amount}`}
                   </Button>
                 </CardContent>
               </Card>

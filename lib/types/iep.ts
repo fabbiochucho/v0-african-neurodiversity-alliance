@@ -1,118 +1,184 @@
 // IEP Tracker Type Definitions
+//
+// These interfaces mirror the actual Supabase/Postgres schema defined in
+// scripts/001_create_profiles.sql through scripts/007_create_profile_trigger.sql.
+// Keep this file in sync with the SQL — do not add fields here that don't
+// exist as real columns.
 
-export type UserRole = "parent" | "teacher" | "therapist" | "clinician" | "admin" | "student"
+// ---- Shared enums / unions -------------------------------------------------
 
 export type DiagnosisDomain = "ASD" | "ADHD" | "Dyslexia" | "Dyspraxia" | "Sensory" | "Cognitive"
 
 export type GoalDomain = "communication" | "sensory" | "academic" | "motor" | "attention" | "behavior"
 
-export type GoalStatus = "ongoing" | "achieved" | "revised"
+// public.iep_goals.status default 'in_progress'
+export type GoalStatus = "in_progress" | "achieved" | "revised"
+
+// public.ieps.status default 'draft'
+export type IEPStatus = "draft" | "active" | "archived"
 
 export type ReportPeriod = "monthly" | "quarterly"
 
+// public.subscriptions.tier default 'free'
 export type SubscriptionTier = "free" | "premium" | "pro" | "institutional"
+
+// public.subscriptions.status default 'active' (also used as 'pending' while awaiting payment)
+export type SubscriptionStatus = "pending" | "active" | "inactive" | "cancelled"
 
 export type OrganizationType = "school" | "ngo" | "hr_unit" | "clinic"
 
-// User & Access Control
-export interface User {
-  user_id: string
-  role: UserRole
-  email: string
-  organization_id?: string
-  linked_profiles: string[]
-  permissions: ("view" | "edit" | "report" | "approve" | "export")[]
-  created_at: Date
-  updated_at: Date
-}
+// public.payment_transactions.status default 'pending'
+export type PaymentStatus = "pending" | "successful" | "failed"
+
+// public.payment_transactions.purpose (added in scripts/008_add_donation_purpose.sql)
+export type PaymentPurpose = "subscription" | "donation"
+
+// ---- public.profiles --------------------------------------------------------
 
 export interface Profile {
-  profile_id: string
-  name: string
-  age: number
-  gender: string
-  diagnosis_domains: DiagnosisDomain[]
-  linked_users: string[]
-  language_preference: string
-  country: string
-  ethnicity?: string
-  religion?: string
-  created_at: Date
-  updated_at: Date
+  id: string
+  first_name: string | null
+  last_name: string | null
+  email: string | null
+  role: string
+  organization_id: string | null
+  avatar_url: string | null
+  created_at: string
+  updated_at: string
 }
 
-// IEP Management
-export interface IEPGoal {
-  goal_id: string
+// ---- public.organizations ---------------------------------------------------
+
+export interface Organization {
+  id: string
+  name: string
+  country: string | null
+  organization_type: OrganizationType | string | null
+  subscription_tier: SubscriptionTier
+  max_users: number
+  created_at: string
+  updated_at: string
+}
+
+// ---- public.learner_profiles -------------------------------------------------
+
+export interface LearnerProfile {
+  id: string
+  user_id: string
+  name: string
+  age: number | null
+  gender: string | null
+  country: string | null
+  diagnosis_domains: DiagnosisDomain[]
+  created_at: string
+  updated_at: string
+}
+
+// Shape of a single goal as it is generated client-side and stored inside
+// ieps.adaptive_goals / ieps.custom_goals (jsonb arrays). When an IEP is
+// created, app/api/iep/create copies these into normalized public.iep_goals
+// rows (goal_text = goal_description, domain, status = 'in_progress').
+export interface GeneratedGoal {
   domain: GoalDomain
   goal_description: string
   target_metric: string
   timeline: string
-  status: GoalStatus
-  notes: string
-  created_at: Date
-  updated_at: Date
+  notes?: string
 }
+
+// ---- public.ieps --------------------------------------------------------------
 
 export interface IEP {
-  iep_id: string
-  profile_id: string
+  id: string
+  learner_id: string
   created_by: string
-  created_date: Date
-  goals: IEPGoal[]
-  summary: string
-  review_schedule: ReportPeriod
-  next_review_date: Date
-  updated_at: Date
+  title: string | null
+  description: string | null
+  status: IEPStatus
+  adaptive_goals: GeneratedGoal[]
+  custom_goals: GeneratedGoal[]
+  ai_summary: string | null
+  created_at: string
+  updated_at: string
 }
 
-// Progress Tracking
+// ---- public.iep_goals (normalized, one row per goal) ---------------------------
+
+export interface IEPGoal {
+  id: string
+  iep_id: string
+  goal_text: string
+  domain: GoalDomain | string | null
+  status: GoalStatus
+  target_completion_date: string | null
+  created_at: string
+  updated_at: string
+}
+
+// ---- public.progress_logs ------------------------------------------------------
+
 export interface ProgressLog {
-  log_id: string
-  profile_id: string
+  id: string
   goal_id: string
-  submitted_by: string
-  date: Date
+  logged_by: string
   rating: number // 1-5
-  comments: string
-  attachments: string[]
+  notes: string | null
+  logged_date: string
+  created_at: string
 }
 
-// Reporting
+// ---- public.progress_summaries -------------------------------------------------
+
+export interface ProgressSummary {
+  id: string
+  learner_id: string
+  week_start_date: string | null
+  week_end_date: string | null
+  summary_text: string | null
+  domain_progress: Record<string, number>
+  created_at: string
+}
+
+// ---- public.reports -------------------------------------------------------------
+
 export interface Report {
-  report_id: string
-  profile_id: string
-  period: ReportPeriod
-  generated_on: Date
-  summary: string
-  graph_data: Record<string, unknown>
-  emailed_to: string[]
-  email_body: string
-  attachment_url: string
-  status: "sent" | "pending"
+  id: string
+  learner_id: string
+  generated_by: string
+  report_type: string | null
+  report_period: string | null
+  content: string | null
+  pdf_url: string | null
+  email_sent: boolean
+  email_sent_at: string | null
+  created_at: string
 }
 
-// Organization
-export interface Organization {
-  organization_id: string
-  name: string
-  type: OrganizationType
-  users: string[]
-  profiles: string[]
-  subscription_tier: SubscriptionTier
-  branding_preferences: Record<string, unknown>
-  created_at: Date
-  updated_at: Date
-}
+// ---- public.subscriptions ---------------------------------------------------------
 
-// Subscription
 export interface Subscription {
-  subscription_id: string
+  id: string
   user_id: string
-  organization_id?: string
   tier: SubscriptionTier
-  status: "active" | "inactive" | "cancelled"
-  start_date: Date
-  end_date?: Date
-  auto_renew: boolean
+  status: SubscriptionStatus
+  flutterwave_ref: string | null
+  amount_paid: number | null
+  payment_date: string | null
+  renewal_date: string | null
+  created_at: string
+  updated_at: string
+}
+
+// ---- public.payment_transactions -----------------------------------------------------
+
+export interface PaymentTransaction {
+  id: string
+  subscription_id: string | null
+  transaction_id: string
+  flutterwave_transaction_id: string | null
+  amount: number | null
+  currency: string
+  status: PaymentStatus
+  purpose: PaymentPurpose
+  created_at: string
 }

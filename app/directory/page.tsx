@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -40,111 +41,38 @@ interface Resource {
   verified: boolean
 }
 
-const mockResources: Resource[] = [
-  {
-    id: "1",
-    name: "Autism Support Center Lagos",
-    type: "support_group",
-    location: "Lagos, Nigeria",
-    country: "Nigeria",
-    rating: 4.8,
-    reviews: 127,
-    specialties: ["Autism", "Family Support", "Early Intervention"],
-    description:
-      "Comprehensive support services for individuals with autism and their families. Offering therapy, educational programs, and community support.",
-    contact: {
-      phone: "+234 801 234 5678",
-      email: "info@autismsupportlagos.org",
-      website: "www.autismsupportlagos.org",
-    },
-    verified: true,
-  },
-  {
-    id: "2",
-    name: "Dr. Amina Hassan - Child Psychologist",
-    type: "therapist",
-    location: "Nairobi, Kenya",
-    country: "Kenya",
-    rating: 4.9,
-    reviews: 89,
-    specialties: ["ADHD", "Autism", "Behavioral Therapy"],
-    description:
-      "Experienced child psychologist specializing in neurodevelopmental disorders. Provides assessment, therapy, and family counseling services.",
-    contact: {
-      phone: "+254 700 123 456",
-      email: "dr.hassan@childpsychke.com",
-    },
-    verified: true,
-  },
-  {
-    id: "3",
-    name: "Inclusive Learning Academy",
-    type: "school",
-    location: "Cape Town, South Africa",
-    country: "South Africa",
-    rating: 4.7,
-    reviews: 156,
-    specialties: ["Inclusive Education", "Dyslexia Support", "Special Needs"],
-    description:
-      "Private school with specialized programs for neurodivergent learners. Small class sizes and individualized learning plans.",
-    contact: {
-      phone: "+27 21 123 4567",
-      email: "admissions@inclusivelearning.co.za",
-      website: "www.inclusivelearning.co.za",
-    },
-    verified: true,
-  },
-  {
-    id: "4",
-    name: "ADHD Parents Network Ghana",
-    type: "support_group",
-    location: "Accra, Ghana",
-    country: "Ghana",
-    rating: 4.6,
-    reviews: 73,
-    specialties: ["ADHD", "Parent Support", "Advocacy"],
-    description:
-      "Support network for parents of children with ADHD. Monthly meetings, resources, and advocacy for better services.",
-    contact: {
-      email: "contact@adhdparentsgh.org",
-      website: "www.adhdparentsgh.org",
-    },
-    verified: false,
-  },
-  {
-    id: "5",
-    name: "Neurodevelopment Clinic Cairo",
-    type: "healthcare",
-    location: "Cairo, Egypt",
-    country: "Egypt",
-    rating: 4.5,
-    reviews: 94,
-    specialties: ["Diagnosis", "Autism", "ADHD", "Developmental Delays"],
-    description: "Medical clinic specializing in neurodevelopmental assessments and early intervention services.",
-    contact: {
-      phone: "+20 2 1234 5678",
-      email: "info@neuroclinic-cairo.com",
-    },
-    verified: true,
-  },
-  {
-    id: "6",
-    name: "Sarah Okafor - Special Needs Caregiver",
-    type: "caregiver",
-    location: "Abuja, Nigeria",
-    country: "Nigeria",
-    rating: 4.9,
-    reviews: 42,
-    specialties: ["Autism Care", "Behavioral Support", "Daily Living Skills"],
-    description:
-      "Certified caregiver with 8 years experience supporting individuals with autism and other neurodivergent conditions.",
-    contact: {
-      phone: "+234 803 456 7890",
-      email: "sarah.okafor@caregivers.ng",
-    },
-    verified: true,
-  },
-]
+// Row shape returned from the public.resources table (see
+// scripts/009_create_resources_table.sql). Mapped into the Resource shape
+// the rest of this page's filter/search UI already expects.
+interface ResourceRow {
+  id: string
+  name: string
+  category: Resource["type"]
+  description: string | null
+  country: string | null
+  location: string | null
+  rating: number | null
+  reviews: number | null
+  specialties: string[] | null
+  contact_info: { phone?: string; email?: string; website?: string } | null
+  verified: boolean | null
+}
+
+function mapResourceRow(row: ResourceRow): Resource {
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.category,
+    location: row.location || row.country || "",
+    country: row.country || "",
+    rating: row.rating || 0,
+    reviews: row.reviews || 0,
+    specialties: row.specialties || [],
+    description: row.description || "",
+    contact: row.contact_info || {},
+    verified: row.verified || false,
+  }
+}
 
 const countries = [
   "All Countries",
@@ -168,12 +96,29 @@ const resourceTypes = [
 ]
 
 export default function DirectoryPage() {
+  const [resources, setResources] = useState<Resource[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCountry, setSelectedCountry] = useState("All Countries")
   const [selectedType, setSelectedType] = useState("all")
   const [activeTab, setActiveTab] = useState("list")
 
-  const filteredResources = mockResources.filter((resource) => {
+  useEffect(() => {
+    async function loadResources() {
+      const supabase = createClient()
+      const { data } = await supabase
+        .from("resources")
+        .select("*")
+        .eq("is_published", true)
+        .order("rating", { ascending: false })
+
+      setResources(((data as ResourceRow[]) || []).map(mapResourceRow))
+      setLoading(false)
+    }
+    loadResources()
+  }, [])
+
+  const filteredResources = resources.filter((resource) => {
     const matchesSearch =
       resource.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       resource.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -276,7 +221,11 @@ export default function DirectoryPage() {
           </TabsList>
 
           <TabsContent value="list" className="space-y-6">
-            {filteredResources.length === 0 ? (
+            {loading ? (
+              <Card>
+                <CardContent className="p-12 text-center text-muted-foreground">Loading resources...</CardContent>
+              </Card>
+            ) : filteredResources.length === 0 ? (
               <Card>
                 <CardContent className="p-12 text-center">
                   <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

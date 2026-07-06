@@ -22,6 +22,10 @@ export async function POST(request: Request) {
     // Get learner and IEP data
     const { data: learner } = await supabase.from("learner_profiles").select("*").eq("id", learner_id).single()
 
+    if (!learner) {
+      return NextResponse.json({ error: "Learner not found" }, { status: 404 })
+    }
+
     const { data: ieps } = await supabase.from("ieps").select("*, iep_goals(*)").eq("learner_id", learner_id)
 
     if (!ieps || ieps.length === 0) {
@@ -37,7 +41,7 @@ export async function POST(request: Request) {
       .limit(report_type === "monthly" ? 4 : 13)
 
     // Generate report content
-    const reportContent = generateReportContent(learner, ieps, summaries, report_type, report_period)
+    const reportContent = generateReportContent(learner, ieps, summaries ?? [], report_type, report_period)
 
     // Save report to database
     const { data: report, error } = await supabase

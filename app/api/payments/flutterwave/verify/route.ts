@@ -1,80 +1,90 @@
-import { createClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/service"
+import { transactionMatchesRecord, verifyFlutterwaveTransaction } from "@/lib/payments/flutterwave"
 import { redirect } from "next/navigation"
-
-const FLUTTERWAVE_SECRET = process.env.FLUTTERWAVE_SECRET_KEY || ""
-const FLUTTERWAVE_BASE_URL = "https://api.flutterwave.com/v3"
 
 export const dynamic = "force-dynamic"
 
+// GET /api/payments/flutterwave/verify
+//
+// Flutterwave redirects the browser here with ?status=&tx_ref=&transaction_id=
+// after checkout. Those query params are attacker-controllable (the browser
+// is redirected, nothing stops a user from hand-editing the URL), so they are
+// only ever used as hints for which transaction to look up. The actual
+// pass/fail decision always comes from:
+//   1. a server-to-server GET /v3/transactions/{id}/verify call to Flutterwave, and
+//   2. confirming the verified tx_ref/amount/currency match the row we wrote
+//      ourselves during /initialize or /donate (before the user ever reached
+//      Flutterwave).
 export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const status = searchParams.get("status")
-    const transactionId = searchParams.get("transaction_id")
+  const { searchParams } = new URL(request.url)
+  const transactionId = searchParams.get("transaction_id")
+  const txRefParam = searchParams.get("tx_ref")
 
-    if (status !== "successful" || !transactionId) {
-      redirect("/iep/settings/subscription?error=payment_failed")
-    }
+  if (!transactionId) {
+    redirect("/iep/settings/subscription?error=missing_transaction")
+  }
 
-    // Verify with Flutterwave
-    const verifyResponse = await fetch(`${FLUTTERWAVE_BASE_URL}/transactions/${transactionId}/verify`, {
-      headers: {
-        Authorization: `Bearer ${FLUTTERWAVE_SECRET}`,
-      },
-    })
+  const verification = await verifyFlutterwaveTransaction(transactionId)
 
-    if (!verifyResponse.ok) {
-      redirect("/iep/settings/subscription?error=verification_failed")
-    }
+  if (!verification.ok) {
+    redirect("/iep/settings/subscription?error=verification_failed")
+  }
 
-    const flutterWaveData = await verifyResponse.json()
+  const lookupRef = verification.txRef || txRefParam
 
-    if (flutterWaveData.data.status !== "successful") {
-      redirect("/iep/settings/subscription?error=payment_not_successful")
-    }
+  if (!lookupRef) {
+    redirect("/iep/settings/subscription?error=missing_reference")
+  }
 
-    const supabase = await createClient()
+  const service = createServiceClient()
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+  const { data: recordedTx } = await service
+    .from("payment_transactions")
+    .select("*")
+    .eq("transaction_id", lookupRef)
+    .maybeSingle()
 
-    if (!user) {
-      redirect("/auth/login")
-    }
+  if (!recordedTx) {
+    redirect("/iep/settings/subscription?error=unknown_transaction")
+  }
 
-    // Get subscription and update status
-    const { data: transaction } = await supabase
+  const redirectBase = recordedTx.purpose === "donation" ? "/donate" : "/iep/settings/subscription"
+
+  const isMatch = transactionMatchesRecord(verification, {
+    tx_ref: recordedTx.transaction_id,
+    amount: recordedTx.amount,
+    currency: recordedTx.currency,
+  })
+
+  if (!isMatch || verification.status !== "successful") {
+    await service
       .from("payment_transactions")
-      .select("subscription_id")
-      .eq("flutterwave_transaction_id", transactionId)
-      .single()
+      .update({ status: "failed", flutterwave_transaction_id: transactionId })
+      .eq("id", recordedTx.id)
 
-    if (transaction?.subscription_id) {
-      // Update subscription
-      await supabase
-        .from("subscriptions")
-        .update({
-          status: "active",
-          flutterwave_ref: transactionId,
-          payment_date: new Date().toISOString(),
-          renewal_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        })
-        .eq("id", transaction.subscription_id)
+    redirect(`${redirectBase}?error=payment_verification_mismatch`)
+  }
 
-      // Update payment transaction
-      await supabase
-        .from("payment_transactions")
-        .update({
-          status: "successful",
-          flutterwave_transaction_id: transactionId,
-        })
-        .eq("id", transaction.subscription_id)
-    }
+  // Only mark paid once verified + matched.
+  await service
+    .from("payment_transactions")
+    .update({ status: "successful", flutterwave_transaction_id: transactionId })
+    .eq("id", recordedTx.id)
+
+  if (recordedTx.purpose === "subscription" && recordedTx.subscription_id) {
+    await service
+      .from("subscriptions")
+      .update({
+        status: "active",
+        flutterwave_ref: transactionId,
+        amount_paid: recordedTx.amount,
+        payment_date: new Date().toISOString(),
+        renewal_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      })
+      .eq("id", recordedTx.subscription_id)
 
     redirect("/iep/settings/subscription?success=payment_completed")
-  } catch (err) {
-    console.error(err)
-    redirect("/iep/settings/subscription?error=verification_error")
   }
+
+  redirect("/donate?success=thank_you")
 }

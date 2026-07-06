@@ -65,7 +65,7 @@ export function Navigation() {
           {/* Desktop CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             <Button variant="outline" asChild>
-              <Link href="/login">Sign In</Link>
+              <Link href="/auth/login">Sign In</Link>
             </Button>
             <Button asChild className="bg-accent hover:bg-accent/90">
               <Link href="/donate">Donate</Link>
@@ -142,7 +142,7 @@ export function Navigation() {
               </Link>
               <div className="flex flex-col space-y-2 px-3 py-2">
                 <Button variant="outline" asChild>
-                  <Link href="/login">Sign In</Link>
+                  <Link href="/auth/login">Sign In</Link>
                 </Button>
                 <Button asChild className="bg-accent hover:bg-accent/90">
                   <Link href="/donate">Donate</Link>

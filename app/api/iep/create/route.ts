@@ -15,6 +15,10 @@ export async function POST(request: Request) {
 
     const { learner_id, title, description, adaptive_goals, custom_goals, ai_summary } = await request.json()
 
+    if (!learner_id) {
+      return NextResponse.json({ error: "learner_id is required" }, { status: 400 })
+    }
+
     const { data, error } = await supabase
       .from("ieps")
       .insert({
@@ -22,8 +26,8 @@ export async function POST(request: Request) {
         created_by: user.id,
         title,
         description,
-        adaptive_goals,
-        custom_goals,
+        adaptive_goals: adaptive_goals || [],
+        custom_goals: custom_goals || [],
         ai_summary,
         status: "draft",
       })
@@ -34,18 +38,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
-    // Create IEP goals
-    const allGoals = [...(adaptive_goals || []), ...(custom_goals || [])]
+    // Fan the jsonb adaptive_goals/custom_goals (GeneratedGoal shape:
+    // { domain, goal_description, target_metric, timeline, notes? }) out into
+    // normalized public.iep_goals rows.
+    const allGoals: Array<{ domain?: string; goal_description?: string; text?: string }> = [
+      ...(adaptive_goals || []),
+      ...(custom_goals || []),
+    ]
 
     if (allGoals.length > 0) {
-      const goalsWithIepId = allGoals.map((goal: any) => ({
-        iep_id: data.id,
-        goal_text: goal.text || goal,
-        domain: goal.domain,
-        status: "in_progress",
-      }))
+      const goalsWithIepId = allGoals
+        .map((goal) => ({
+          iep_id: data.id,
+          goal_text: goal.goal_description || goal.text || "",
+          domain: goal.domain || null,
+          status: "in_progress",
+        }))
+        .filter((goal) => goal.goal_text)
 
-      await supabase.from("iep_goals").insert(goalsWithIepId)
+      if (goalsWithIepId.length > 0) {
+        await supabase.from("iep_goals").insert(goalsWithIepId)
+      }
     }
 
     return NextResponse.json(data, { status: 201 })
