@@ -1,12 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Icons } from "@/lib/icons"
 import { IEPService } from "@/lib/iep-service"
+import { createClient } from "@/lib/supabase/client"
+import { isFederationEnabled } from "@/lib/federation/config"
+import { mapRemoteAssessmentResult, goalDomainForDiagnosisDomain } from "@/lib/federation/map-assessment-domains"
 import type { DiagnosisDomain, GeneratedGoal, LearnerProfile } from "@/lib/types/iep"
 import Link from "next/link"
 
@@ -25,6 +28,91 @@ export default function GenerateIEPPage() {
   const [customGoals, setCustomGoals] = useState<Partial<GeneratedGoal>[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+
+  // Optional cross-app import (Phase 1 federation, see lib/federation/).
+  // Only ever shown if federation is enabled AND the user has an active
+  // linked_accounts row with the assessment_sync scope; any failure just
+  // shows an inline message rather than a broken button.
+  const [canImportFromNeuRafiki, setCanImportFromNeuRafiki] = useState(false)
+  const [importing, setImporting] = useState(false)
+  const [importError, setImportError] = useState<string | null>(null)
+  const [importedCount, setImportedCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!isFederationEnabled()) return
+
+    async function checkLinkedAccount() {
+      const supabase = createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data } = await supabase
+        .from("linked_accounts")
+        .select("id, scopes")
+        .eq("local_user_id", user.id)
+        .eq("remote_app", "neurafiki")
+        .eq("status", "active")
+
+      const hasScope = (data || []).some((row) => (row.scopes as string[])?.includes("assessment_sync"))
+      setCanImportFromNeuRafiki(hasScope)
+    }
+
+    checkLinkedAccount().catch(() => setCanImportFromNeuRafiki(false))
+  }, [])
+
+  const handleImportFromNeuRafiki = async () => {
+    setImporting(true)
+    setImportError(null)
+    setImportedCount(null)
+
+    try {
+      const res = await fetch("/api/federation/import-assessment", { method: "POST" })
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to import assessment results")
+      }
+
+      const mapped = mapRemoteAssessmentResult(data)
+
+      if (mapped.length === 0) {
+        setImportError("Neu Rafiki didn't return any recognized assessment domains.")
+        return
+      }
+
+      setProfile((prev) => {
+        const existing = prev.diagnosis_domains || []
+        const merged = Array.from(new Set([...existing, ...mapped.map((m) => m.domain)]))
+        return { ...prev, diagnosis_domains: merged }
+      })
+
+      setCustomGoals((prev) => [
+        ...prev,
+        ...mapped.map(({ domain, profileName, source }) => ({
+          domain: goalDomainForDiagnosisDomain(domain),
+          goal_description: `Address ${domain} needs identified by the Neu Rafiki assessment${
+            source.risk_level ? ` (risk level: ${source.risk_level})` : ""
+          }`,
+          target_metric:
+            source.percentage_score != null
+              ? `Improve from baseline assessment score of ${source.percentage_score.toFixed(1)}%`
+              : "Track progress against baseline assessment",
+          timeline: "3 months",
+          notes: source.recommendations
+            ? `Imported from Neu Rafiki assessment (${profileName}). ${source.recommendations}`
+            : `Imported from Neu Rafiki assessment (${profileName}).`,
+        })),
+      ])
+
+      setImportedCount(mapped.length)
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : "Failed to import assessment results")
+    } finally {
+      setImporting(false)
+    }
+  }
 
   const DIAGNOSIS_OPTIONS: DiagnosisDomain[] = ["ASD", "ADHD", "Dyslexia", "Dyspraxia", "Sensory", "Cognitive"]
 
@@ -239,13 +327,46 @@ export default function GenerateIEPPage() {
 
           {/* Step 2: Diagnosis Domains */}
           {step === "domains" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Diagnosis Domains</CardTitle>
-                <CardDescription>Select the neurodivergent domains that apply to this learner</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-6">
+              {canImportFromNeuRafiki && (
+                <Card className="border-dashed border-[#3C9C87]/40">
+                  <CardHeader>
+                    <CardTitle>Import from Neu Rafiki</CardTitle>
+                    <CardDescription>
+                      Pre-fill diagnosis domains and suggested goals from a completed Neu Rafiki assessment.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {importError && (
+                      <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                        {importError}
+                      </div>
+                    )}
+                    {importedCount !== null && (
+                      <div className="p-3 bg-[#3C9C87]/10 border border-[#3C9C87]/30 rounded-lg text-sm text-[#2d7a6a]">
+                        Imported {importedCount} domain{importedCount === 1 ? "" : "s"} from your Neu Rafiki
+                        assessment.
+                      </div>
+                    )}
+                    <Button
+                      variant="outline"
+                      onClick={handleImportFromNeuRafiki}
+                      disabled={importing}
+                      className="bg-transparent"
+                    >
+                      {importing ? "Importing..." : "Import from Neu Rafiki assessment"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Diagnosis Domains</CardTitle>
+                  <CardDescription>Select the neurodivergent domains that apply to this learner</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {DIAGNOSIS_OPTIONS.map((domain) => (
                     <div
                       key={domain}
@@ -298,6 +419,7 @@ export default function GenerateIEPPage() {
                 </div>
               </CardContent>
             </Card>
+            </div>
           )}
 
           {/* Step 3: Review & Customize Goals */}

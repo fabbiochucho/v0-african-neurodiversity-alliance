@@ -2,18 +2,19 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { Suspense, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { Icons } from "@/lib/icons"
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
 
   async function handleLogin(e: React.FormEvent) {
@@ -33,7 +34,12 @@ export default function LoginPage() {
         return
       }
 
-      router.push("/protected")
+      // Supports e.g. /auth/login?redirect=/connect?token=... so flows like
+      // the federation "Connect account" handshake can send a signed-out
+      // user to log in and land back where they started. Only relative paths
+      // are honored to avoid an open redirect.
+      const redirectTo = searchParams.get("redirect")
+      router.push(redirectTo && redirectTo.startsWith("/") ? redirectTo : "/protected")
     } catch (err) {
       setError("An error occurred. Please try again.")
       setLoading(false)
@@ -117,5 +123,13 @@ export default function LoginPage() {
         </Link>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   )
 }
