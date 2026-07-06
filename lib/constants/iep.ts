@@ -4,6 +4,7 @@ export const SUBSCRIPTION_TIERS = {
   free: {
     name: "Free",
     price: 0,
+    period: null as string | null,
     features: ["Basic screening and summary", "Single profile"],
   },
   premium: {

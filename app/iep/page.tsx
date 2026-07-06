@@ -111,65 +111,6 @@ export default function IEPTrackerPage() {
               </CardContent>
             </Card>
 
-            {/* Multi-User Collaboration */}
-            <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-[#3C9C87]/20">
-              <CardHeader>
-                <div className="w-12 h-12 bg-[#3C9C87]/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#3C9C87]/20 transition-colors">
-                  <Icons.Users className="h-6 w-6 text-[#3C9C87]" />
-                </div>
-                <CardTitle>Multi-User Collaboration</CardTitle>
-                <CardDescription>
-                  Invite teachers, therapists, and clinicians to collaborate on IEPs with role-based permissions.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="ghost" asChild className="w-full justify-between">
-                  <Link href="/iep/team">
-                    Manage Team <Icons.ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Multi-Profile Support */}
-            <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-[#FFC857]/20">
-              <CardHeader>
-                <div className="w-12 h-12 bg-[#FFC857]/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#FFC857]/20 transition-colors">
-                  <Icons.Users2 className="h-6 w-6 text-[#FFC857]" />
-                </div>
-                <CardTitle>Multi-Profile Dashboard</CardTitle>
-                <CardDescription>
-                  Manage IEPs for multiple learners with color-coded progress tracking and quick access.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="ghost" asChild className="w-full justify-between">
-                  <Link href="/iep/profiles">
-                    Manage Profiles <Icons.ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Organization Management */}
-            <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-[#0081A7]/20">
-              <CardHeader>
-                <div className="w-12 h-12 bg-[#0081A7]/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#0081A7]/20 transition-colors">
-                  <Icons.Building2 className="h-6 w-6 text-[#0081A7]" />
-                </div>
-                <CardTitle>Organization Admin</CardTitle>
-                <CardDescription>
-                  Institutional dashboard for schools, NGOs, and clinics with bulk enrollment and analytics.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="ghost" asChild className="w-full justify-between">
-                  <Link href="/iep/organization">
-                    Admin Panel <Icons.ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>

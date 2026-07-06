@@ -323,7 +323,9 @@ export default function LearningPage() {
                             <div className="text-xs text-muted-foreground">{course.country}</div>
                           </div>
                           {course.certification && (
-                            <Certificate className="h-4 w-4 text-primary" title="Certification Available" />
+                            <span title="Certification Available">
+                              <Certificate className="h-4 w-4 text-primary" />
+                            </span>
                           )}
                         </div>
 

@@ -7,40 +7,43 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Icons } from "@/lib/icons"
 import { IEPService } from "@/lib/iep-service"
-import type { Profile, IEPGoal } from "@/lib/types/iep"
+import type { DiagnosisDomain, GeneratedGoal, LearnerProfile } from "@/lib/types/iep"
 import Link from "next/link"
+
+type LearnerDraft = Pick<LearnerProfile, "name" | "age" | "gender" | "country" | "diagnosis_domains">
 
 export default function GenerateIEPPage() {
   const [step, setStep] = useState<"profile" | "domains" | "goals" | "review">("profile")
-  const [profile, setProfile] = useState<Partial<Profile>>({
+  const [profile, setProfile] = useState<Partial<LearnerDraft>>({
     name: "",
     age: 0,
     gender: "",
     diagnosis_domains: [],
     country: "",
-    language_preference: "English",
   })
-  const [goals, setGoals] = useState<IEPGoal[]>([])
-  const [customGoals, setCustomGoals] = useState<Partial<IEPGoal>[]>([])
+  const [goals, setGoals] = useState<GeneratedGoal[]>([])
+  const [customGoals, setCustomGoals] = useState<Partial<GeneratedGoal>[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
-  const DIAGNOSIS_OPTIONS = ["ASD", "ADHD", "Dyslexia", "Dyspraxia", "Sensory", "Cognitive"]
+  const DIAGNOSIS_OPTIONS: DiagnosisDomain[] = ["ASD", "ADHD", "Dyslexia", "Dyspraxia", "Sensory", "Cognitive"]
 
   const handleProfileChange = (field: string, value: any) => {
     setProfile((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleDomainToggle = (domain: string) => {
+  const handleDomainToggle = (domain: DiagnosisDomain) => {
     setProfile((prev) => ({
       ...prev,
-      diagnosis_domains: prev.diagnosis_domains?.includes(domain as any)
+      diagnosis_domains: prev.diagnosis_domains?.includes(domain)
         ? prev.diagnosis_domains.filter((d) => d !== domain)
-        : [...(prev.diagnosis_domains || []), domain as any],
+        : [...(prev.diagnosis_domains || []), domain],
     }))
   }
 
   const handleGenerateGoals = () => {
     if (profile.diagnosis_domains && profile.diagnosis_domains.length > 0) {
-      const generatedGoals = IEPService.generateAdaptiveGoals(profile as Profile)
+      const generatedGoals = IEPService.generateAdaptiveGoals(profile as LearnerDraft)
       setGoals(generatedGoals)
       setStep("goals")
     }
@@ -50,12 +53,10 @@ export default function GenerateIEPPage() {
     setCustomGoals((prev) => [
       ...prev,
       {
-        goal_id: `custom_${Date.now()}`,
         domain: "academic",
         goal_description: "",
         target_metric: "",
         timeline: "3 months",
-        status: "ongoing",
         notes: "",
       },
     ])
@@ -73,21 +74,59 @@ export default function GenerateIEPPage() {
     setCustomGoals((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const handleCreateIEP = () => {
-    const allGoals = [...goals, ...(customGoals as IEPGoal[])]
-    const summary = IEPService.generateIEPSummary(profile as Profile, allGoals)
+  const handleCreateIEP = async () => {
+    setIsSubmitting(true)
+    setSubmitError(null)
 
-    // Store IEP data (in real app, would save to database)
-    const iepData = {
-      profile,
-      goals: allGoals,
-      summary,
-      created_date: new Date(),
+    try {
+      const completeCustomGoals = customGoals.filter((g) => g.goal_description) as GeneratedGoal[]
+      const allGoals = [...goals, ...completeCustomGoals]
+      const summary = IEPService.generateIEPSummary(profile as LearnerDraft, allGoals)
+
+      // 1. Create the learner profile
+      const learnerResponse = await fetch("/api/iep/learner", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: profile.name,
+          age: profile.age,
+          gender: profile.gender,
+          country: profile.country,
+          diagnosis_domains: profile.diagnosis_domains || [],
+        }),
+      })
+
+      const learner = await learnerResponse.json()
+
+      if (!learnerResponse.ok) {
+        throw new Error(learner.error || "Failed to create learner profile")
+      }
+
+      // 2. Create the IEP for that learner
+      const iepResponse = await fetch("/api/iep/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          learner_id: learner.id,
+          title: `IEP for ${profile.name}`,
+          description: `Individualized Education Plan for ${profile.name}, generated ${new Date().toLocaleDateString()}`,
+          adaptive_goals: goals,
+          custom_goals: completeCustomGoals,
+          ai_summary: summary,
+        }),
+      })
+
+      const iep = await iepResponse.json()
+
+      if (!iepResponse.ok) {
+        throw new Error(iep.error || "Failed to create IEP")
+      }
+
+      window.location.href = "/iep/dashboard"
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.")
+      setIsSubmitting(false)
     }
-
-    console.log("[v0] IEP Created:", iepData)
-    // Redirect to dashboard or confirmation page
-    window.location.href = "/iep/dashboard"
   }
 
   return (
@@ -212,7 +251,7 @@ export default function GenerateIEPPage() {
                       key={domain}
                       onClick={() => handleDomainToggle(domain)}
                       className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        profile.diagnosis_domains?.includes(domain as any)
+                        profile.diagnosis_domains?.includes(domain)
                           ? "border-[#3C9C87] bg-[#3C9C87]/5"
                           : "border-muted hover:border-[#3C9C87]/50"
                       }`}
@@ -220,12 +259,12 @@ export default function GenerateIEPPage() {
                       <div className="flex items-center gap-3">
                         <div
                           className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                            profile.diagnosis_domains?.includes(domain as any)
+                            profile.diagnosis_domains?.includes(domain)
                               ? "bg-[#3C9C87] border-[#3C9C87]"
                               : "border-muted"
                           }`}
                         >
-                          {profile.diagnosis_domains?.includes(domain as any) && (
+                          {profile.diagnosis_domains?.includes(domain) && (
                             <Icons.Check className="h-3 w-3 text-white" />
                           )}
                         </div>
@@ -271,7 +310,7 @@ export default function GenerateIEPPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {goals.map((goal, index) => (
-                    <div key={goal.goal_id} className="p-4 border rounded-lg space-y-3">
+                    <div key={`${goal.domain}-${index}`} className="p-4 border rounded-lg space-y-3">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
@@ -419,7 +458,10 @@ export default function GenerateIEPPage() {
                   <div>
                     <h3 className="font-semibold mb-2">IEP Summary</h3>
                     <p className="text-sm leading-relaxed">
-                      {IEPService.generateIEPSummary(profile as Profile, [...goals, ...(customGoals as IEPGoal[])])}
+                      {IEPService.generateIEPSummary(profile as LearnerDraft, [
+                        ...goals,
+                        ...(customGoals.filter((g) => g.goal_description) as GeneratedGoal[]),
+                      ])}
                     </p>
                   </div>
 
@@ -431,12 +473,22 @@ export default function GenerateIEPPage() {
                   </div>
                 </div>
 
+                {submitError && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                    {submitError}
+                  </div>
+                )}
+
                 <div className="flex gap-4">
                   <Button variant="outline" onClick={() => setStep("goals")} className="bg-transparent">
                     Back
                   </Button>
-                  <Button onClick={handleCreateIEP} className="bg-[#3C9C87] hover:bg-[#2d7a6a]">
-                    Create IEP
+                  <Button
+                    onClick={handleCreateIEP}
+                    disabled={isSubmitting}
+                    className="bg-[#3C9C87] hover:bg-[#2d7a6a]"
+                  >
+                    {isSubmitting ? "Creating IEP..." : "Create IEP"}
                   </Button>
                 </div>
               </CardContent>

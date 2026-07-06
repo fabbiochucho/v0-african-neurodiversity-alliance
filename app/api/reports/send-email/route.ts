@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { Resend } from "resend"
 
 export async function POST(request: Request) {
   try {
@@ -48,23 +49,27 @@ export async function POST(request: Request) {
 
 async function sendReportEmail(recipientEmail: string, report: any, senderEmail: string): Promise<boolean> {
   try {
-    // This will be replaced with Resend integration
-    console.log(`[v0] Would send email to ${recipientEmail} with report ${report.id}`)
+    const apiKey = process.env.RESEND_API_KEY
 
-    // Placeholder for actual email service integration
-    // const response = await fetch('https://api.resend.com/emails', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify({
-    //     from: 'reports@anda.com',
-    //     to: recipientEmail,
-    //     subject: 'Your ANDA IEP Progress Report',
-    //     html: generateEmailHTML(report)
-    //   })
-    // })
+    if (!apiKey) {
+      console.error("Email send error: RESEND_API_KEY is not configured")
+      return false
+    }
+
+    const resend = new Resend(apiKey)
+
+    const { error } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || "ANDA NeuroCare <reports@anda-neurocare.org>",
+      to: recipientEmail,
+      replyTo: senderEmail || undefined,
+      subject: "ANDA NeuroCare | IEP Progress Report",
+      html: generateEmailHTML(report),
+    })
+
+    if (error) {
+      console.error("Email send error:", error)
+      return false
+    }
 
     return true
   } catch (err) {

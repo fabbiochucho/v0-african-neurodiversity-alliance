@@ -26,7 +26,7 @@ export async function GET(request: Request, { params }: { params: { reportId: st
       .eq("id", data.learner_id)
       .single()
 
-    if (learner.user_id !== user.id && data.generated_by !== user.id) {
+    if (!learner || (learner.user_id !== user.id && data.generated_by !== user.id)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
