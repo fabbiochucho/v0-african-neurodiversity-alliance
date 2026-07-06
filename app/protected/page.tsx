@@ -48,6 +48,14 @@ export default async function ProtectedPage() {
               <h3 className="font-semibold text-foreground">Track Progress</h3>
               <p className="text-sm text-muted-foreground">Log and view progress</p>
             </Link>
+
+            <Link
+              href="/settings/connections"
+              className="p-6 bg-card border border-border rounded-lg hover:border-[#3C9C87] transition space-y-2"
+            >
+              <h3 className="font-semibold text-foreground">Connected Accounts</h3>
+              <p className="text-sm text-muted-foreground">Link your Neu Rafiki account</p>
+            </Link>
           </div>
 
           <form
