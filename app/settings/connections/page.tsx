@@ -128,7 +128,7 @@ export default function ConnectionsSettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Your Connections</CardTitle>
-              <CardDescription>Accounts you've linked from other apps in the ANDA network.</CardDescription>
+              <CardDescription>Accounts you&apos;ve linked from other apps in the ANDA network.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {loading ? (

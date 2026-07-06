@@ -383,8 +383,8 @@ export default function AdvocacyPage() {
                         <div className="flex items-center justify-between pt-2 border-t">
                           <div className="text-sm text-muted-foreground">{campaign.updates} updates</div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="ghost">
-                              <Share2 className="h-4 w-4" />
+                            <Button size="sm" variant="ghost" aria-label="Share campaign">
+                              <Share2 className="h-4 w-4" aria-hidden="true" />
                             </Button>
                             <Button size="sm">Join Campaign</Button>
                           </div>
@@ -401,7 +401,7 @@ export default function AdvocacyPage() {
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold mb-4">Policy Focus Areas</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Key areas where we're working to create systemic change
+                  Key areas where we&apos;re working to create systemic change
                 </p>
               </div>
 

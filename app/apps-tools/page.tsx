@@ -427,11 +427,11 @@ export default function AppsToolsPage() {
                         <div className="flex items-center justify-between pt-2 border-t">
                           <div className="text-lg font-bold text-primary">{app.price}</div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline">
-                              <Heart className="h-4 w-4" />
+                            <Button size="sm" variant="outline" aria-label="Save to favorites">
+                              <Heart className="h-4 w-4" aria-hidden="true" />
                             </Button>
                             <Button size="sm">
-                              <ExternalLink className="h-4 w-4 mr-2" />
+                              <ExternalLink className="h-4 w-4 mr-2" aria-hidden="true" />
                               View
                             </Button>
                           </div>
@@ -552,7 +552,9 @@ export default function AppsToolsPage() {
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-primary to-secondary text-primary-foreground">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">Can't Find What You're Looking For?</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">
+            Can&apos;t Find What You&apos;re Looking For?
+          </h2>
           <p className="text-xl opacity-90 text-pretty mb-8 max-w-2xl mx-auto">
             Submit a request for app reviews or suggest tools that have helped you or your family.
           </p>

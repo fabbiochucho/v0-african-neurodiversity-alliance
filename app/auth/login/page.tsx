@@ -111,7 +111,7 @@ function LoginForm() {
             <div className="w-full border-t border-input"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-background text-muted-foreground">Don't have an account?</span>
+            <span className="px-2 bg-background text-muted-foreground">Don&apos;t have an account?</span>
           </div>
         </div>
 

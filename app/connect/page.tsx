@@ -14,7 +14,7 @@ function ConnectErrorCard({ message }: { message: string }) {
         <div className="max-w-lg mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle>Can't connect account</CardTitle>
+              <CardTitle>Can&apos;t connect account</CardTitle>
               <CardDescription>{message}</CardDescription>
             </CardHeader>
           </Card>

@@ -16,13 +16,13 @@ export default function SignUpSuccessPage() {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-foreground">Check Your Email</h1>
           <p className="text-muted-foreground">
-            We've sent a confirmation link to your email address. Please click the link to verify your account.
+            We&apos;ve sent a confirmation link to your email address. Please click the link to verify your account.
           </p>
         </div>
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-blue-700">
-            <strong>Didn't receive an email?</strong> Check your spam folder or contact our support team.
+            <strong>Didn&apos;t receive an email?</strong> Check your spam folder or contact our support team.
           </p>
         </div>
 

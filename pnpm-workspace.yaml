@@ -1,2 +1,7 @@
 allowBuilds:
   '@tailwindcss/oxide': true
+  # unrs-resolver: native binding used by eslint-plugin-import (a transitive
+  # dependency of eslint-config-next) to resolve TypeScript path aliases when
+  # linting. Well-known package from the same maintainers as
+  # eslint-import-resolver-typescript; devDependency-only, build-time only.
+  unrs-resolver: true

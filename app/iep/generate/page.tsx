@@ -231,15 +231,20 @@ export default function GenerateIEPPage() {
             </Link>
             <h1 className="text-4xl font-bold text-balance mb-4">Generate Personalized IEP</h1>
             <p className="text-xl text-muted-foreground">
-              Create an adaptive Individualized Education Plan tailored to your learner's needs.
+              Create an adaptive Individualized Education Plan tailored to your learner&apos;s needs.
             </p>
           </div>
 
           {/* Progress Steps */}
-          <div className="flex gap-2 mb-12 overflow-x-auto pb-2">
+          <nav aria-label="Form progress" className="flex gap-2 mb-12 overflow-x-auto pb-2">
             {["profile", "domains", "goals", "review"].map((s, i) => (
-              <div key={s} className="flex items-center gap-2 flex-shrink-0">
+              <div
+                key={s}
+                className="flex items-center gap-2 flex-shrink-0"
+                aria-current={step === s ? "step" : undefined}
+              >
                 <div
+                  aria-hidden="true"
                   className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
                     step === s
                       ? "bg-[#3C9C87] text-white"
@@ -251,11 +256,14 @@ export default function GenerateIEPPage() {
                 >
                   {i + 1}
                 </div>
-                <span className="text-sm font-medium capitalize hidden sm:inline">{s}</span>
-                {i < 3 && <div className="w-8 h-0.5 bg-muted hidden sm:block" />}
+                <span className="text-sm font-medium capitalize hidden sm:inline">
+                  {s}
+                  {step === s && <span className="sr-only"> (current step)</span>}
+                </span>
+                {i < 3 && <div className="w-8 h-0.5 bg-muted hidden sm:block" aria-hidden="true" />}
               </div>
             ))}
-          </div>
+          </nav>
 
           {/* Step 1: Profile Information */}
           {step === "profile" && (
@@ -267,9 +275,14 @@ export default function GenerateIEPPage() {
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Learner Name</label>
+                    <label htmlFor="learner-name" className="block text-sm font-medium mb-2">
+                      Learner Name
+                    </label>
                     <input
+                      id="learner-name"
                       type="text"
+                      required
+                      aria-required="true"
                       value={profile.name || ""}
                       onChange={(e) => handleProfileChange("name", e.target.value)}
                       placeholder="Enter learner's name"
@@ -277,9 +290,14 @@ export default function GenerateIEPPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Age</label>
+                    <label htmlFor="learner-age" className="block text-sm font-medium mb-2">
+                      Age
+                    </label>
                     <input
+                      id="learner-age"
                       type="number"
+                      required
+                      aria-required="true"
                       value={profile.age || ""}
                       onChange={(e) => handleProfileChange("age", Number.parseInt(e.target.value))}
                       placeholder="Enter age"
@@ -287,8 +305,11 @@ export default function GenerateIEPPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Gender</label>
+                    <label htmlFor="learner-gender" className="block text-sm font-medium mb-2">
+                      Gender
+                    </label>
                     <select
+                      id="learner-gender"
                       value={profile.gender || ""}
                       onChange={(e) => handleProfileChange("gender", e.target.value)}
                       className="w-full px-3 py-2 border rounded-lg bg-background"
@@ -301,9 +322,14 @@ export default function GenerateIEPPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Country</label>
+                    <label htmlFor="learner-country" className="block text-sm font-medium mb-2">
+                      Country
+                    </label>
                     <input
+                      id="learner-country"
                       type="text"
+                      required
+                      aria-required="true"
                       value={profile.country || ""}
                       onChange={(e) => handleProfileChange("country", e.target.value)}
                       placeholder="Enter country"
@@ -338,12 +364,18 @@ export default function GenerateIEPPage() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {importError && (
-                      <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                      <div
+                        role="alert"
+                        className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700"
+                      >
                         {importError}
                       </div>
                     )}
                     {importedCount !== null && (
-                      <div className="p-3 bg-[#3C9C87]/10 border border-[#3C9C87]/30 rounded-lg text-sm text-[#2d7a6a]">
+                      <div
+                        role="status"
+                        className="p-3 bg-[#3C9C87]/10 border border-[#3C9C87]/30 rounded-lg text-sm text-[#2d7a6a]"
+                      >
                         Imported {importedCount} domain{importedCount === 1 ? "" : "s"} from your Neu Rafiki
                         assessment.
                       </div>
@@ -367,27 +399,30 @@ export default function GenerateIEPPage() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {DIAGNOSIS_OPTIONS.map((domain) => (
-                    <div
+                  {DIAGNOSIS_OPTIONS.map((domain) => {
+                    const selected = profile.diagnosis_domains?.includes(domain)
+                    return (
+                    <button
                       key={domain}
+                      type="button"
                       onClick={() => handleDomainToggle(domain)}
-                      className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        profile.diagnosis_domains?.includes(domain)
+                      aria-pressed={selected}
+                      className={`w-full text-left p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                        selected
                           ? "border-[#3C9C87] bg-[#3C9C87]/5"
                           : "border-muted hover:border-[#3C9C87]/50"
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <div
+                          aria-hidden="true"
                           className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                            profile.diagnosis_domains?.includes(domain)
+                            selected
                               ? "bg-[#3C9C87] border-[#3C9C87]"
                               : "border-muted"
                           }`}
                         >
-                          {profile.diagnosis_domains?.includes(domain) && (
-                            <Icons.Check className="h-3 w-3 text-white" />
-                          )}
+                          {selected && <Icons.Check className="h-3 w-3 text-white" />}
                         </div>
                         <div>
                           <div className="font-semibold">{domain}</div>
@@ -401,8 +436,9 @@ export default function GenerateIEPPage() {
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    </button>
+                    )
+                  })}
                 </div>
 
                 <div className="flex gap-4 pt-6">
@@ -453,15 +489,18 @@ export default function GenerateIEPPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Add Custom Goals</CardTitle>
-                  <CardDescription>Add additional goals specific to this learner's needs</CardDescription>
+                  <CardDescription>Add additional goals specific to this learner&apos;s needs</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {customGoals.map((goal, index) => (
                     <div key={index} className="p-4 border rounded-lg space-y-3">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium mb-2">Domain</label>
+                          <label htmlFor={`custom-goal-domain-${index}`} className="block text-sm font-medium mb-2">
+                            Domain
+                          </label>
                           <select
+                            id={`custom-goal-domain-${index}`}
                             value={goal.domain || ""}
                             onChange={(e) => handleCustomGoalChange(index, "domain", e.target.value)}
                             className="w-full px-3 py-2 border rounded-lg bg-background"
@@ -476,8 +515,11 @@ export default function GenerateIEPPage() {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium mb-2">Timeline</label>
+                          <label htmlFor={`custom-goal-timeline-${index}`} className="block text-sm font-medium mb-2">
+                            Timeline
+                          </label>
                           <input
+                            id={`custom-goal-timeline-${index}`}
                             type="text"
                             value={goal.timeline || ""}
                             onChange={(e) => handleCustomGoalChange(index, "timeline", e.target.value)}
@@ -487,8 +529,11 @@ export default function GenerateIEPPage() {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-2">Goal Description</label>
+                        <label htmlFor={`custom-goal-description-${index}`} className="block text-sm font-medium mb-2">
+                          Goal Description
+                        </label>
                         <textarea
+                          id={`custom-goal-description-${index}`}
                           value={goal.goal_description || ""}
                           onChange={(e) => handleCustomGoalChange(index, "goal_description", e.target.value)}
                           placeholder="Describe the goal"
@@ -497,8 +542,11 @@ export default function GenerateIEPPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-2">Target Metric</label>
+                        <label htmlFor={`custom-goal-metric-${index}`} className="block text-sm font-medium mb-2">
+                          Target Metric
+                        </label>
                         <input
+                          id={`custom-goal-metric-${index}`}
                           type="text"
                           value={goal.target_metric || ""}
                           onChange={(e) => handleCustomGoalChange(index, "target_metric", e.target.value)}
@@ -596,7 +644,7 @@ export default function GenerateIEPPage() {
                 </div>
 
                 {submitError && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                  <div role="alert" className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
                     {submitError}
                   </div>
                 )}

@@ -351,7 +351,7 @@ export default function DirectoryPage() {
         {/* Add Resource CTA */}
         <Card className="bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
           <CardContent className="p-8 text-center">
-            <h3 className="text-xl font-semibold mb-2">Can't find what you're looking for?</h3>
+            <h3 className="text-xl font-semibold mb-2">Can&apos;t find what you&apos;re looking for?</h3>
             <p className="text-muted-foreground mb-4">Help us grow our directory by adding resources in your area</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button>Add a Resource</Button>

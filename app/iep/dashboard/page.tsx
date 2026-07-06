@@ -52,7 +52,7 @@ export default async function IEPDashboardPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
             <div>
               <h1 className="text-4xl font-bold text-balance mb-2">IEP Dashboard</h1>
-              <p className="text-muted-foreground">Manage every Individualized Education Plan you've created.</p>
+              <p className="text-muted-foreground">Manage every Individualized Education Plan you&apos;ve created.</p>
             </div>
             <Button asChild className="bg-[#3C9C87] hover:bg-[#2d7a6a]">
               <Link href="/iep/generate">

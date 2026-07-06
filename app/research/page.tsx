@@ -491,14 +491,14 @@ export default function ResearchPage() {
                         <div className="flex items-center justify-between pt-4 border-t">
                           <div className="text-xs text-muted-foreground">DOI: {study.doi}</div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="ghost">
-                              <Heart className="h-4 w-4" />
+                            <Button size="sm" variant="ghost" aria-label="Save this study">
+                              <Heart className="h-4 w-4" aria-hidden="true" />
                             </Button>
-                            <Button size="sm" variant="ghost">
-                              <Share2 className="h-4 w-4" />
+                            <Button size="sm" variant="ghost" aria-label="Share this study">
+                              <Share2 className="h-4 w-4" aria-hidden="true" />
                             </Button>
                             <Button size="sm" variant="outline">
-                              <Eye className="h-4 w-4 mr-2" />
+                              <Eye className="h-4 w-4 mr-2" aria-hidden="true" />
                               View
                             </Button>
                             <Button size="sm">

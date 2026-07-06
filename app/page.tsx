@@ -272,7 +272,8 @@ export default function HomePage() {
             Join the Movement for Neurodiversity in Africa
           </h2>
           <p className="text-xl opacity-90 text-pretty mb-8 max-w-2xl mx-auto">
-            Whether you're neurodivergent, a caregiver, educator, or advocate, there's a place for you in our community.
+            Whether you&apos;re neurodivergent, a caregiver, educator, or advocate, there&apos;s a place for you in our
+            community.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" asChild className="text-lg px-8 py-6">

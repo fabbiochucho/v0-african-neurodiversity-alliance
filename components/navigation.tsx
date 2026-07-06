@@ -27,7 +27,7 @@ export function Navigation() {
 
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center text-foreground hover:text-primary transition-colors">
-                Resources <Icons.ChevronDown className="ml-1 h-4 w-4" />
+                Resources <Icons.ChevronDown className="ml-1 h-4 w-4" aria-hidden="true" />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem asChild>
@@ -74,15 +74,26 @@ export function Navigation() {
 
           {/* Mobile menu button */}
           <div className="md:hidden">
-            <Button variant="ghost" size="sm" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle menu">
-              {isOpen ? <Icons.X className="h-6 w-6" /> : <Icons.Menu className="h-6 w-6" />}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label={isOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isOpen}
+              aria-controls="mobile-nav-menu"
+            >
+              {isOpen ? (
+                <Icons.X className="h-6 w-6" aria-hidden="true" />
+              ) : (
+                <Icons.Menu className="h-6 w-6" aria-hidden="true" />
+              )}
             </Button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden">
+          <div className="md:hidden" id="mobile-nav-menu">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t">
               <Link
                 href="/about"

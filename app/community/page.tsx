@@ -351,11 +351,11 @@ export default function CommunityPage() {
                                 </div>
                               </div>
                               <div className="flex gap-2">
-                                <Button size="sm" variant="ghost">
-                                  <ThumbsUp className="h-4 w-4" />
+                                <Button size="sm" variant="ghost" aria-label="Like this post">
+                                  <ThumbsUp className="h-4 w-4" aria-hidden="true" />
                                 </Button>
-                                <Button size="sm" variant="ghost">
-                                  <Flag className="h-4 w-4" />
+                                <Button size="sm" variant="ghost" aria-label="Report this post">
+                                  <Flag className="h-4 w-4" aria-hidden="true" />
                                 </Button>
                               </div>
                             </div>
