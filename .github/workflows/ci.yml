@@ -6,36 +6,40 @@ on:
     branches: [main]
 
 # NOTE: Playwright/e2e specs (pnpm test:e2e, see playwright.config.ts) are
-# intentionally NOT run here. Those tests hit a live Supabase project with
-# seeded fixture data, and this repo has no Supabase project/secrets wired
-# up in CI yet. Run them locally against a real project until that's set up.
+# intentionally NOT run here. Those tests need seeded fixture data and a
+# disposable test account, which this repo's real (production) credentials
+# below aren't set up for. Run them locally until a dedicated staging
+# project/fixtures exist.
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    # These are placeholder values only, sufficient to satisfy build-time
-    # env-var presence checks (e.g. lib/supabase/client.ts's non-null
-    # assertions, and static prerendering of pages that read
-    # process.env.NEXT_PUBLIC_* at build time). None of these are real
-    # credentials — do not replace them with real secrets here; wire real
-    # secrets through GitHub Environments/Secrets if this workflow ever needs
-    # to talk to a live backend.
+    # Real credentials, pulled from this repo's GitHub Actions secrets
+    # (Settings > Secrets and variables > Actions). These are the actual
+    # production Supabase project, Flutterwave, Resend, and federation
+    # values — CI only runs typecheck/build/unit tests against them (no e2e,
+    # no live network calls), but treat this workflow file with the same
+    # care as production config since real secrets flow through it.
     env:
-      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
-      SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
-      FLUTTERWAVE_SECRET_KEY: placeholder-flutterwave-secret
-      FLUTTERWAVE_SECRET_HASH: placeholder-flutterwave-hash
-      NEXT_PUBLIC_APP_URL: http://localhost:3000
-      RESEND_API_KEY: placeholder-resend-key
-      RESEND_FROM_EMAIL: no-reply@example.com
-      # Phase 1 cross-app federation placeholders (see lib/federation/).
-      # Federation is opt-in and gated on NEXT_PUBLIC_NEURAFIKI_APP_URL being
-      # set; the values below are dummy PEM-shaped strings, not real keys.
-      NEXT_PUBLIC_NEURAFIKI_APP_URL: https://neurafiki.example.com
-      FEDERATION_PRIVATE_KEY: "-----BEGIN PRIVATE KEY-----\nplaceholder\n-----END PRIVATE KEY-----\n"
-      FEDERATION_NEURAFIKI_PUBLIC_KEY: "-----BEGIN PUBLIC KEY-----\nplaceholder\n-----END PUBLIC KEY-----\n"
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      FLUTTERWAVE_SECRET_KEY: ${{ secrets.FLUTTERWAVE_SECRET_KEY }}
+      FLUTTERWAVE_SECRET_HASH: ${{ secrets.FLUTTERWAVE_SECRET_HASH }}
+      NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+      # Phase 1 cross-app federation (see lib/federation/). Federation is
+      # opt-in and gated on NEXT_PUBLIC_NEURAFIKI_APP_URL being set. The
+      # federation keypair here is a CI-only pair, deliberately separate
+      # from the real production keypair in Vercel, to limit blast radius
+      # if these CI secrets ever leak — CI never performs a real handshake,
+      # it only needs *a* validly-shaped key pair to satisfy build-time
+      # parsing.
+      NEXT_PUBLIC_NEURAFIKI_APP_URL: ${{ secrets.NEXT_PUBLIC_NEURAFIKI_APP_URL }}
+      FEDERATION_PRIVATE_KEY: ${{ secrets.FEDERATION_PRIVATE_KEY }}
+      FEDERATION_NEURAFIKI_PUBLIC_KEY: ${{ secrets.FEDERATION_NEURAFIKI_PUBLIC_KEY }}
 
     steps:
       - name: Checkout
