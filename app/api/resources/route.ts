@@ -5,6 +5,12 @@ import { createClient } from "@/lib/supabase/server"
 // check — directory data isn't personal, and RLS (resources_select_published)
 // already restricts every caller (signed in or not) to published rows only.
 // This is the read surface Neu Rafiki uses to show Alliance's directory.
+//
+// Cached for an hour: this data is admin-managed and changes rarely, and
+// this route was measured hitting the database on every single request with
+// no caching at all (consistently the slowest endpoint on the site).
+export const revalidate = 3600
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
