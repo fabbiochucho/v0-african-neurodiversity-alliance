@@ -40,7 +40,18 @@ export async function GET(request: Request) {
 
     const resources = await getCachedResources(country, category)
 
-    return NextResponse.json({ resources })
+    // unstable_cache avoids re-querying Supabase on a cache hit, but the HTTP
+    // response itself still needs an explicit Cache-Control header for
+    // Vercel's edge network to actually serve repeat requests without
+    // invoking this function at all (confirmed via X-Vercel-Cache: MISS on
+    // every request before this was added). s-maxage is what Vercel's CDN
+    // honors; stale-while-revalidate lets it keep serving the last-known-good
+    // response instantly while refreshing in the background after expiry,
+    // so a cache refresh never blocks a real visitor.
+    return NextResponse.json(
+      { resources },
+      { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } },
+    )
   } catch (err) {
     console.error(err)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
