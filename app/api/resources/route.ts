@@ -1,15 +1,36 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { unstable_cache } from "next/cache"
+import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 
 // Public, unauthenticated resource directory feed. Intentionally has no auth
 // check — directory data isn't personal, and RLS (resources_select_published)
 // already restricts every caller (signed in or not) to published rows only.
 // This is the read surface Neu Rafiki uses to show Alliance's directory.
 //
-// Cached for an hour: this data is admin-managed and changes rarely, and
-// this route was measured hitting the database on every single request with
-// no caching at all (consistently the slowest endpoint on the site).
-export const revalidate = 3600
+// This route was measured hitting the database on every single request
+// despite an `export const revalidate` — that export is silently ignored
+// because lib/supabase/server.ts's createClient() calls cookies() (a
+// dynamic API), which forces the whole route into fully dynamic rendering
+// regardless of the revalidate value. This route never needs cookies/auth
+// state at all (access control is entirely via RLS), so it uses a plain
+// anon-key client instead, and wraps the actual query in unstable_cache so
+// the underlying data fetch — not just the route shell — is genuinely
+// cached for an hour per filter combination.
+const getCachedResources = unstable_cache(
+  async (country: string | null, category: string | null) => {
+    const supabase = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+
+    let query = supabase.from("resources").select("*").eq("is_published", true)
+    if (country) query = query.eq("country", country)
+    if (category) query = query.eq("category", category)
+
+    const { data, error } = await query.order("rating", { ascending: false })
+    if (error) throw new Error(error.message)
+    return data ?? []
+  },
+  ["public-resources"],
+  { revalidate: 3600 },
+)
 
 export async function GET(request: Request) {
   try {
@@ -17,20 +38,9 @@ export async function GET(request: Request) {
     const country = searchParams.get("country")
     const category = searchParams.get("category")
 
-    const supabase = await createClient()
+    const resources = await getCachedResources(country, category)
 
-    let query = supabase.from("resources").select("*").eq("is_published", true)
-
-    if (country) query = query.eq("country", country)
-    if (category) query = query.eq("category", category)
-
-    const { data, error } = await query.order("rating", { ascending: false })
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
-    }
-
-    return NextResponse.json({ resources: data ?? [] })
+    return NextResponse.json({ resources })
   } catch (err) {
     console.error(err)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
