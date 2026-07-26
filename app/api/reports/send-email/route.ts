@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
+import { generateEmailHTML } from "@/lib/reports-service"
+import type { Report } from "@/lib/types/iep"
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
 
@@ -47,7 +49,7 @@ export async function POST(request: Request) {
   }
 }
 
-async function sendReportEmail(recipientEmail: string, report: any, senderEmail: string): Promise<boolean> {
+async function sendReportEmail(recipientEmail: string, report: Report, senderEmail: string): Promise<boolean> {
   try {
     const apiKey = process.env.RESEND_API_KEY
 
@@ -76,38 +78,4 @@ async function sendReportEmail(recipientEmail: string, report: any, senderEmail:
     console.error("Email send error:", err)
     return false
   }
-}
-
-function generateEmailHTML(report: any): string {
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #3C9C87 0%, #0081A7 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; }
-        .content { margin: 20px 0; }
-        .footer { border-top: 1px solid #ddd; padding-top: 20px; margin-top: 20px; text-align: center; font-size: 12px; color: #999; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1>ANDA NeuroCare</h1>
-          <p>Progress Report</p>
-        </div>
-        <div class="content">
-          <p>Dear Recipient,</p>
-          <p>Please find your ANDA IEP progress report below:</p>
-          <pre>${report.content}</pre>
-          <p>Best regards,<br>The ANDA Team</p>
-        </div>
-        <div class="footer">
-          <p>&copy; 2025 African Neurodiversity Alliance. All rights reserved.</p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `
 }
