@@ -206,7 +206,7 @@ Every push to `main` branch automatically:
 Once deployed, monitor these endpoints:
 
 - Homepage: `https://anda-platform.vercel.app/`
-- API Health: `https://anda-platform.vercel.app/api/health` (if implemented)
+- API Health: `https://anda-platform.vercel.app/api/health`
 - Auth: `https://anda-platform.vercel.app/auth/login`
 - IEP: `https://anda-platform.vercel.app/iep`
 
