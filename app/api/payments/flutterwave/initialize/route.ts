@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
+import { dbErrorResponse } from "@/lib/api-error"
 import { createServiceClient } from "@/lib/supabase/service"
 import { initializeFlutterwavePayment } from "@/lib/payments/flutterwave"
+import { SUBSCRIPTION_TIERS } from "@/lib/constants/iep"
 import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
@@ -15,11 +17,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { tier, amount, currency = "USD" } = await request.json()
+    const { tier } = await request.json()
 
-    if (!tier || !amount) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    const plan = tier && Object.prototype.hasOwnProperty.call(SUBSCRIPTION_TIERS, tier)
+      ? SUBSCRIPTION_TIERS[tier as keyof typeof SUBSCRIPTION_TIERS]
+      : null
+
+    if (!plan || !plan.price) {
+      return NextResponse.json({ error: "Invalid subscription tier" }, { status: 400 })
     }
+
+    const amount = plan.price
+    const currency = "USD"
 
     // Get user profile for email/name
     const { data: profile } = await supabase
@@ -43,7 +52,7 @@ export async function POST(request: Request) {
       .single()
 
     if (subError) {
-      return NextResponse.json({ error: subError.message }, { status: 400 })
+      return dbErrorResponse(subError)
     }
 
     // payment_transactions has no anon/user insert policy by design — write
@@ -60,7 +69,7 @@ export async function POST(request: Request) {
     })
 
     if (txError) {
-      return NextResponse.json({ error: txError.message }, { status: 400 })
+      return dbErrorResponse(txError)
     }
 
     const result = await initializeFlutterwavePayment({

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { transactionMatchesRecord } from "@/lib/payments/flutterwave"
+import { signatureMatches, transactionMatchesRecord } from "@/lib/payments/flutterwave"
 
 describe("transactionMatchesRecord", () => {
   const recorded = { tx_ref: "ANDA-SUB-123", amount: 9.99, currency: "USD" }
@@ -36,5 +36,29 @@ describe("transactionMatchesRecord", () => {
     expect(
       transactionMatchesRecord({ txRef: "ANDA-SUB-123", amount: 9.99, currency: "USD" }, { ...recorded, tx_ref: "" }),
     ).toBe(false)
+  })
+
+  it("rejects a NaN verified amount instead of silently passing", () => {
+    expect(transactionMatchesRecord({ txRef: "ANDA-SUB-123", amount: Number.NaN, currency: "USD" }, recorded)).toBe(
+      false,
+    )
+  })
+})
+
+describe("signatureMatches", () => {
+  it("accepts an identical signature", () => {
+    expect(signatureMatches("secret-hash-value", "secret-hash-value")).toBe(true)
+  })
+
+  it("rejects a different signature of the same length", () => {
+    expect(signatureMatches("secret-hash-valuf", "secret-hash-value")).toBe(false)
+  })
+
+  it("rejects a signature of a different length", () => {
+    expect(signatureMatches("short", "secret-hash-value")).toBe(false)
+  })
+
+  it("rejects an empty signature", () => {
+    expect(signatureMatches("", "secret-hash-value")).toBe(false)
   })
 })

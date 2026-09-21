@@ -1,5 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/service"
-import { transactionMatchesRecord, verifyFlutterwaveTransaction } from "@/lib/payments/flutterwave"
+import { finalizeSuccessfulPayment, transactionMatchesRecord, verifyFlutterwaveTransaction } from "@/lib/payments/flutterwave"
 import { redirect } from "next/navigation"
 
 export const dynamic = "force-dynamic"
@@ -66,25 +66,11 @@ export async function GET(request: Request) {
   }
 
   // Only mark paid once verified + matched.
-  await service
-    .from("payment_transactions")
-    .update({ status: "successful", flutterwave_transaction_id: transactionId })
-    .eq("id", recordedTx.id)
+  await finalizeSuccessfulPayment(service, recordedTx, transactionId)
 
-  if (recordedTx.purpose === "subscription" && recordedTx.subscription_id) {
-    await service
-      .from("subscriptions")
-      .update({
-        status: "active",
-        flutterwave_ref: transactionId,
-        amount_paid: recordedTx.amount,
-        payment_date: new Date().toISOString(),
-        renewal_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      })
-      .eq("id", recordedTx.subscription_id)
-
-    redirect("/iep/settings/subscription?success=payment_completed")
-  }
-
-  redirect("/donate?success=thank_you")
+  redirect(
+    recordedTx.purpose === "subscription"
+      ? "/iep/settings/subscription?success=payment_completed"
+      : "/donate?success=thank_you",
+  )
 }

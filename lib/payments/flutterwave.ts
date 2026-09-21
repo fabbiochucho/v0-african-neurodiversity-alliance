@@ -2,7 +2,22 @@
 // logic used to reconcile a verified transaction against our own
 // server-recorded payment_transactions row.
 
+import type { createServiceClient } from "@/lib/supabase/service"
+import { timingSafeEqual } from "node:crypto"
+
 const FLUTTERWAVE_BASE_URL = "https://api.flutterwave.com/v3"
+
+/**
+ * Constant-time comparison for the Flutterwave webhook's `verif-hash`
+ * header against FLUTTERWAVE_SECRET_HASH — a plain `!==` would leak a
+ * timing side-channel an attacker could use to probe the secret byte by
+ * byte.
+ */
+export function signatureMatches(signature: string, secretHash: string): boolean {
+  const a = new Uint8Array(Buffer.from(signature))
+  const b = new Uint8Array(Buffer.from(secretHash))
+  return a.length === b.length && timingSafeEqual(a, b)
+}
 
 export interface InitializePaymentPayload {
   tx_ref: string
@@ -127,13 +142,58 @@ export function transactionMatchesRecord(verified: VerifiedTransaction, recorded
   }
 
   if (recorded.amount != null) {
-    if (verified.amount == null || Math.abs(verified.amount - recorded.amount) > 0.01) {
+    if (typeof verified.amount !== "number" || !Number.isFinite(verified.amount)) {
+      return false
+    }
+    if (Math.abs(verified.amount - recorded.amount) > 0.01) {
       return false
     }
   }
 
-  if (recorded.currency && verified.currency && verified.currency.toUpperCase() !== recorded.currency.toUpperCase()) {
+  if (recorded.currency) {
+    if (!verified.currency || verified.currency.toUpperCase() !== recorded.currency.toUpperCase()) {
+      return false
+    }
+  }
+
+  return true
+}
+
+/**
+ * Shared success path for both the webhook and the /verify redirect: flips
+ * a payment_transactions row from pending -> successful (only if it's still
+ * pending — a racing/retried caller that finds it already finalized must
+ * not re-run this) and, for a subscription purchase, activates the
+ * subscription. Returns whether this call was the one that finalized it.
+ */
+export async function finalizeSuccessfulPayment(
+  service: ReturnType<typeof createServiceClient>,
+  recordedTx: { id: string; purpose: string | null; subscription_id: string | null; amount: number | null },
+  flutterwaveTransactionId: string,
+): Promise<boolean> {
+  const { data: finalized } = await service
+    .from("payment_transactions")
+    .update({ status: "successful", flutterwave_transaction_id: flutterwaveTransactionId })
+    .eq("id", recordedTx.id)
+    .eq("status", "pending")
+    .select()
+    .maybeSingle()
+
+  if (!finalized) {
     return false
+  }
+
+  if (recordedTx.purpose === "subscription" && recordedTx.subscription_id) {
+    await service
+      .from("subscriptions")
+      .update({
+        status: "active",
+        flutterwave_ref: flutterwaveTransactionId,
+        amount_paid: recordedTx.amount,
+        payment_date: new Date().toISOString(),
+        renewal_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      })
+      .eq("id", recordedTx.subscription_id)
   }
 
   return true

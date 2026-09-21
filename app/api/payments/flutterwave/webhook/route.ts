@@ -1,5 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/service"
-import { transactionMatchesRecord } from "@/lib/payments/flutterwave"
+import { finalizeSuccessfulPayment, signatureMatches, transactionMatchesRecord } from "@/lib/payments/flutterwave"
 import { NextResponse } from "next/server"
 
 // POST /api/payments/flutterwave/webhook
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     const secretHash = process.env.FLUTTERWAVE_SECRET_HASH
     const signature = request.headers.get("verif-hash")
 
-    if (!secretHash || !signature || signature !== secretHash) {
+    if (!secretHash || !signature || !signatureMatches(signature, secretHash)) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 })
     }
 
@@ -54,23 +54,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true, matched: false })
     }
 
-    await service
-      .from("payment_transactions")
-      .update({ status: "successful", flutterwave_transaction_id: String(data.id) })
-      .eq("id", recordedTx.id)
-
-    if (recordedTx.purpose === "subscription" && recordedTx.subscription_id) {
-      await service
-        .from("subscriptions")
-        .update({
-          status: "active",
-          flutterwave_ref: String(data.id),
-          amount_paid: recordedTx.amount,
-          payment_date: new Date().toISOString(),
-          renewal_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        })
-        .eq("id", recordedTx.subscription_id)
-    }
+    await finalizeSuccessfulPayment(service, recordedTx, String(data.id))
 
     return NextResponse.json({ received: true, matched: true })
   } catch (err) {
