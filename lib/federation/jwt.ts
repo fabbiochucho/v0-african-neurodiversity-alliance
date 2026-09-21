@@ -19,7 +19,7 @@ export interface LinkTokenPayload {
   iss: "alliance" | "neurafiki"
   sub: string // issuing app's local user id (uuid)
   email: string // issuing user's email — shown on the consent screen so the user can confirm it's them
-  scopes: string[] // e.g. ["assessment_sync", "directory_read"]
+  scopes: string[] // e.g. ["assessment_sync"]
 }
 
 export async function signLinkToken(payload: LinkTokenPayload): Promise<string> {

@@ -20,9 +20,14 @@ export const SIBLING_APP_ID = "neurafiki" as const
 
 // Human-readable descriptions shown on the /connect consent screen and the
 // settings/connections page for each federation scope.
+//
+// directory_read intentionally isn't a scope here: Alliance's resource
+// directory (GET /api/resources) is already fully public with no auth
+// check, so a "scope" gating it would control nothing real -- it would just
+// mislead users into thinking they're authorizing access to something that
+// was never access-controlled in the first place.
 const SCOPE_DESCRIPTIONS: Record<string, string> = {
   assessment_sync: "Import your completed Neu Rafiki assessment results into your Alliance IEP profile",
-  directory_read: "Let Neu Rafiki read Alliance's public resource directory on your behalf",
 }
 
 export function describeScope(scope: string): string {

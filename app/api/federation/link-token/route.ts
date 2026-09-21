@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
     const body = await request.json().catch(() => ({}))
     const requestedScopes = Array.isArray(body?.scopes) ? body.scopes.filter((s: unknown) => typeof s === "string") : []
-    const scopes = requestedScopes.length > 0 ? requestedScopes : ["assessment_sync", "directory_read"]
+    const scopes = requestedScopes.length > 0 ? requestedScopes : ["assessment_sync"]
 
     const token = await signLinkToken({
       iss: THIS_APP_ID,

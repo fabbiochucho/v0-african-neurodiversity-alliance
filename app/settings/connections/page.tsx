@@ -71,7 +71,7 @@ export default function ConnectionsSettingsPage() {
       const res = await fetch("/api/federation/link-token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scopes: ["assessment_sync", "directory_read"] }),
+        body: JSON.stringify({ scopes: ["assessment_sync"] }),
       })
 
       const data = await res.json()
