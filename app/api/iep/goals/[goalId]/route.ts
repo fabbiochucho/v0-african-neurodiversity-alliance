@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { dbErrorResponse } from "@/lib/api-error"
 import { NextResponse } from "next/server"
 
 export async function PUT(request: Request, { params }: { params: { goalId: string } }) {
@@ -23,7 +24,7 @@ export async function PUT(request: Request, { params }: { params: { goalId: stri
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json(data)
@@ -47,7 +48,7 @@ export async function DELETE(request: Request, { params }: { params: { goalId: s
     const { error } = await supabase.from("iep_goals").delete().eq("id", params.goalId)
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json({ message: "Goal deleted successfully" })

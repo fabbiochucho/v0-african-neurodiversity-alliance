@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { dbErrorResponse } from "@/lib/api-error"
 import { isFederationEnabled } from "@/lib/federation/config"
 import { verifySiblingLinkToken } from "@/lib/federation/jwt"
 
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json(data, { status: 201 })

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { dbErrorResponse } from "@/lib/api-error"
 import { NextResponse } from "next/server"
 
 export async function POST(request: Request, { params }: { params: { learnerId: string } }) {
@@ -84,7 +85,7 @@ export async function POST(request: Request, { params }: { params: { learnerId: 
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json(summary, { status: 201 })
@@ -113,7 +114,7 @@ export async function GET(request: Request, { params }: { params: { learnerId: s
       .limit(12)
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json(data)

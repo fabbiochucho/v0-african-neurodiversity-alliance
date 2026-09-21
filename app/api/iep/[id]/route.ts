@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { dbErrorResponse } from "@/lib/api-error"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
@@ -20,7 +21,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      return dbErrorResponse(error)
     }
 
     if (data.created_by !== user.id) {
@@ -56,7 +57,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json(data)
@@ -80,7 +81,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     const { error } = await supabase.from("ieps").delete().eq("id", params.id).eq("created_by", user.id)
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json({ message: "IEP deleted successfully" })

@@ -1,4 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/service"
+import { dbErrorResponse } from "@/lib/api-error"
 import { initializeFlutterwavePayment } from "@/lib/payments/flutterwave"
 import { NextResponse } from "next/server"
 
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
     })
 
     if (txError) {
-      return NextResponse.json({ error: txError.message }, { status: 400 })
+      return dbErrorResponse(txError)
     }
 
     const result = await initializeFlutterwavePayment({

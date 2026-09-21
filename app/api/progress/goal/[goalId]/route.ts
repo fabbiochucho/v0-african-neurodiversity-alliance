@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { dbErrorResponse } from "@/lib/api-error"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request, { params }: { params: { goalId: string } }) {
@@ -20,7 +21,7 @@ export async function GET(request: Request, { params }: { params: { goalId: stri
       .order("logged_date", { ascending: false })
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      return dbErrorResponse(error)
     }
 
     // Calculate progress metrics

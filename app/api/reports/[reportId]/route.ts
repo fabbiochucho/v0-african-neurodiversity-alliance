@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { dbErrorResponse } from "@/lib/api-error"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request, { params }: { params: { reportId: string } }) {
@@ -16,7 +17,7 @@ export async function GET(request: Request, { params }: { params: { reportId: st
     const { data, error } = await supabase.from("reports").select("*").eq("id", params.reportId).single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      return dbErrorResponse(error)
     }
 
     // Check if user has access to this report

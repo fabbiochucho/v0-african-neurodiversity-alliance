@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { dbErrorResponse } from "@/lib/api-error"
 
 // Revokes a linked_accounts row. We update status rather than deleting so
 // there's an audit trail of past connections; RLS (linked_accounts_update_own)
@@ -25,7 +26,7 @@ export async function PATCH(_request: Request, { params }: { params: { id: strin
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json(data)

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { dbErrorResponse } from "@/lib/api-error"
 import { isFederationEnabled, getSiblingAppUrl } from "@/lib/federation/config"
 import { signRequestToken } from "@/lib/federation/jwt"
 
@@ -37,7 +38,7 @@ export async function POST() {
       .maybeSingle()
 
     if (linkError) {
-      return NextResponse.json({ error: linkError.message }, { status: 400 })
+      return dbErrorResponse(linkError)
     }
 
     if (!linkedAccount) {
