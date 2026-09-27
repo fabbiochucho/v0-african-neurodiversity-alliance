@@ -75,7 +75,8 @@ export default function HomePage() {
                 </div>
                 <CardTitle>Self-Test Application</CardTitle>
                 <CardDescription>
-                  Free assessment tools to help identify neurodivergent traits and provide personalized recommendations.
+                  A quick, free check-in to help identify neurodivergent traits. For a complete, in-depth
+                  assessment, this connects with Neu Rafiki, our dedicated self-assessment platform.
                 </CardDescription>
               </CardHeader>
               <CardContent>
