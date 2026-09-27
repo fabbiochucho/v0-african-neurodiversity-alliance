@@ -40,15 +40,15 @@ export default function HomePage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto">
               <div className="text-center">
                 <div className="text-3xl font-bold text-primary">15-25%</div>
-                <div className="text-sm text-muted-foreground">of Africans are neurodivergent</div>
+                <div className="text-sm text-muted-foreground">global estimate of neurodivergent individuals</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-secondary">54</div>
-                <div className="text-sm text-muted-foreground">African countries served</div>
+                <div className="text-3xl font-bold text-secondary">Pan-African</div>
+                <div className="text-sm text-muted-foreground">community, open to every country</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-accent">1000+</div>
-                <div className="text-sm text-muted-foreground">Community members</div>
+                <div className="text-3xl font-bold text-accent">Growing</div>
+                <div className="text-sm text-muted-foreground">community of members and advocates</div>
               </div>
             </div>
           </div>
@@ -370,7 +370,7 @@ export default function HomePage() {
           </div>
 
           <div className="border-t mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2025 African Neurodiversity Alliance. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} African Neurodiversity Alliance. All rights reserved.</p>
           </div>
         </div>
       </footer>
