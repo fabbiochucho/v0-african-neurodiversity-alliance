@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Poppins } from "next/font/google"
+import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import "./globals.css"
 
@@ -21,6 +22,15 @@ export const metadata: Metadata = {
     description:
       "Empowering neurodivergent individuals across Africa through awareness, education, and inclusive support systems.",
     type: "website",
+    siteName: "African Neurodiversity Alliance",
+    images: [{ url: "/apple-icon.png", width: 180, height: 180, alt: "African Neurodiversity Alliance" }],
+  },
+  twitter: {
+    card: "summary",
+    title: "African Neurodiversity Alliance (ANDA)",
+    description:
+      "Empowering neurodivergent individuals across Africa through awareness, education, and inclusive support systems.",
+    images: ["/apple-icon.png"],
   },
   generator: "v0.app",
 }
@@ -34,6 +44,7 @@ export default function RootLayout({
     <html lang="en" className={poppins.variable}>
       <body className="font-sans antialiased">
         <Suspense fallback={null}>{children}</Suspense>
+        <Analytics />
       </body>
     </html>
   )

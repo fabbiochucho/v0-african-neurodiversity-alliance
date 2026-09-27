@@ -454,7 +454,7 @@ export default function LearningPage() {
             Become a Certified Neurodiversity Professional
           </h2>
           <p className="text-xl opacity-90 text-pretty mb-8 max-w-2xl mx-auto">
-            Join thousands of professionals across Africa who are making a difference in neurodivergent lives.
+            Join professionals across Africa who are making a difference in neurodivergent lives.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" className="text-lg px-8 py-6">
