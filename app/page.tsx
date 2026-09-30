@@ -314,17 +314,6 @@ export default function HomePage() {
                 Empowering neurodivergent individuals across Africa through awareness, education, and inclusive support
                 systems.
               </p>
-              <div className="flex space-x-4">
-                <Button variant="ghost" size="sm">
-                  Twitter
-                </Button>
-                <Button variant="ghost" size="sm">
-                  LinkedIn
-                </Button>
-                <Button variant="ghost" size="sm">
-                  Facebook
-                </Button>
-              </div>
             </div>
 
             <div>
