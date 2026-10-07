@@ -121,6 +121,30 @@ export default function SelfTestPage() {
                     </p>
                   </div>
                 </div>
+
+                {federationEnabled && siblingAppUrl && (
+                  <div className="flex items-start gap-3 p-4 bg-[#3C9C87]/10 border border-[#3C9C87]/30 rounded-lg">
+                    <Brain className="h-5 w-5 text-[#3C9C87] mt-0.5 flex-shrink-0" aria-hidden="true" />
+                    <div className="text-sm">
+                      <p className="font-medium mb-1 text-foreground">Looking for the full assessment?</p>
+                      <p className="text-muted-foreground">
+                        This {questions.length}-question check-in is just a quick starting point. For a complete,
+                        in-depth neurodivergence assessment, visit{" "}
+                        <a
+                          href={`${siblingAppUrl}/assessment/start`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium text-foreground underline underline-offset-2"
+                        >
+                          Neu Rafiki
+                          <ExternalLink className="inline h-3 w-3 ml-0.5 mb-0.5" aria-hidden="true" />
+                        </a>
+                        .
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <Button onClick={startQuiz} size="lg" className="w-full">
                   Start the check-in
                   <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
