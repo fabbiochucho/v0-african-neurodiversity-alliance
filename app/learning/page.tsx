@@ -19,167 +19,47 @@ import {
   Headphones,
 } from "lucide-react"
 
-const courses = [
-  {
-    id: 1,
-    title: "Understanding Autism Spectrum Disorders",
-    description: "Comprehensive course for parents, caregivers, and educators on autism support strategies.",
-    category: "Autism",
-    level: "Beginner",
-    duration: "6 hours",
-    students: 1250,
-    rating: 4.8,
-    price: "Free",
-    instructor: "Dr. Amina Hassan",
-    country: "Kenya",
-    modules: 8,
-    type: "video",
-    certification: true,
-  },
-  {
-    id: 2,
-    title: "ADHD Management in African Contexts",
-    description: "Culturally-informed approaches to supporting children and adults with ADHD.",
-    category: "ADHD",
-    level: "Intermediate",
-    duration: "4 hours",
-    students: 890,
-    rating: 4.7,
-    price: "$29",
-    instructor: "Prof. Kwame Asante",
-    country: "Ghana",
-    modules: 6,
-    type: "mixed",
-    certification: true,
-  },
-  {
-    id: 3,
-    title: "Dyslexia Support Strategies",
-    description: "Evidence-based interventions for reading and learning difficulties.",
-    category: "Dyslexia",
-    level: "Beginner",
-    duration: "5 hours",
-    students: 670,
-    rating: 4.9,
-    price: "Free",
-    instructor: "Dr. Fatima Al-Rashid",
-    country: "Morocco",
-    modules: 7,
-    type: "video",
-    certification: false,
-  },
-  {
-    id: 4,
-    title: "Inclusive Classroom Design",
-    description: "Creating learning environments that support all neurodivergent learners.",
-    category: "Education",
-    level: "Advanced",
-    duration: "8 hours",
-    students: 445,
-    rating: 4.6,
-    price: "$49",
-    instructor: "Dr. Nomsa Mbeki",
-    country: "South Africa",
-    modules: 10,
-    type: "mixed",
-    certification: true,
-  },
-  {
-    id: 5,
-    title: "Sensory Processing Fundamentals",
-    description: "Understanding and supporting sensory processing differences.",
-    category: "Sensory",
-    level: "Beginner",
-    duration: "3 hours",
-    students: 780,
-    rating: 4.5,
-    price: "Free",
-    instructor: "Dr. Aisha Okonkwo",
-    country: "Nigeria",
-    modules: 5,
-    type: "audio",
-    certification: false,
-  },
-  {
-    id: 6,
-    title: "Family Support Systems",
-    description: "Building resilient support networks for neurodivergent families.",
-    category: "Family",
-    level: "Intermediate",
-    duration: "6 hours",
-    students: 920,
-    rating: 4.8,
-    price: "$19",
-    instructor: "Dr. Zara Tadesse",
-    country: "Ethiopia",
-    modules: 8,
-    type: "mixed",
-    certification: true,
-  },
-]
+// No fabricated courses/instructors/enrollment numbers -- this catalog is
+// honestly empty until real courses, certifications, and webinars are
+// published, since "Enroll"/"Register" aren't wired to any real checkout
+// or registration flow yet.
+const courses: Array<{
+  id: number
+  title: string
+  description: string
+  category: string
+  level: string
+  duration: string
+  students: number
+  rating: number
+  price: string
+  instructor: string
+  country: string
+  modules: number
+  type: string
+  certification: boolean
+}> = []
 
-const certifications = [
-  {
-    id: 1,
-    title: "Certified Neurodiversity Advocate",
-    description: "Comprehensive certification program for advocacy and support professionals.",
-    duration: "40 hours",
-    modules: 12,
-    price: "$199",
-    level: "Professional",
-    recognition: "ANDA Certified",
-  },
-  {
-    id: 2,
-    title: "Inclusive Education Specialist",
-    description: "Advanced certification for educators working with neurodivergent learners.",
-    duration: "60 hours",
-    modules: 15,
-    price: "$299",
-    level: "Advanced",
-    recognition: "ANDA Certified",
-  },
-  {
-    id: 3,
-    title: "Family Support Coordinator",
-    description: "Training program for professionals supporting neurodivergent families.",
-    duration: "30 hours",
-    modules: 10,
-    price: "$149",
-    level: "Intermediate",
-    recognition: "ANDA Certified",
-  },
-]
+const certifications: Array<{
+  id: number
+  title: string
+  description: string
+  duration: string
+  modules: number
+  price: string
+  level: string
+  recognition: string
+}> = []
 
-const webinars = [
-  {
-    id: 1,
-    title: "Neurodiversity in the African Workplace",
-    date: "March 15, 2025",
-    time: "14:00 GMT",
-    speaker: "Dr. Kofi Mensah",
-    attendees: 450,
-    status: "upcoming",
-  },
-  {
-    id: 2,
-    title: "Early Intervention Strategies",
-    date: "March 22, 2025",
-    time: "16:00 GMT",
-    speaker: "Dr. Lila Ouma",
-    attendees: 320,
-    status: "upcoming",
-  },
-  {
-    id: 3,
-    title: "Building Inclusive Communities",
-    date: "February 28, 2025",
-    time: "15:00 GMT",
-    speaker: "Prof. Amara Diallo",
-    attendees: 680,
-    status: "completed",
-  },
-]
+const webinars: Array<{
+  id: number
+  title: string
+  date: string
+  time: string
+  speaker: string
+  attendees: number
+  status: string
+}> = []
 
 export default function LearningPage() {
   return (
@@ -279,6 +159,14 @@ export default function LearningPage() {
                 </p>
               </div>
 
+              {courses.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <GraduationCap className="h-10 w-10 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium mb-1">No courses published yet</p>
+                  <p className="text-sm">Check back soon as we add courses from African practitioners.</p>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {courses.map((course) => (
                   <Card key={course.id} className="group hover:shadow-lg transition-all duration-300">
@@ -351,6 +239,14 @@ export default function LearningPage() {
                 </p>
               </div>
 
+              {certifications.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Award className="h-10 w-10 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium mb-1">No certification programs published yet</p>
+                  <p className="text-sm">Professional certification programs are in development.</p>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {certifications.map((cert) => (
                   <Card key={cert.id} className="group hover:shadow-lg transition-all duration-300 border-2">
@@ -401,6 +297,14 @@ export default function LearningPage() {
                   Join live sessions with experts and connect with the community
                 </p>
               </div>
+
+              {webinars.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Play className="h-10 w-10 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium mb-1">No webinars scheduled yet</p>
+                  <p className="text-sm">Live sessions with experts will be announced here.</p>
+                </div>
+              )}
 
               <div className="space-y-4">
                 {webinars.map((webinar) => (

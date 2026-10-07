@@ -25,7 +25,6 @@ const researchCategories = [
     name: "Prevalence Studies",
     description: "Population-based research on neurodivergent prevalence in Africa",
     icon: BarChart3,
-    count: 23,
     color: "bg-primary/10 text-primary",
   },
   {
@@ -33,7 +32,6 @@ const researchCategories = [
     name: "Interventions & Treatments",
     description: "Evidence-based interventions and therapeutic approaches",
     icon: Heart,
-    count: 31,
     color: "bg-secondary/10 text-secondary",
   },
   {
@@ -41,7 +39,6 @@ const researchCategories = [
     name: "Educational Research",
     description: "Studies on inclusive education and learning strategies",
     icon: BookOpen,
-    count: 28,
     color: "bg-accent/10 text-accent",
   },
   {
@@ -49,7 +46,6 @@ const researchCategories = [
     name: "Cultural & Social Studies",
     description: "Research on cultural perspectives and social factors",
     icon: Globe,
-    count: 19,
     color: "bg-green-100 text-green-700",
   },
   {
@@ -57,7 +53,6 @@ const researchCategories = [
     name: "Policy & Systems Research",
     description: "Studies on healthcare systems and policy effectiveness",
     icon: Award,
-    count: 15,
     color: "bg-purple-100 text-purple-700",
   },
   {
@@ -65,208 +60,56 @@ const researchCategories = [
     name: "Technology & Innovation",
     description: "Research on assistive technology and digital interventions",
     icon: TrendingUp,
-    count: 12,
     color: "bg-blue-100 text-blue-700",
   },
 ]
 
-const featuredResearch = [
-  {
-    id: 1,
-    title: "Autism Prevalence in Sub-Saharan Africa: A Systematic Review",
-    authors: ["Dr. Amina Hassan", "Prof. Kwame Asante", "Dr. Fatima Al-Rashid"],
-    institution: "University of Cape Town",
-    journal: "African Journal of Neurodevelopmental Disorders",
-    year: 2024,
-    type: "Systematic Review",
-    category: "Prevalence Studies",
-    abstract:
-      "This comprehensive review examines autism prevalence rates across 15 Sub-Saharan African countries, revealing significant variations and highlighting the need for standardized diagnostic criteria.",
-    keywords: ["autism", "prevalence", "sub-saharan africa", "systematic review"],
-    citations: 45,
-    downloads: 1230,
-    openAccess: true,
-    doi: "10.1234/ajnd.2024.001",
-    country: "Multi-country",
-    language: "English",
-    pages: 24,
-  },
-  {
-    id: 2,
-    title: "Cultural Adaptation of ADHD Interventions in West African Contexts",
-    authors: ["Dr. Aisha Okonkwo", "Prof. Mamadou Diallo"],
-    institution: "University of Lagos",
-    journal: "International Journal of Cultural Psychology",
-    year: 2024,
-    type: "Original Research",
-    category: "Interventions & Treatments",
-    abstract:
-      "A randomized controlled trial examining the effectiveness of culturally adapted ADHD interventions in Nigeria, Ghana, and Senegal, showing improved outcomes when traditional healing practices are integrated.",
-    keywords: ["adhd", "cultural adaptation", "west africa", "intervention"],
-    citations: 23,
-    downloads: 890,
-    openAccess: true,
-    doi: "10.1234/ijcp.2024.012",
-    country: "Nigeria, Ghana, Senegal",
-    language: "English",
-    pages: 18,
-  },
-  {
-    id: 3,
-    title: "Inclusive Education Practices in Kenyan Primary Schools",
-    authors: ["Dr. Grace Wanjiku", "Prof. John Mwangi"],
-    institution: "University of Nairobi",
-    journal: "African Educational Research Journal",
-    year: 2023,
-    type: "Longitudinal Study",
-    category: "Educational Research",
-    abstract:
-      "A 3-year longitudinal study following 200 neurodivergent students in Kenyan primary schools, documenting successful inclusive education strategies and their impact on academic outcomes.",
-    keywords: ["inclusive education", "kenya", "primary schools", "longitudinal"],
-    citations: 67,
-    downloads: 1450,
-    openAccess: false,
-    doi: "10.1234/aerj.2023.045",
-    country: "Kenya",
-    language: "English",
-    pages: 32,
-  },
-  {
-    id: 4,
-    title: "Traditional Healing and Neurodiversity in Ethiopian Communities",
-    authors: ["Dr. Zara Tadesse", "Prof. Alemayehu Bekele"],
-    institution: "Addis Ababa University",
-    journal: "Journal of African Traditional Medicine",
-    year: 2024,
-    type: "Ethnographic Study",
-    category: "Cultural & Social Studies",
-    abstract:
-      "An ethnographic exploration of how traditional Ethiopian healing practices intersect with modern understanding of neurodiversity, revealing opportunities for integrated care approaches.",
-    keywords: ["traditional healing", "ethiopia", "neurodiversity", "ethnography"],
-    citations: 34,
-    downloads: 670,
-    openAccess: true,
-    doi: "10.1234/jatm.2024.023",
-    country: "Ethiopia",
-    language: "English, Amharic",
-    pages: 28,
-  },
-  {
-    id: 5,
-    title: "Mobile Health Apps for Autism Support in Rural South Africa",
-    authors: ["Dr. Nomsa Mbeki", "Dr. Thabo Molefe"],
-    institution: "University of the Witwatersrand",
-    journal: "Digital Health Africa",
-    year: 2024,
-    type: "Pilot Study",
-    category: "Technology & Innovation",
-    abstract:
-      "A pilot study evaluating the effectiveness of mobile health applications in providing autism support services to families in rural South African communities with limited healthcare access.",
-    keywords: ["mobile health", "autism", "rural", "south africa", "digital intervention"],
-    citations: 12,
-    downloads: 445,
-    openAccess: true,
-    doi: "10.1234/dha.2024.008",
-    country: "South Africa",
-    language: "English",
-    pages: 16,
-  },
-  {
-    id: 6,
-    title: "Policy Analysis: Neurodiversity Legislation Across Francophone Africa",
-    authors: ["Prof. Amara Diallo", "Dr. Fatou Sow"],
-    institution: "Université Cheikh Anta Diop",
-    journal: "African Policy Studies Quarterly",
-    year: 2023,
-    type: "Policy Analysis",
-    category: "Policy & Systems Research",
-    abstract:
-      "Comprehensive analysis of neurodiversity-related legislation across 12 Francophone African countries, identifying gaps and opportunities for policy harmonization.",
-    keywords: ["policy analysis", "francophone africa", "legislation", "neurodiversity"],
-    citations: 29,
-    downloads: 780,
-    openAccess: false,
-    doi: "10.1234/apsq.2023.067",
-    country: "Multi-country",
-    language: "French, English",
-    pages: 40,
-  },
-]
+// Research listings are sourced from real, verified submissions only --
+// no placeholder/example studies. This page shows an empty state until
+// real research is submitted and published.
+const featuredResearch: Array<{
+  id: number
+  title: string
+  authors: string[]
+  institution: string
+  journal: string
+  year: number
+  type: string
+  category: string
+  abstract: string
+  keywords: string[]
+  citations: number
+  downloads: number
+  openAccess: boolean
+  doi: string
+  country: string
+  language: string
+  pages: number
+}> = []
 
-const ongoingStudies = [
-  {
-    id: 1,
-    title: "Pan-African Neurodiversity Prevalence Study",
-    leadInstitution: "African Union Health Commission",
-    countries: 25,
-    participants: 50000,
-    startDate: "January 2024",
-    expectedCompletion: "December 2026",
-    funding: "$2.5M",
-    status: "recruiting",
-    description:
-      "The largest neurodiversity prevalence study ever conducted in Africa, spanning 25 countries and involving 50,000 participants.",
-  },
-  {
-    id: 2,
-    title: "Digital Therapeutics for ADHD in African Youth",
-    leadInstitution: "University of Cape Town",
-    countries: 8,
-    participants: 1200,
-    startDate: "March 2024",
-    expectedCompletion: "August 2025",
-    funding: "$800K",
-    status: "active",
-    description:
-      "Randomized controlled trial testing digital therapeutic interventions for ADHD in youth across 8 African countries.",
-  },
-  {
-    id: 3,
-    title: "Teacher Training Impact on Inclusive Education",
-    leadInstitution: "Makerere University",
-    countries: 6,
-    participants: 2500,
-    startDate: "September 2023",
-    expectedCompletion: "June 2025",
-    funding: "$1.2M",
-    status: "active",
-    description:
-      "Evaluating the impact of specialized teacher training programs on inclusive education outcomes in East Africa.",
-  },
-]
+const ongoingStudies: Array<{
+  id: number
+  title: string
+  leadInstitution: string
+  countries: number
+  participants: number
+  startDate: string
+  expectedCompletion: string
+  funding: string
+  status: string
+  description: string
+}> = []
 
-const researchTools = [
-  {
-    id: 1,
-    name: "African Autism Assessment Scale (AAAS)",
-    description: "Culturally adapted autism assessment tool for African populations",
-    type: "Assessment Tool",
-    languages: ["English", "French", "Arabic", "Swahili", "Hausa"],
-    validation: "Validated in 12 countries",
-    downloads: 3400,
-    openAccess: true,
-  },
-  {
-    id: 2,
-    name: "Neurodiversity Research Database",
-    description: "Comprehensive database of neurodiversity research from African institutions",
-    type: "Database",
-    languages: ["English", "French", "Portuguese"],
-    validation: "Peer-reviewed entries",
-    downloads: 8900,
-    openAccess: true,
-  },
-  {
-    id: 3,
-    name: "Cultural Adaptation Framework",
-    description: "Framework for adapting neurodiversity interventions to African contexts",
-    type: "Framework",
-    languages: ["English", "French"],
-    validation: "Expert consensus",
-    downloads: 2100,
-    openAccess: true,
-  },
-]
+const researchTools: Array<{
+  id: number
+  name: string
+  description: string
+  type: string
+  languages: string[]
+  validation: string
+  downloads: number
+  openAccess: boolean
+}> = []
 
 export default function ResearchPage() {
   return (
@@ -304,19 +147,23 @@ export default function ResearchPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary">128</div>
+              <div className="text-3xl font-bold text-primary">{featuredResearch.length}</div>
               <div className="text-sm text-muted-foreground">Published Studies</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-secondary">45</div>
+              <div className="text-3xl font-bold text-secondary">
+                {new Set(featuredResearch.map((s) => s.institution)).size}
+              </div>
               <div className="text-sm text-muted-foreground">Research Institutions</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-accent">54</div>
+              <div className="text-3xl font-bold text-accent">
+                {new Set(featuredResearch.map((s) => s.country)).size}
+              </div>
               <div className="text-sm text-muted-foreground">Countries Represented</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary">15</div>
+              <div className="text-3xl font-bold text-primary">{ongoingStudies.length}</div>
               <div className="text-sm text-muted-foreground">Ongoing Studies</div>
             </div>
           </div>
@@ -395,7 +242,9 @@ export default function ResearchPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between">
-                    <Badge variant="secondary">{category.count} studies</Badge>
+                    <Badge variant="secondary">
+                      {featuredResearch.filter((s) => s.category === category.name).length} studies
+                    </Badge>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -429,6 +278,14 @@ export default function ResearchPage() {
                   Latest peer-reviewed research from African institutions and researchers
                 </p>
               </div>
+
+              {featuredResearch.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <BookOpen className="h-10 w-10 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium mb-1">No published research yet</p>
+                  <p className="text-sm">Be the first to submit a study for this research library.</p>
+                </div>
+              )}
 
               <div className="space-y-6">
                 {featuredResearch.map((study) => (
@@ -523,6 +380,14 @@ export default function ResearchPage() {
                 </p>
               </div>
 
+              {ongoingStudies.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <BarChart3 className="h-10 w-10 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium mb-1">No ongoing studies listed yet</p>
+                  <p className="text-sm">Researchers can submit active studies seeking participants or collaborators.</p>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {ongoingStudies.map((study) => (
                   <Card key={study.id} className="group hover:shadow-lg transition-all duration-300">
@@ -593,6 +458,14 @@ export default function ResearchPage() {
                   Validated tools and frameworks for neurodiversity research in African contexts
                 </p>
               </div>
+
+              {researchTools.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Award className="h-10 w-10 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium mb-1">No research tools listed yet</p>
+                  <p className="text-sm">Validated assessment tools and frameworks will appear here as they&apos;re added.</p>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {researchTools.map((tool) => (

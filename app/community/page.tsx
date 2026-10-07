@@ -24,151 +24,64 @@ import {
   Star,
 } from "lucide-react"
 
+// Forum categories are real (they define the community structure), but no
+// fabricated activity numbers or moderator names -- this community has not
+// launched yet, so posts/members/lastActivity/moderators are honestly empty
+// until real activity and real moderators exist.
 const forumCategories = [
   {
     id: 1,
     name: "General Discussion",
     description: "Open discussions about neurodiversity experiences",
-    posts: 1247,
-    members: 3420,
     color: "bg-primary/10 text-primary",
     icon: MessageCircle,
-    lastActivity: "2 minutes ago",
-    moderators: ["Dr. Amina Hassan", "Sarah K."],
   },
   {
     id: 2,
     name: "Parents & Caregivers",
     description: "Support and advice for families",
-    posts: 892,
-    members: 2156,
     color: "bg-secondary/10 text-secondary",
     icon: Heart,
-    lastActivity: "5 minutes ago",
-    moderators: ["Maria Santos", "John M."],
   },
   {
     id: 3,
     name: "Educators & Professionals",
     description: "Resources and strategies for professionals",
-    posts: 634,
-    members: 1789,
     color: "bg-accent/10 text-accent",
     icon: Users,
-    lastActivity: "12 minutes ago",
-    moderators: ["Prof. Kwame Asante"],
   },
   {
     id: 4,
     name: "Country-Specific Groups",
     description: "Connect with people in your region",
-    posts: 445,
-    members: 2890,
     color: "bg-green-100 text-green-700",
     icon: Globe,
-    lastActivity: "8 minutes ago",
-    moderators: ["Regional Coordinators"],
   },
   {
     id: 5,
     name: "Success Stories",
     description: "Share achievements and positive experiences",
-    posts: 278,
-    members: 1567,
     color: "bg-yellow-100 text-yellow-700",
     icon: Star,
-    lastActivity: "1 hour ago",
-    moderators: ["Community Team"],
   },
 ]
 
-const recentPosts = [
-  {
-    id: 1,
-    title: "How do I explain autism to my extended family?",
-    author: "Fatima A.",
-    avatar: "/serene-african-woman.png",
-    category: "Parents & Caregivers",
-    replies: 23,
-    views: 156,
-    likes: 12,
-    timeAgo: "2 hours ago",
-    isPinned: false,
-    tags: ["autism", "family", "communication"],
-    country: "Morocco",
-  },
-  {
-    id: 2,
-    title: "Inclusive teaching strategies that work in Nigerian classrooms",
-    author: "Dr. Chidi Okafor",
-    avatar: "/african-teacher.png",
-    category: "Educators & Professionals",
-    replies: 18,
-    views: 234,
-    likes: 31,
-    timeAgo: "4 hours ago",
-    isPinned: true,
-    tags: ["education", "strategies", "nigeria"],
-    country: "Nigeria",
-  },
-  {
-    id: 3,
-    title: "My daughter just got her first job! 🎉",
-    author: "Grace M.",
-    avatar: "/african-woman-happy.jpg",
-    category: "Success Stories",
-    replies: 45,
-    views: 389,
-    likes: 67,
-    timeAgo: "6 hours ago",
-    isPinned: false,
-    tags: ["success", "employment", "autism"],
-    country: "Kenya",
-  },
-  {
-    id: 4,
-    title: "Looking for ADHD support groups in Cape Town",
-    author: "Thabo L.",
-    avatar: "/thoughtful-african-man.png",
-    category: "Country-Specific Groups",
-    replies: 8,
-    views: 92,
-    likes: 5,
-    timeAgo: "8 hours ago",
-    isPinned: false,
-    tags: ["adhd", "support-groups", "cape-town"],
-    country: "South Africa",
-  },
-  {
-    id: 5,
-    title: "Sensory-friendly spaces in African schools - let's discuss",
-    author: "Dr. Aisha Okonkwo",
-    avatar: "/african-woman-professional.jpg",
-    category: "Educators & Professionals",
-    replies: 29,
-    views: 201,
-    likes: 24,
-    timeAgo: "12 hours ago",
-    isPinned: false,
-    tags: ["sensory", "schools", "environment"],
-    country: "Nigeria",
-  },
-]
+const recentPosts: Array<{
+  id: number
+  title: string
+  author: string
+  avatar: string
+  category: string
+  replies: number
+  views: number
+  likes: number
+  timeAgo: string
+  isPinned: boolean
+  tags: string[]
+  country: string
+}> = []
 
-const trendingTopics = [
-  { tag: "autism-awareness", posts: 156 },
-  { tag: "inclusive-education", posts: 89 },
-  { tag: "family-support", posts: 67 },
-  { tag: "workplace-inclusion", posts: 45 },
-  { tag: "early-intervention", posts: 34 },
-]
-
-const communityStats = [
-  { label: "Active Members", value: "12,450", icon: Users },
-  { label: "Total Posts", value: "3,496", icon: MessageCircle },
-  { label: "Countries", value: "54", icon: Globe },
-  { label: "Moderators", value: "28", icon: Shield },
-]
+const trendingTopics: Array<{ tag: string; posts: number }> = []
 
 export default function CommunityPage() {
   return (
@@ -206,7 +119,12 @@ export default function CommunityPage() {
       <section className="py-8 bg-background border-b">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {communityStats.map((stat, index) => (
+            {[
+              { label: "Discussion Categories", value: forumCategories.length, icon: MessageCircle },
+              { label: "Total Posts", value: recentPosts.length, icon: Users },
+              { label: "Countries", value: 54, icon: Globe },
+              { label: "Moderators", value: 0, icon: Shield },
+            ].map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <stat.icon className="h-6 w-6 text-primary" />
@@ -263,20 +181,7 @@ export default function CommunityPage() {
                                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                                   <div className="flex items-center gap-1">
                                     <MessageCircle className="h-3 w-3" />
-                                    {category.posts.toLocaleString()} posts
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <Users className="h-3 w-3" />
-                                    {category.members.toLocaleString()} members
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <Clock className="h-3 w-3" />
-                                    {category.lastActivity}
-                                  </div>
-                                </div>
-                                <div className="mt-2">
-                                  <div className="text-xs text-muted-foreground">
-                                    Moderators: {category.moderators.join(", ")}
+                                    No posts yet
                                   </div>
                                 </div>
                               </div>
@@ -291,6 +196,13 @@ export default function CommunityPage() {
 
                 {/* Recent Posts Tab */}
                 <TabsContent value="recent" className="space-y-4">
+                  {recentPosts.length === 0 && (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <MessageCircle className="h-10 w-10 mx-auto mb-4 opacity-50" />
+                      <p className="font-medium mb-1">No discussions yet</p>
+                      <p className="text-sm">Be the first to start a conversation in this community.</p>
+                    </div>
+                  )}
                   {recentPosts.map((post) => (
                     <Card key={post.id} className="group hover:shadow-md transition-all duration-300">
                       <CardContent className="p-6">
@@ -410,14 +322,18 @@ export default function CommunityPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {trendingTopics.map((topic, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="text-sm font-medium">#{topic.tag}</div>
-                      <Badge variant="secondary" className="text-xs">
-                        {topic.posts}
-                      </Badge>
-                    </div>
-                  ))}
+                  {trendingTopics.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No trending topics yet.</p>
+                  ) : (
+                    trendingTopics.map((topic, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="text-sm font-medium">#{topic.tag}</div>
+                        <Badge variant="secondary" className="text-xs">
+                          {topic.posts}
+                        </Badge>
+                      </div>
+                    ))
+                  )}
                 </CardContent>
               </Card>
 
