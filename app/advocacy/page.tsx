@@ -22,72 +22,26 @@ import {
   Building,
 } from "lucide-react"
 
-const activeCampaigns = [
-  {
-    id: 1,
-    title: "Inclusive Education Act - Nigeria",
-    description: "Advocating for mandatory inclusive education policies in Nigerian schools",
-    country: "Nigeria",
-    status: "active",
-    progress: 75,
-    supporters: 12450,
-    target: 15000,
-    deadline: "March 31, 2025",
-    category: "Education",
-    impact: "Affects 200M+ citizens",
-    organizer: "ANDA Nigeria Chapter",
-    updates: 8,
-    actions: ["Sign Petition", "Contact Representatives", "Share Campaign"],
-  },
-  {
-    id: 2,
-    title: "Workplace Accommodation Rights - Kenya",
-    description: "Ensuring reasonable accommodations for neurodivergent employees",
-    country: "Kenya",
-    status: "active",
-    progress: 60,
-    supporters: 8920,
-    target: 12000,
-    deadline: "April 15, 2025",
-    category: "Employment",
-    impact: "Affects 50M+ workers",
-    organizer: "Kenya Neurodiversity Alliance",
-    updates: 12,
-    actions: ["Sign Petition", "Submit Story", "Attend Rally"],
-  },
-  {
-    id: 3,
-    title: "Healthcare Access Initiative - South Africa",
-    description: "Improving access to neurodivergent-friendly healthcare services",
-    country: "South Africa",
-    status: "active",
-    progress: 45,
-    supporters: 6780,
-    target: 10000,
-    deadline: "May 20, 2025",
-    category: "Healthcare",
-    impact: "Affects 60M+ citizens",
-    organizer: "SA Autism Foundation",
-    updates: 6,
-    actions: ["Sign Petition", "Donate", "Volunteer"],
-  },
-  {
-    id: 4,
-    title: "Public Transport Accessibility - Ghana",
-    description: "Making public transportation sensory-friendly and accessible",
-    country: "Ghana",
-    status: "planning",
-    progress: 25,
-    supporters: 3450,
-    target: 8000,
-    deadline: "June 30, 2025",
-    category: "Transportation",
-    impact: "Affects 30M+ citizens",
-    organizer: "Ghana Inclusion Network",
-    updates: 3,
-    actions: ["Join Planning", "Research Support", "Spread Awareness"],
-  },
-]
+// No fabricated campaigns, legislative claims, events, or resources below --
+// this page shows honest empty states until real advocacy activity exists.
+// (A prior version invented specific "passed" legislation in real countries,
+// which is a misinformation risk for an advocacy org, not just a cosmetic gap.)
+const activeCampaigns: Array<{
+  id: number
+  title: string
+  description: string
+  country: string
+  status: string
+  progress: number
+  supporters: number
+  target: number
+  deadline: string
+  category: string
+  impact: string
+  organizer: string
+  updates: number
+  actions: string[]
+}> = []
 
 const policyAreas = [
   {
@@ -95,8 +49,6 @@ const policyAreas = [
     name: "Education",
     description: "Inclusive education policies and support systems",
     icon: GraduationCap,
-    campaigns: 15,
-    countries: 12,
     color: "bg-primary/10 text-primary",
     keyIssues: ["Inclusive Classrooms", "Teacher Training", "Assessment Accommodations", "Early Intervention"],
   },
@@ -105,8 +57,6 @@ const policyAreas = [
     name: "Employment",
     description: "Workplace rights and accommodation policies",
     icon: Briefcase,
-    campaigns: 8,
-    countries: 8,
     color: "bg-secondary/10 text-secondary",
     keyIssues: ["Reasonable Accommodations", "Anti-Discrimination", "Hiring Practices", "Career Development"],
   },
@@ -115,8 +65,6 @@ const policyAreas = [
     name: "Healthcare",
     description: "Access to diagnosis, treatment, and support services",
     icon: Heart,
-    campaigns: 12,
-    countries: 10,
     color: "bg-accent/10 text-accent",
     keyIssues: ["Early Diagnosis", "Affordable Treatment", "Professional Training", "Service Availability"],
   },
@@ -125,8 +73,6 @@ const policyAreas = [
     name: "Housing",
     description: "Accessible and supportive housing policies",
     icon: Home,
-    campaigns: 6,
-    countries: 6,
     color: "bg-green-100 text-green-700",
     keyIssues: ["Accessible Design", "Support Services", "Fair Housing", "Community Integration"],
   },
@@ -135,114 +81,41 @@ const policyAreas = [
     name: "Public Services",
     description: "Accessible government and public services",
     icon: Building,
-    campaigns: 9,
-    countries: 14,
     color: "bg-purple-100 text-purple-700",
     keyIssues: ["Service Accessibility", "Staff Training", "Communication Support", "Digital Inclusion"],
   },
 ]
 
-const successStories = [
-  {
-    id: 1,
-    title: "Kenya Passes Neurodiversity Employment Act",
-    description: "Landmark legislation requiring workplace accommodations for neurodivergent individuals",
-    country: "Kenya",
-    date: "February 2025",
-    impact: "50M+ workers protected",
-    category: "Employment",
-    supporters: 15000,
-  },
-  {
-    id: 2,
-    title: "Morocco Launches Autism Support Program",
-    description: "National program providing free autism assessments and support services",
-    country: "Morocco",
-    date: "January 2025",
-    impact: "2M+ children benefited",
-    category: "Healthcare",
-    supporters: 8500,
-  },
-  {
-    id: 3,
-    title: "Nigeria Mandates Inclusive Education",
-    description: "All public schools required to provide inclusive education by 2026",
-    country: "Nigeria",
-    date: "December 2024",
-    impact: "40M+ students affected",
-    category: "Education",
-    supporters: 22000,
-  },
-]
+const successStories: Array<{
+  id: number
+  title: string
+  description: string
+  country: string
+  date: string
+  impact: string
+  category: string
+  supporters: number
+}> = []
 
-const upcomingEvents = [
-  {
-    id: 1,
-    title: "African Neurodiversity Policy Summit",
-    date: "March 15-17, 2025",
-    location: "Nairobi, Kenya",
-    type: "Conference",
-    attendees: 500,
-    description: "Pan-African gathering of policymakers, advocates, and researchers",
-  },
-  {
-    id: 2,
-    title: "Inclusive Education Workshop",
-    date: "March 25, 2025",
-    location: "Lagos, Nigeria",
-    type: "Workshop",
-    attendees: 150,
-    description: "Training session for educators and policymakers",
-  },
-  {
-    id: 3,
-    title: "Workplace Inclusion Roundtable",
-    date: "April 8, 2025",
-    location: "Cape Town, South Africa",
-    type: "Roundtable",
-    attendees: 75,
-    description: "Discussion with business leaders and HR professionals",
-  },
-]
+const upcomingEvents: Array<{
+  id: number
+  title: string
+  date: string
+  location: string
+  type: string
+  attendees: number
+  description: string
+}> = []
 
-const advocacyResources = [
-  {
-    id: 1,
-    title: "Policy Advocacy Toolkit",
-    description: "Complete guide to effective advocacy strategies and tactics",
-    type: "PDF Guide",
-    pages: 45,
-    downloads: 2340,
-    category: "Strategy",
-  },
-  {
-    id: 2,
-    title: "Letter Templates for Representatives",
-    description: "Pre-written templates for contacting government officials",
-    type: "Document Pack",
-    pages: 12,
-    downloads: 1890,
-    category: "Templates",
-  },
-  {
-    id: 3,
-    title: "Research Brief: Neurodiversity in Africa",
-    description: "Comprehensive data on neurodivergent populations across Africa",
-    type: "Research Report",
-    pages: 78,
-    downloads: 1560,
-    category: "Research",
-  },
-  {
-    id: 4,
-    title: "Social Media Campaign Kit",
-    description: "Graphics, hashtags, and content for social media advocacy",
-    type: "Media Kit",
-    pages: 25,
-    downloads: 3120,
-    category: "Marketing",
-  },
-]
+const advocacyResources: Array<{
+  id: number
+  title: string
+  description: string
+  type: string
+  pages: number
+  downloads: number
+  category: string
+}> = []
 
 export default function AdvocacyPage() {
   return (
@@ -281,7 +154,7 @@ export default function AdvocacyPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary">45</div>
+              <div className="text-3xl font-bold text-primary">{activeCampaigns.length}</div>
               <div className="text-sm text-muted-foreground">Active Campaigns</div>
             </div>
             <div className="text-center">
@@ -289,11 +162,13 @@ export default function AdvocacyPage() {
               <div className="text-sm text-muted-foreground">Countries Covered</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-accent">125K+</div>
+              <div className="text-3xl font-bold text-accent">
+                {activeCampaigns.reduce((sum, c) => sum + c.supporters, 0).toLocaleString()}
+              </div>
               <div className="text-sm text-muted-foreground">Supporters</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary">18</div>
+              <div className="text-3xl font-bold text-primary">{successStories.length}</div>
               <div className="text-sm text-muted-foreground">Policy Wins</div>
             </div>
           </div>
@@ -319,6 +194,14 @@ export default function AdvocacyPage() {
                   Join ongoing advocacy efforts across Africa to create meaningful policy change
                 </p>
               </div>
+
+              {activeCampaigns.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Megaphone className="h-10 w-10 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium mb-1">No active campaigns yet</p>
+                  <p className="text-sm">Start the first advocacy campaign for your community.</p>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {activeCampaigns.map((campaign) => (
@@ -417,15 +300,11 @@ export default function AdvocacyPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        <div className="flex justify-between text-sm">
-                          <div>
-                            <div className="font-medium">{area.campaigns}</div>
-                            <div className="text-muted-foreground">Active Campaigns</div>
+                        <div className="text-sm">
+                          <div className="font-medium">
+                            {activeCampaigns.filter((c) => c.category === area.name).length}
                           </div>
-                          <div>
-                            <div className="font-medium">{area.countries}</div>
-                            <div className="text-muted-foreground">Countries</div>
-                          </div>
+                          <div className="text-muted-foreground">Active Campaigns</div>
                         </div>
 
                         <div>
@@ -457,6 +336,14 @@ export default function AdvocacyPage() {
                   Celebrating successful advocacy efforts that have created real change
                 </p>
               </div>
+
+              {successStories.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <CheckCircle className="h-10 w-10 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium mb-1">No policy wins recorded yet</p>
+                  <p className="text-sm">Verified advocacy victories will be celebrated here.</p>
+                </div>
+              )}
 
               <div className="space-y-6">
                 {successStories.map((story) => (
@@ -510,6 +397,14 @@ export default function AdvocacyPage() {
                 </p>
               </div>
 
+              {advocacyResources.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Download className="h-10 w-10 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium mb-1">No resources published yet</p>
+                  <p className="text-sm">Advocacy toolkits and templates will be available here soon.</p>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {advocacyResources.map((resource) => (
                   <Card key={resource.id} className="group hover:shadow-lg transition-all duration-300">
@@ -558,6 +453,14 @@ export default function AdvocacyPage() {
               Join us at conferences, workshops, and advocacy events across Africa
             </p>
           </div>
+
+          {upcomingEvents.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground">
+              <Calendar className="h-10 w-10 mx-auto mb-4 opacity-50" />
+              <p className="font-medium mb-1">No events scheduled yet</p>
+              <p className="text-sm">Conferences, workshops, and advocacy events will be announced here.</p>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {upcomingEvents.map((event) => (
