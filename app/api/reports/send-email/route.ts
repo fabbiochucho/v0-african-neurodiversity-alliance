@@ -61,7 +61,7 @@ async function sendReportEmail(recipientEmail: string, report: Report, senderEma
     const resend = new Resend(apiKey)
 
     const { error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "ANDA NeuroCare <reports@anda-neurocare.org>",
+      from: process.env.RESEND_FROM_EMAIL || "ANDA <noreply@anda.becomechange.institute>",
       to: recipientEmail,
       replyTo: senderEmail || undefined,
       subject: "ANDA NeuroCare | IEP Progress Report",
