@@ -139,22 +139,17 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
             {[
               {
-                name: "Dr. Amara Okonkwo",
-                role: "Executive Director",
-                bio: "Clinical psychologist with 15+ years of experience in neurodiversity research across Africa.",
+                name: "Pauline Abiola-Oshunniyi",
+                role: "Co-founder and Executive Director",
+                bio: "International development strategist with over two decades of experience spanning governance, sustainability, and institutional collaboration across Africa. Works with governments and development institutions on partnership design and sustainable development outcomes.",
               },
               {
-                name: "Kwame Mensah",
-                role: "Director of Programs",
-                bio: "Neurodivergent advocate and educator passionate about inclusive education systems.",
-              },
-              {
-                name: "Zainab Hassan",
-                role: "Community Lead",
-                bio: "Community organizer dedicated to building peer support networks across the continent.",
+                name: "Abiola Olugbenga Oshunniyi",
+                role: "Co-Founder",
+                bio: "Development strategist with nearly two decades advising governments and international institutions on strengthening public systems. Focuses on policy design, resource mobilization, and large-scale program implementation across African health, governance, and sustainability sectors.",
               },
             ].map((member) => (
               <Card key={member.name}>
