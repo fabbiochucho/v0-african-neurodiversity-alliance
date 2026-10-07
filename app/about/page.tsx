@@ -197,7 +197,7 @@ export default function AboutPage() {
       {/* Footer */}
       <footer className="bg-background border-t py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground">
-          <p>&copy; 2025 African Neurodiversity Alliance. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} African Neurodiversity Alliance. All rights reserved.</p>
         </div>
       </footer>
     </div>
