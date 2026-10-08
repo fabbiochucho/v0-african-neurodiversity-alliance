@@ -9,6 +9,16 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import {
   Search,
   MapPin,
@@ -95,6 +105,18 @@ const resourceTypes = [
   { value: "caregiver", label: "Caregivers", icon: Heart },
 ]
 
+const emptySubmission = {
+  name: "",
+  category: "support_group",
+  country: "",
+  location: "",
+  description: "",
+  phone: "",
+  email: "",
+  website: "",
+  submittedByEmail: "",
+}
+
 export default function DirectoryPage() {
   const [resources, setResources] = useState<Resource[]>([])
   const [loading, setLoading] = useState(true)
@@ -102,6 +124,59 @@ export default function DirectoryPage() {
   const [selectedCountry, setSelectedCountry] = useState("All Countries")
   const [selectedType, setSelectedType] = useState("all")
   const [activeTab, setActiveTab] = useState("list")
+
+  const [submitOpen, setSubmitOpen] = useState(false)
+  const [submission, setSubmission] = useState(emptySubmission)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitDone, setSubmitDone] = useState(false)
+
+  const [ratingResource, setRatingResource] = useState<Resource | null>(null)
+  const [ratingValue, setRatingValue] = useState(0)
+  const [ratingComment, setRatingComment] = useState("")
+  const [ratingSubmitting, setRatingSubmitting] = useState(false)
+  const [ratedIds, setRatedIds] = useState<Set<string>>(new Set())
+
+  async function handleSubmitResource() {
+    if (!submission.name.trim()) return
+    setSubmitting(true)
+    const supabase = createClient()
+    const { error } = await supabase.from("resource_submissions").insert({
+      name: submission.name.trim(),
+      category: submission.category,
+      country: submission.country.trim() || null,
+      location: submission.location.trim() || null,
+      description: submission.description.trim() || null,
+      contact_info: {
+        ...(submission.phone.trim() && { phone: submission.phone.trim() }),
+        ...(submission.email.trim() && { email: submission.email.trim() }),
+        ...(submission.website.trim() && { website: submission.website.trim() }),
+      },
+      submitted_by_email: submission.submittedByEmail.trim() || null,
+    })
+    setSubmitting(false)
+    if (!error) {
+      setSubmitDone(true)
+      setSubmission(emptySubmission)
+    }
+  }
+
+  async function handleSubmitRating() {
+    if (!ratingResource || ratingValue < 1) return
+    setRatingSubmitting(true)
+    const supabase = createClient()
+    const { error } = await supabase.from("resource_reviews").insert({
+      resource_id: ratingResource.id,
+      rating: ratingValue,
+      comment: ratingComment.trim() || null,
+    })
+    setRatingSubmitting(false)
+    if (!error) {
+      setRatedIds((prev) => new Set(prev).add(ratingResource.id))
+      setRatingResource(null)
+      setRatingValue(0)
+      setRatingComment("")
+    }
+  }
 
   useEffect(() => {
     async function loadResources() {
@@ -282,6 +357,19 @@ export default function DirectoryPage() {
                               <span className="ml-1 font-medium">{resource.rating}</span>
                             </div>
                             <span className="text-sm text-muted-foreground">({resource.reviews} reviews)</span>
+                            <Button
+                              variant="link"
+                              size="sm"
+                              className="h-auto p-0 text-xs"
+                              disabled={ratedIds.has(resource.id)}
+                              onClick={() => {
+                                setRatingResource(resource)
+                                setRatingValue(0)
+                                setRatingComment("")
+                              }}
+                            >
+                              {ratedIds.has(resource.id) ? "Thanks for rating" : "Rate"}
+                            </Button>
                           </div>
 
                           {/* Specialties */}
@@ -320,11 +408,36 @@ export default function DirectoryPage() {
 
                           {/* Actions */}
                           <div className="flex gap-2 pt-2">
-                            <Button size="sm" className="flex-1">
-                              Contact
+                            <Button
+                              size="sm"
+                              className="flex-1"
+                              disabled={!resource.contact.phone && !resource.contact.email}
+                              asChild={Boolean(resource.contact.phone || resource.contact.email)}
+                            >
+                              {resource.contact.phone ? (
+                                <a href={`tel:${resource.contact.phone}`}>Call</a>
+                              ) : resource.contact.email ? (
+                                <a href={`mailto:${resource.contact.email}`}>Email</a>
+                              ) : (
+                                <span>Contact</span>
+                              )}
                             </Button>
-                            <Button size="sm" variant="outline">
-                              View Profile
+                            <Button size="sm" variant="outline" disabled={!resource.contact.website} asChild={Boolean(resource.contact.website)}>
+                              {resource.contact.website ? (
+                                <a
+                                  href={
+                                    resource.contact.website.startsWith("http")
+                                      ? resource.contact.website
+                                      : `https://${resource.contact.website}`
+                                  }
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  Visit Website
+                                </a>
+                              ) : (
+                                <span>Visit Website</span>
+                              )}
                             </Button>
                           </div>
                         </div>
@@ -354,16 +467,198 @@ export default function DirectoryPage() {
             <h3 className="text-xl font-semibold mb-2">Can&apos;t find what you&apos;re looking for?</h3>
             <p className="text-muted-foreground mb-4">Help us grow our directory by adding resources in your area</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button disabled title="Coming soon">
+              <Button
+                onClick={() => {
+                  setSubmission(emptySubmission)
+                  setSubmitDone(false)
+                  setSubmitOpen(true)
+                }}
+              >
                 Add a Resource
               </Button>
-              <Button variant="outline" disabled title="Coming soon">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSubmission(emptySubmission)
+                  setSubmitDone(false)
+                  setSubmitOpen(true)
+                }}
+              >
                 Request Support in Your Area
               </Button>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Submit a Resource dialog */}
+      <Dialog open={submitOpen} onOpenChange={setSubmitOpen}>
+        <DialogContent>
+          {submitDone ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Thank you!</DialogTitle>
+                <DialogDescription>
+                  Your submission has been received and will be reviewed before being added to the directory.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button onClick={() => setSubmitOpen(false)}>Close</Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Add a Resource</DialogTitle>
+                <DialogDescription>
+                  Suggest a school, therapist, support group, or healthcare provider. Submissions are reviewed before
+                  being published.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="sub-name">Name *</Label>
+                  <Input
+                    id="sub-name"
+                    value={submission.name}
+                    onChange={(e) => setSubmission({ ...submission, name: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="sub-category">Type</Label>
+                    <Select
+                      value={submission.category}
+                      onValueChange={(value) => setSubmission({ ...submission, category: value })}
+                    >
+                      <SelectTrigger id="sub-category">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {resourceTypes
+                          .filter((t) => t.value !== "all")
+                          .map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="sub-country">Country</Label>
+                    <Input
+                      id="sub-country"
+                      value={submission.country}
+                      onChange={(e) => setSubmission({ ...submission, country: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="sub-location">Location / City</Label>
+                  <Input
+                    id="sub-location"
+                    value={submission.location}
+                    onChange={(e) => setSubmission({ ...submission, location: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="sub-description">Description</Label>
+                  <Textarea
+                    id="sub-description"
+                    value={submission.description}
+                    onChange={(e) => setSubmission({ ...submission, description: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="sub-phone">Phone</Label>
+                    <Input
+                      id="sub-phone"
+                      value={submission.phone}
+                      onChange={(e) => setSubmission({ ...submission, phone: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="sub-email">Email</Label>
+                    <Input
+                      id="sub-email"
+                      value={submission.email}
+                      onChange={(e) => setSubmission({ ...submission, email: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="sub-website">Website</Label>
+                  <Input
+                    id="sub-website"
+                    value={submission.website}
+                    onChange={(e) => setSubmission({ ...submission, website: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="sub-your-email">Your email (optional, in case we have questions)</Label>
+                  <Input
+                    id="sub-your-email"
+                    value={submission.submittedByEmail}
+                    onChange={(e) => setSubmission({ ...submission, submittedByEmail: e.target.value })}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setSubmitOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSubmitResource} disabled={submitting || !submission.name.trim()}>
+                  {submitting ? "Submitting..." : "Submit"}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Rate a Resource dialog */}
+      <Dialog open={Boolean(ratingResource)} onOpenChange={(open) => !open && setRatingResource(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rate {ratingResource?.name}</DialogTitle>
+            <DialogDescription>Share your experience to help other families.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setRatingValue(n)}
+                  aria-label={`${n} star${n > 1 ? "s" : ""}`}
+                >
+                  <Star
+                    className={`h-7 w-7 ${n <= ratingValue ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
+                  />
+                </button>
+              ))}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="rating-comment">Comment (optional)</Label>
+              <Textarea
+                id="rating-comment"
+                value={ratingComment}
+                onChange={(e) => setRatingComment(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRatingResource(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmitRating} disabled={ratingSubmitting || ratingValue < 1}>
+              {ratingSubmitting ? "Submitting..." : "Submit Rating"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
