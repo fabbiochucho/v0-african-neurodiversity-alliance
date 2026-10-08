@@ -250,14 +250,6 @@ export default function AppsToolsPage() {
               Discover carefully vetted apps, assistive technologies, and tools designed to support neurodivergent
               individuals in communication, learning, organization, and daily life.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="text-lg px-8 py-6">
-                Browse Apps
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent">
-                View Assistive Tech
-              </Button>
-            </div>
           </div>
         </div>
       </section>
@@ -559,13 +551,15 @@ export default function AppsToolsPage() {
             Submit a request for app reviews or suggest tools that have helped you or your family.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-6">
+            <Button size="lg" variant="secondary" className="text-lg px-8 py-6" disabled title="Coming soon">
               Request App Review
             </Button>
             <Button
               size="lg"
               variant="outline"
               className="text-lg px-8 py-6 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary bg-transparent"
+              disabled
+              title="Coming soon"
             >
               Suggest a Tool
             </Button>

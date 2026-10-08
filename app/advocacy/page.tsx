@@ -137,12 +137,8 @@ export default function AdvocacyPage() {
               neurodivergent individuals across all 54 African countries.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="text-lg px-8 py-6">
-                <Megaphone className="mr-2 h-5 w-5" />
-                Join a Campaign
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent">
-                Start Your Own
+              <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent" disabled title="Coming soon">
+                Start Your Own Campaign
               </Button>
             </div>
           </div>
@@ -318,7 +314,11 @@ export default function AdvocacyPage() {
                           </div>
                         </div>
 
-                        <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground">
+                        <Button
+                          className="w-full group-hover:bg-primary group-hover:text-primary-foreground"
+                          disabled
+                          title="No campaigns in this area yet"
+                        >
                           View Campaigns
                         </Button>
                       </div>
@@ -506,15 +506,8 @@ export default function AdvocacyPage() {
             fight for neurodiversity rights.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-6">
+            <Button size="lg" variant="secondary" className="text-lg px-8 py-6" disabled title="Coming soon">
               Start Advocating Today
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="text-lg px-8 py-6 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary bg-transparent"
-            >
-              Learn About Policy
             </Button>
           </div>
         </div>

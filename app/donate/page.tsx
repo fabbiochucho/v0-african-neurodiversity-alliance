@@ -198,7 +198,22 @@ export default function DonatePage() {
                 <p className="text-muted-foreground mb-4">
                   Spread the word about ANDA and help us reach more neurodivergent individuals.
                 </p>
-                <Button variant="outline" className="w-full bg-transparent">
+                <Button
+                  variant="outline"
+                  className="w-full bg-transparent"
+                  onClick={() => {
+                    const shareData = {
+                      title: "African Neurodiversity Alliance",
+                      text: "Support the African Neurodiversity Alliance (ANDA).",
+                      url: typeof window !== "undefined" ? window.location.origin : "",
+                    }
+                    if (typeof navigator !== "undefined" && navigator.share) {
+                      navigator.share(shareData).catch(() => {})
+                    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+                      navigator.clipboard.writeText(shareData.url)
+                    }
+                  }}
+                >
                   Share on Social Media
                 </Button>
               </CardContent>
@@ -215,7 +230,7 @@ export default function DonatePage() {
                 <p className="text-muted-foreground mb-4">
                   Join our team and contribute your skills to support our mission.
                 </p>
-                <Button variant="outline" className="w-full bg-transparent">
+                <Button variant="outline" className="w-full bg-transparent" disabled title="Coming soon">
                   Learn More
                 </Button>
               </CardContent>
@@ -232,7 +247,7 @@ export default function DonatePage() {
                 <p className="text-muted-foreground mb-4">
                   Partner with ANDA for corporate sponsorships and matching gifts.
                 </p>
-                <Button variant="outline" className="w-full bg-transparent">
+                <Button variant="outline" className="w-full bg-transparent" disabled title="Coming soon">
                   Contact Us
                 </Button>
               </CardContent>

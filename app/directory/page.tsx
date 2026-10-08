@@ -205,7 +205,7 @@ export default function DirectoryPage() {
 
             <div className="flex items-center justify-between mt-4">
               <p className="text-sm text-muted-foreground">{filteredResources.length} resources found</p>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" disabled title="Coming soon">
                 <Filter className="h-4 w-4 mr-2" />
                 Advanced Filters
               </Button>
@@ -354,8 +354,12 @@ export default function DirectoryPage() {
             <h3 className="text-xl font-semibold mb-2">Can&apos;t find what you&apos;re looking for?</h3>
             <p className="text-muted-foreground mb-4">Help us grow our directory by adding resources in your area</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button>Add a Resource</Button>
-              <Button variant="outline">Request Support in Your Area</Button>
+              <Button disabled title="Coming soon">
+                Add a Resource
+              </Button>
+              <Button variant="outline" disabled title="Coming soon">
+                Request Support in Your Area
+              </Button>
             </div>
           </CardContent>
         </Card>

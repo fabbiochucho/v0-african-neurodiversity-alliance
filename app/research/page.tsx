@@ -131,10 +131,7 @@ export default function ResearchPage() {
               institutions and researchers.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="text-lg px-8 py-6">
-                Browse Research
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent">
+              <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent" disabled title="Coming soon">
                 Submit Research
               </Button>
             </div>
@@ -533,13 +530,15 @@ export default function ResearchPage() {
             across Africa.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-6">
+            <Button size="lg" variant="secondary" className="text-lg px-8 py-6" disabled title="Coming soon">
               Submit Research
             </Button>
             <Button
               size="lg"
               variant="outline"
               className="text-lg px-8 py-6 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary bg-transparent"
+              disabled
+              title="Coming soon"
             >
               Join Research Network
             </Button>

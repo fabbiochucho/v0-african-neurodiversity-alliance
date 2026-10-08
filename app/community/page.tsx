@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -103,12 +104,9 @@ export default function CommunityPage() {
               community forums.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="text-lg px-8 py-6">
+              <Button size="lg" className="text-lg px-8 py-6" disabled title="Posting is coming soon">
                 <Plus className="mr-2 h-5 w-5" />
                 Start a Discussion
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent">
-                Browse Categories
               </Button>
             </div>
           </div>
@@ -155,7 +153,7 @@ export default function CommunityPage() {
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input placeholder="Search discussions..." className="pl-10 sm:w-64" />
                     </div>
-                    <Button>
+                    <Button disabled title="Posting is coming soon">
                       <Plus className="h-4 w-4 mr-2" />
                       New Post
                     </Button>
@@ -307,9 +305,6 @@ export default function CommunityPage() {
                     <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
                     <div>Report inappropriate content to moderators</div>
                   </div>
-                  <Button variant="outline" size="sm" className="w-full mt-4 bg-transparent">
-                    Read Full Guidelines
-                  </Button>
                 </CardContent>
               </Card>
 
@@ -343,19 +338,29 @@ export default function CommunityPage() {
                   <CardTitle>Quick Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full justify-start bg-transparent">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Start New Discussion
+                  <Button variant="outline" size="sm" className="w-full justify-start bg-transparent" asChild>
+                    <Link href="/directory">
+                      <Users className="h-4 w-4 mr-2" />
+                      Find Local Groups
+                    </Link>
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start bg-transparent">
-                    <Users className="h-4 w-4 mr-2" />
-                    Find Local Groups
-                  </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start bg-transparent">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start bg-transparent"
+                    disabled
+                    title="Coming soon"
+                  >
                     <MessageCircle className="h-4 w-4 mr-2" />
                     Private Messages
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start bg-transparent">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start bg-transparent"
+                    disabled
+                    title="Coming soon"
+                  >
                     <Heart className="h-4 w-4 mr-2" />
                     My Saved Posts
                   </Button>
@@ -374,11 +379,8 @@ export default function CommunityPage() {
             Share your experiences, ask questions, and connect with others who understand your journey.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="text-lg px-8 py-6">
+            <Button size="lg" className="text-lg px-8 py-6" disabled title="Posting is coming soon">
               Join the Conversation
-            </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent">
-              Learn About Moderation
             </Button>
           </div>
         </div>

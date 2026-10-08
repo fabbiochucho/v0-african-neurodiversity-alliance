@@ -80,14 +80,6 @@ export default function LearningPage() {
               Access world-class courses, certifications, and resources designed specifically for supporting
               neurodivergent individuals across Africa.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="text-lg px-8 py-6">
-                Browse Courses
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent">
-                View Certifications
-              </Button>
-            </div>
           </div>
         </div>
       </section>
@@ -361,13 +353,12 @@ export default function LearningPage() {
             Join professionals across Africa who are making a difference in neurodivergent lives.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-6">
-              View All Certifications
-            </Button>
             <Button
               size="lg"
               variant="outline"
               className="text-lg px-8 py-6 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary bg-transparent"
+              disabled
+              title="Coming soon"
             >
               Contact Admissions
             </Button>
