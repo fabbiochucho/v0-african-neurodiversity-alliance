@@ -151,8 +151,8 @@ export default function IEPTrackerPage() {
                     IEP summary
                   </li>
                 </ul>
-                <Button variant="outline" className="w-full bg-transparent">
-                  Get Started
+                <Button variant="outline" className="w-full bg-transparent" asChild>
+                  <Link href="/iep/settings/subscription">Get Started</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -182,7 +182,9 @@ export default function IEPTrackerPage() {
                     Email reports
                   </li>
                 </ul>
-                <Button className="w-full bg-[#3C9C87] hover:bg-[#2d7a6a]">Subscribe Now</Button>
+                <Button className="w-full bg-[#3C9C87] hover:bg-[#2d7a6a]" asChild>
+                  <Link href="/iep/settings/subscription">Subscribe Now</Link>
+                </Button>
               </CardContent>
             </Card>
 
@@ -216,7 +218,9 @@ export default function IEPTrackerPage() {
                     Branded reports
                   </li>
                 </ul>
-                <Button className="w-full bg-[#FFC857] text-black hover:bg-[#ffb833]">Subscribe Now</Button>
+                <Button className="w-full bg-[#FFC857] text-black hover:bg-[#ffb833]" asChild>
+                  <Link href="/iep/settings/subscription">Subscribe Now</Link>
+                </Button>
               </CardContent>
             </Card>
 
@@ -249,7 +253,7 @@ export default function IEPTrackerPage() {
                     Data export
                   </li>
                 </ul>
-                <Button variant="outline" className="w-full bg-transparent">
+                <Button variant="outline" className="w-full bg-transparent" disabled title="Coming soon">
                   Contact Sales
                 </Button>
               </CardContent>
