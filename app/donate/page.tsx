@@ -31,16 +31,19 @@ function DonateStatusBanner() {
   return null
 }
 
+type PaymentProvider = "flutterwave" | "paystack"
+
 export default function DonatePage() {
   const [donatingTier, setDonatingTier] = useState<string | null>(null)
   const [donateError, setDonateError] = useState<string | null>(null)
+  const [provider, setProvider] = useState<PaymentProvider>("flutterwave")
 
   const handleDonate = async (amount: number, tierName: string) => {
     setDonatingTier(tierName)
     setDonateError(null)
 
     try {
-      const res = await fetch("/api/payments/flutterwave/donate", {
+      const res = await fetch(`/api/payments/${provider}/donate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount, currency: "USD", tierName }),
@@ -143,6 +146,30 @@ export default function DonatePage() {
               {donateError}
             </div>
           )}
+
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <span className="text-sm text-muted-foreground">Pay with:</span>
+            <div className="inline-flex rounded-lg border p-1 bg-background">
+              <button
+                type="button"
+                onClick={() => setProvider("flutterwave")}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  provider === "flutterwave" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                }`}
+              >
+                Flutterwave
+              </button>
+              <button
+                type="button"
+                onClick={() => setProvider("paystack")}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  provider === "paystack" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                }`}
+              >
+                Paystack
+              </button>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
             {donationTiers.map((tier) => (

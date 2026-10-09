@@ -36,12 +36,15 @@ function SubscriptionStatusBanner() {
   return null
 }
 
+type PaymentProvider = "flutterwave" | "paystack"
+
 export default function SubscriptionSettingsPage() {
   const router = useRouter()
   const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [loading, setLoading] = useState(true)
   const [upgradingTier, setUpgradingTier] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [provider, setProvider] = useState<PaymentProvider>("flutterwave")
 
   useEffect(() => {
     async function load() {
@@ -79,7 +82,7 @@ export default function SubscriptionSettingsPage() {
     setError(null)
 
     try {
-      const res = await fetch("/api/payments/flutterwave/initialize", {
+      const res = await fetch(`/api/payments/${provider}/initialize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tier, amount: plan.price, currency: "USD" }),
@@ -141,6 +144,30 @@ export default function SubscriptionSettingsPage() {
           </Card>
 
           {error && <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>}
+
+          <div className="flex items-center gap-3 mb-6">
+            <span className="text-sm text-muted-foreground">Pay with:</span>
+            <div className="inline-flex rounded-lg border p-1">
+              <button
+                type="button"
+                onClick={() => setProvider("flutterwave")}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  provider === "flutterwave" ? "bg-[#3C9C87] text-white" : "text-muted-foreground"
+                }`}
+              >
+                Flutterwave
+              </button>
+              <button
+                type="button"
+                onClick={() => setProvider("paystack")}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  provider === "paystack" ? "bg-[#3C9C87] text-white" : "text-muted-foreground"
+                }`}
+              >
+                Paystack
+              </button>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {(Object.keys(SUBSCRIPTION_TIERS) as SubscriptionTier[]).map((tier) => {
