@@ -1,67 +1,169 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
-  Clock,
-  Users,
-  Star,
-  Play,
-  Briefcase as Certificate,
-  Search,
-  GraduationCap,
-  Award,
-  Video,
-  FileText,
-  Headphones,
-} from "lucide-react"
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Star, Search, GraduationCap, ExternalLink } from "lucide-react"
 
-// No fabricated courses/instructors/enrollment numbers -- this catalog is
-// honestly empty until real courses, certifications, and webinars are
-// published, since "Enroll"/"Register" aren't wired to any real checkout
-// or registration flow yet.
-const courses: Array<{
-  id: number
+interface LearningResource {
+  id: string
   title: string
+  provider: string
   description: string
-  category: string
-  level: string
-  duration: string
-  students: number
+  format: string
+  price: string
+  platform: string
+  url: string
+  countryOrigin: string
   rating: number
-  price: string
-  instructor: string
-  country: string
-  modules: number
-  type: string
-  certification: boolean
-}> = []
+  reviews: number
+  verified: boolean
+}
 
-const certifications: Array<{
-  id: number
+interface Row {
+  id: string
   title: string
-  description: string
-  duration: string
-  modules: number
-  price: string
-  level: string
-  recognition: string
-}> = []
+  provider: string | null
+  description: string | null
+  format: string
+  price: string | null
+  platform: string | null
+  url: string | null
+  country_origin: string | null
+  rating: number | null
+  reviews: number | null
+  verified: boolean | null
+}
 
-const webinars: Array<{
-  id: number
-  title: string
-  date: string
-  time: string
-  speaker: string
-  attendees: number
-  status: string
-}> = []
+function mapRow(row: Row): LearningResource {
+  return {
+    id: row.id,
+    title: row.title,
+    provider: row.provider || "",
+    description: row.description || "",
+    format: row.format,
+    price: row.price || "Unknown",
+    platform: row.platform || "",
+    url: row.url || "",
+    countryOrigin: row.country_origin || "",
+    rating: row.rating || 0,
+    reviews: row.reviews || 0,
+    verified: row.verified || false,
+  }
+}
+
+const formatLabels: Record<string, string> = {
+  course: "Course",
+  certification: "Certification",
+  webinar: "Webinar",
+  training: "Training Program",
+}
+
+const emptySubmission = {
+  title: "",
+  provider: "",
+  description: "",
+  format: "course",
+  price: "",
+  platform: "",
+  url: "",
+  countryOrigin: "",
+  submittedByEmail: "",
+}
 
 export default function LearningPage() {
+  const [resources, setResources] = useState<LearningResource[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedFormat, setSelectedFormat] = useState("all")
+
+  const [submitOpen, setSubmitOpen] = useState(false)
+  const [submission, setSubmission] = useState(emptySubmission)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitDone, setSubmitDone] = useState(false)
+
+  const [ratingItem, setRatingItem] = useState<LearningResource | null>(null)
+  const [ratingValue, setRatingValue] = useState(0)
+  const [ratingComment, setRatingComment] = useState("")
+  const [ratingSubmitting, setRatingSubmitting] = useState(false)
+  const [ratedIds, setRatedIds] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient()
+      const { data } = await supabase
+        .from("learning_resources")
+        .select("*")
+        .eq("is_published", true)
+        .order("rating", { ascending: false })
+      setResources(((data as Row[]) || []).map(mapRow))
+      setLoading(false)
+    }
+    load()
+  }, [])
+
+  async function handleSubmit() {
+    if (!submission.title.trim()) return
+    setSubmitting(true)
+    const supabase = createClient()
+    const { error } = await supabase.from("learning_resource_submissions").insert({
+      title: submission.title.trim(),
+      provider: submission.provider.trim() || null,
+      description: submission.description.trim() || null,
+      format: submission.format,
+      price: submission.price.trim() || null,
+      platform: submission.platform.trim() || null,
+      url: submission.url.trim() || null,
+      country_origin: submission.countryOrigin.trim() || null,
+      submitted_by_email: submission.submittedByEmail.trim() || null,
+    })
+    setSubmitting(false)
+    if (!error) {
+      setSubmitDone(true)
+      setSubmission(emptySubmission)
+    }
+  }
+
+  async function handleSubmitRating() {
+    if (!ratingItem || ratingValue < 1) return
+    setRatingSubmitting(true)
+    const supabase = createClient()
+    const { error } = await supabase.from("learning_resource_reviews").insert({
+      resource_id: ratingItem.id,
+      rating: ratingValue,
+      comment: ratingComment.trim() || null,
+    })
+    setRatingSubmitting(false)
+    if (!error) {
+      setRatedIds((prev) => new Set(prev).add(ratingItem.id))
+      setRatingItem(null)
+      setRatingValue(0)
+      setRatingComment("")
+    }
+  }
+
+  const filtered = resources.filter((r) => {
+    const matchesSearch =
+      r.title.toLowerCase().includes(searchTerm.toLowerCase()) || r.provider.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesFormat = selectedFormat === "all" || r.format === selectedFormat
+    return matchesSearch && matchesFormat
+  })
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -71,14 +173,14 @@ export default function LearningPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="secondary" className="mb-6">
-              Professional Development
+              Community-Curated Directory
             </Badge>
             <h1 className="text-4xl sm:text-5xl font-bold text-balance mb-6">
               Learn, Grow, and <span className="text-primary">Empower</span>
             </h1>
             <p className="text-xl text-muted-foreground text-pretty mb-8 max-w-3xl mx-auto">
-              Access world-class courses, certifications, and resources designed specifically for supporting
-              neurodivergent individuals across Africa.
+              Real courses, certifications, and webinars on neurodiversity, from Africa and around the world. ANDA
+              doesn&apos;t host these directly — each links to the real provider.
             </p>
           </div>
         </div>
@@ -90,44 +192,25 @@ export default function LearningPage() {
           <div className="flex flex-col md:flex-row gap-4 items-center">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search courses, topics, instructors..." className="pl-10" />
+              <Input
+                placeholder="Search courses, providers..."
+                className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-            <div className="flex gap-2">
-              <Select>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="autism">Autism</SelectItem>
-                  <SelectItem value="adhd">ADHD</SelectItem>
-                  <SelectItem value="dyslexia">Dyslexia</SelectItem>
-                  <SelectItem value="education">Education</SelectItem>
-                  <SelectItem value="family">Family</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder="Level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Levels</SelectItem>
-                  <SelectItem value="beginner">Beginner</SelectItem>
-                  <SelectItem value="intermediate">Intermediate</SelectItem>
-                  <SelectItem value="advanced">Advanced</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select>
-                <SelectTrigger className="w-[100px]">
-                  <SelectValue placeholder="Price" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="free">Free</SelectItem>
-                  <SelectItem value="paid">Paid</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <Select value={selectedFormat} onValueChange={setSelectedFormat}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Format" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Formats</SelectItem>
+                <SelectItem value="course">Courses</SelectItem>
+                <SelectItem value="certification">Certifications</SelectItem>
+                <SelectItem value="webinar">Webinars</SelectItem>
+                <SelectItem value="training">Training Programs</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </section>
@@ -135,236 +218,266 @@ export default function LearningPage() {
       {/* Main Content */}
       <section className="py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <Tabs defaultValue="courses" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto mb-8">
-              <TabsTrigger value="courses">Courses</TabsTrigger>
-              <TabsTrigger value="certifications">Certifications</TabsTrigger>
-              <TabsTrigger value="webinars">Webinars</TabsTrigger>
-            </TabsList>
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-4">Learning Resources</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              {filtered.length} resource{filtered.length === 1 ? "" : "s"} found
+            </p>
+          </div>
 
-            {/* Courses Tab */}
-            <TabsContent value="courses" className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4">Featured Courses</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Expert-led courses designed by African professionals for African contexts
-                </p>
-              </div>
-
-              {courses.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
-                  <GraduationCap className="h-10 w-10 mx-auto mb-4 opacity-50" />
-                  <p className="font-medium mb-1">No courses published yet</p>
-                  <p className="text-sm">Check back soon as we add courses from African practitioners.</p>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {courses.map((course) => (
-                  <Card key={course.id} className="group hover:shadow-lg transition-all duration-300">
-                    <CardHeader>
-                      <div className="flex items-start justify-between mb-2">
-                        <Badge variant="outline">{course.category}</Badge>
+          {loading ? (
+            <p className="text-center text-muted-foreground">Loading...</p>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <GraduationCap className="h-10 w-10 mx-auto mb-4 opacity-50" />
+              <p className="font-medium mb-1">No resources found for this filter</p>
+              <button className="text-sm underline" onClick={() => setSubmitOpen(true)}>
+                Suggest one
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filtered.map((r) => (
+                <Card key={r.id} className="group hover:shadow-lg transition-all duration-300">
+                  <CardHeader>
+                    <div className="flex items-start justify-between mb-2">
+                      <Badge variant="outline">{formatLabels[r.format] || r.format}</Badge>
+                      {r.verified && (
+                        <Badge variant="secondary" className="text-xs">
+                          Verified
+                        </Badge>
+                      )}
+                    </div>
+                    <CardTitle className="text-lg group-hover:text-primary transition-colors">{r.title}</CardTitle>
+                    <CardDescription>{r.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-1">
-                          {course.type === "video" && <Video className="h-4 w-4 text-muted-foreground" />}
-                          {course.type === "audio" && <Headphones className="h-4 w-4 text-muted-foreground" />}
-                          {course.type === "mixed" && <FileText className="h-4 w-4 text-muted-foreground" />}
+                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                          <span className="font-medium">{r.rating}</span>
+                          <span className="text-muted-foreground">({r.reviews})</span>
                         </div>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="h-auto p-0 text-xs"
+                          disabled={ratedIds.has(r.id)}
+                          onClick={() => {
+                            setRatingItem(r)
+                            setRatingValue(0)
+                            setRatingComment("")
+                          }}
+                        >
+                          {ratedIds.has(r.id) ? "Thanks for rating" : "Rate"}
+                        </Button>
                       </div>
-                      <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                        {course.title}
-                      </CardTitle>
-                      <CardDescription>{course.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            {course.duration}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Users className="h-4 w-4" />
-                            {course.students.toLocaleString()}
-                          </div>
-                        </div>
 
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                            <span className="text-sm font-medium">{course.rating}</span>
-                          </div>
-                          <Badge variant="secondary">{course.level}</Badge>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="text-sm font-medium">{course.instructor}</div>
-                            <div className="text-xs text-muted-foreground">{course.country}</div>
-                          </div>
-                          {course.certification && (
-                            <span title="Certification Available">
-                              <Certificate className="h-4 w-4 text-primary" />
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between pt-2">
-                          <div className="text-lg font-bold text-primary">{course.price}</div>
-                          <Button size="sm" className="group-hover:bg-primary group-hover:text-primary-foreground">
-                            Enroll Now
-                          </Button>
-                        </div>
+                      <div className="text-sm text-muted-foreground">
+                        {r.provider && <div>Provider: {r.provider}</div>}
+                        {r.platform && <div>Platform: {r.platform}</div>}
+                        {r.countryOrigin && <div>Origin: {r.countryOrigin}</div>}
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
 
-            {/* Certifications Tab */}
-            <TabsContent value="certifications" className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4">Professional Certifications</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Advance your career with internationally recognized certifications
-                </p>
-              </div>
-
-              {certifications.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
-                  <Award className="h-10 w-10 mx-auto mb-4 opacity-50" />
-                  <p className="font-medium mb-1">No certification programs published yet</p>
-                  <p className="text-sm">Professional certification programs are in development.</p>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {certifications.map((cert) => (
-                  <Card key={cert.id} className="group hover:shadow-lg transition-all duration-300 border-2">
-                    <CardHeader>
-                      <div className="flex items-center gap-2 mb-2">
-                        <GraduationCap className="h-5 w-5 text-primary" />
-                        <Badge variant="outline">{cert.recognition}</Badge>
-                      </div>
-                      <CardTitle className="text-xl group-hover:text-primary transition-colors">{cert.title}</CardTitle>
-                      <CardDescription>{cert.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <div className="text-muted-foreground">Duration</div>
-                            <div className="font-medium">{cert.duration}</div>
-                          </div>
-                          <div>
-                            <div className="text-muted-foreground">Modules</div>
-                            <div className="font-medium">{cert.modules}</div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <Badge variant="secondary">{cert.level}</Badge>
-                          <Award className="h-5 w-5 text-accent" />
-                        </div>
-
-                        <div className="flex items-center justify-between pt-2 border-t">
-                          <div className="text-2xl font-bold text-primary">{cert.price}</div>
-                          <Button className="group-hover:bg-primary group-hover:text-primary-foreground">
-                            Start Program
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-
-            {/* Webinars Tab */}
-            <TabsContent value="webinars" className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4">Live Webinars & Events</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Join live sessions with experts and connect with the community
-                </p>
-              </div>
-
-              {webinars.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
-                  <Play className="h-10 w-10 mx-auto mb-4 opacity-50" />
-                  <p className="font-medium mb-1">No webinars scheduled yet</p>
-                  <p className="text-sm">Live sessions with experts will be announced here.</p>
-                </div>
-              )}
-
-              <div className="space-y-4">
-                {webinars.map((webinar) => (
-                  <Card key={webinar.id} className="group hover:shadow-md transition-all duration-300">
-                    <CardContent className="p-6">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant={webinar.status === "upcoming" ? "default" : "secondary"}>
-                              {webinar.status === "upcoming" ? "Upcoming" : "Completed"}
-                            </Badge>
-                            <div className="text-sm text-muted-foreground">
-                              {webinar.date} • {webinar.time}
-                            </div>
-                          </div>
-                          <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                            {webinar.title}
-                          </h3>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <div>Speaker: {webinar.speaker}</div>
-                            <div className="flex items-center gap-1">
-                              <Users className="h-4 w-4" />
-                              {webinar.attendees} registered
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          {webinar.status === "upcoming" ? (
-                            <Button>Register Free</Button>
+                      <div className="flex items-center justify-between pt-2 border-t">
+                        <div className="text-lg font-bold text-primary">{r.price}</div>
+                        <Button size="sm" disabled={!r.url} asChild={Boolean(r.url)}>
+                          {r.url ? (
+                            <a href={r.url} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-4 w-4 mr-2" aria-hidden="true" />
+                              View
+                            </a>
                           ) : (
-                            <Button variant="outline">
-                              <Play className="h-4 w-4 mr-2" />
-                              Watch Recording
-                            </Button>
+                            <span>View</span>
                           )}
-                        </div>
+                        </Button>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-primary to-secondary text-primary-foreground">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">
-            Become a Certified Neurodiversity Professional
-          </h2>
+          <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">Know a Great Learning Resource?</h2>
           <p className="text-xl opacity-90 text-pretty mb-8 max-w-2xl mx-auto">
-            Join professionals across Africa who are making a difference in neurodivergent lives.
+            Help other families and professionals by suggesting a real course, certification, or webinar.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               size="lg"
-              variant="outline"
-              className="text-lg px-8 py-6 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary bg-transparent"
-              disabled
-              title="Coming soon"
+              variant="secondary"
+              className="text-lg px-8 py-6"
+              onClick={() => {
+                setSubmission(emptySubmission)
+                setSubmitDone(false)
+                setSubmitOpen(true)
+              }}
             >
-              Contact Admissions
+              Suggest a Resource
             </Button>
           </div>
         </div>
       </section>
+
+      {/* Submit dialog */}
+      <Dialog open={submitOpen} onOpenChange={setSubmitOpen}>
+        <DialogContent>
+          {submitDone ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Thank you!</DialogTitle>
+                <DialogDescription>
+                  Your submission has been received and will be reviewed before being added to the directory.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button onClick={() => setSubmitOpen(false)}>Close</Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Suggest a Learning Resource</DialogTitle>
+                <DialogDescription>Submissions are reviewed before being published.</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="lr-title">Title *</Label>
+                  <Input
+                    id="lr-title"
+                    value={submission.title}
+                    onChange={(e) => setSubmission({ ...submission, title: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="lr-format">Format</Label>
+                    <Select value={submission.format} onValueChange={(value) => setSubmission({ ...submission, format: value })}>
+                      <SelectTrigger id="lr-format">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="course">Course</SelectItem>
+                        <SelectItem value="certification">Certification</SelectItem>
+                        <SelectItem value="webinar">Webinar</SelectItem>
+                        <SelectItem value="training">Training Program</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lr-provider">Provider</Label>
+                    <Input
+                      id="lr-provider"
+                      value={submission.provider}
+                      onChange={(e) => setSubmission({ ...submission, provider: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lr-description">Description</Label>
+                  <Textarea
+                    id="lr-description"
+                    value={submission.description}
+                    onChange={(e) => setSubmission({ ...submission, description: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="lr-platform">Platform</Label>
+                    <Input
+                      id="lr-platform"
+                      placeholder="Coursera, provider's own site..."
+                      value={submission.platform}
+                      onChange={(e) => setSubmission({ ...submission, platform: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lr-price">Price</Label>
+                    <Input
+                      id="lr-price"
+                      placeholder="Free, $29, etc."
+                      value={submission.price}
+                      onChange={(e) => setSubmission({ ...submission, price: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lr-url">URL</Label>
+                  <Input
+                    id="lr-url"
+                    value={submission.url}
+                    onChange={(e) => setSubmission({ ...submission, url: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lr-country">Country of origin (optional)</Label>
+                  <Input
+                    id="lr-country"
+                    value={submission.countryOrigin}
+                    onChange={(e) => setSubmission({ ...submission, countryOrigin: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lr-email">Your email (optional)</Label>
+                  <Input
+                    id="lr-email"
+                    value={submission.submittedByEmail}
+                    onChange={(e) => setSubmission({ ...submission, submittedByEmail: e.target.value })}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setSubmitOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSubmit} disabled={submitting || !submission.title.trim()}>
+                  {submitting ? "Submitting..." : "Submit"}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Rate dialog */}
+      <Dialog open={Boolean(ratingItem)} onOpenChange={(open) => !open && setRatingItem(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rate {ratingItem?.title}</DialogTitle>
+            <DialogDescription>Share your experience to help other families.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button key={n} type="button" onClick={() => setRatingValue(n)} aria-label={`${n} star${n > 1 ? "s" : ""}`}>
+                  <Star
+                    className={`h-7 w-7 ${n <= ratingValue ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
+                  />
+                </button>
+              ))}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lr-rating-comment">Comment (optional)</Label>
+              <Textarea id="lr-rating-comment" value={ratingComment} onChange={(e) => setRatingComment(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRatingItem(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmitRating} disabled={ratingSubmitting || ratingValue < 1}>
+              {ratingSubmitting ? "Submitting..." : "Submit Rating"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
