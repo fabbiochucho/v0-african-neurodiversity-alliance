@@ -4,6 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Icons } from "@/lib/icons"
 import Link from "next/link"
+import { Partners } from "@/components/partners"
+
+// Re-render hourly so a newly published partner appears without a redeploy.
+export const revalidate = 3600
 
 export default function HomePage() {
   return (
@@ -265,6 +269,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <Partners />
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-primary to-secondary text-primary-foreground">
