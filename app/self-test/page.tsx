@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
+import { SCREENING_OPTIONS, SCREENING_QUESTIONS } from "@/lib/screening"
 import { isFederationEnabled, getSiblingAppUrl } from "@/lib/federation/config"
 import { Brain, ArrowLeft, ArrowRight, CheckCircle, Shield, ExternalLink } from "lucide-react"
 
@@ -17,45 +18,9 @@ import { Brain, ArrowLeft, ArrowRight, CheckCircle, Shield, ExternalLink } from 
 // assessment lives on the sibling Neu Rafiki app; when federation is
 // configured (see lib/federation/config.ts) we send people there to take
 // it. Otherwise we point them at this site's own support directory.
-interface TeaserQuestion {
-  id: string
-  domainLabel: string
-  text: string
-}
-
-const questions: TeaserQuestion[] = [
-  {
-    id: "social",
-    domainLabel: "Social communication",
-    text: "Do you find small talk or reading social cues more tiring than it seems to be for other people?",
-  },
-  {
-    id: "attention",
-    domainLabel: "Attention & focus",
-    text: "Do you often start tasks with enthusiasm but find it hard to see them through to the end?",
-  },
-  {
-    id: "sensory",
-    domainLabel: "Sensory processing",
-    text: "Do certain sounds, lights, or textures feel overwhelming in a way that doesn't seem to bother others?",
-  },
-  {
-    id: "learning",
-    domainLabel: "Reading & language",
-    text: "Does reading or writing take noticeably more time or effort than it seems to for your peers?",
-  },
-  {
-    id: "planning",
-    domainLabel: "Planning & organization",
-    text: "Do you struggle to plan ahead, stay organized, or switch smoothly between tasks?",
-  },
-]
-
-const options = [
-  { value: "rarely", label: "Rarely" },
-  { value: "sometimes", label: "Sometimes" },
-  { value: "often", label: "Often" },
-]
+// Same question set as roster screening (lib/screening.ts), first-person wording.
+const questions = SCREENING_QUESTIONS.map((q) => ({ id: q.id, domainLabel: q.domainLabel, text: q.selfText }))
+const options = SCREENING_OPTIONS
 
 export default function SelfTestPage() {
   const [view, setView] = useState<"intro" | "quiz" | "done">("intro")

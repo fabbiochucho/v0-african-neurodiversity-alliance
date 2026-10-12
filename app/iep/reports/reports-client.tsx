@@ -13,11 +13,20 @@ import { Icons } from "@/lib/icons"
 import { createClient } from "@/lib/supabase/client"
 import { UpgradePrompt } from "@/components/upgrade-prompt"
 import { FEATURE_MIN_TIER } from "@/lib/entitlements"
+import type { Branding } from "@/lib/branding"
 import type { LearnerProfile, Report } from "@/lib/types/iep"
 
 type ReportRow = Report & { learner_profiles: { name: string } | null }
 
-export function ReportsClient({ canGenerate, canEmail }: { canGenerate: boolean; canEmail: boolean }) {
+export function ReportsClient({
+  canGenerate,
+  canEmail,
+  branding,
+}: {
+  canGenerate: boolean
+  canEmail: boolean
+  branding: Branding | null
+}) {
   const router = useRouter()
   const [learners, setLearners] = useState<LearnerProfile[]>([])
   const [reports, setReports] = useState<ReportRow[]>([])
@@ -227,6 +236,18 @@ export function ReportsClient({ canGenerate, canEmail }: { canGenerate: boolean;
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
+                    {branding && (branding.logoUrl || branding.orgName) && (
+                      <div
+                        className="flex items-center gap-3 rounded-lg px-4 py-2 text-white"
+                        style={{ background: branding.accentColor ?? "#2a7a69" }}
+                      >
+                        {branding.logoUrl && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={branding.logoUrl} alt="" className="max-h-8 rounded bg-white p-0.5" />
+                        )}
+                        {branding.orgName && <span className="font-semibold">{branding.orgName}</span>}
+                      </div>
+                    )}
                     <pre className="whitespace-pre-wrap text-sm bg-muted/50 p-4 rounded-lg max-h-64 overflow-y-auto">
                       {report.content}
                     </pre>

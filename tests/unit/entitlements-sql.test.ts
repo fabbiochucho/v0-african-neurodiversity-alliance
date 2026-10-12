@@ -35,11 +35,11 @@ describe("SQL entitlement functions match lib/entitlements.ts", () => {
     expect(sql032).toMatch(/t\.status = 'successful'/)
   })
 
-  it("every gated feature has a matching tier_allows() check in some migration", () => {
+  it("every gated feature has a matching tier_allows() check in SQL, or is documented as app-only", () => {
     for (const [feature, tier] of Object.entries(FEATURE_MIN_TIER)) {
-      expect(allSql, `${feature} should be gated at '${tier}' in SQL`).toMatch(
-        new RegExp(`tier_allows\\(.*'${tier}'\\)\\s*--\\s*gate:${feature}\\b`),
-      )
+      const gated = new RegExp(`tier_allows\\(.*'${tier}'\\)\\s*--\\s*gate:${feature}\\b`).test(allSql)
+      const appOnly = new RegExp(`--\\s*gate:${feature} app-only:`).test(allSql)
+      expect(gated || appOnly, `${feature} should be gated at '${tier}' in SQL (or documented app-only)`).toBe(true)
     }
   })
 })

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getEntitlement } from "@/lib/entitlements"
+import { getBranding } from "@/lib/branding"
 import { ReportsClient } from "./reports-client"
 
 export default async function IEPReportsPage() {
@@ -16,5 +17,9 @@ export default async function IEPReportsPage() {
 
   const entitlement = await getEntitlement(supabase, user.id)
 
-  return <ReportsClient canGenerate={entitlement.can("reports")} canEmail={entitlement.can("email_reports")} />
+  const branding = await getBranding(supabase, user.id)
+
+  return (
+    <ReportsClient canGenerate={entitlement.can("reports")} canEmail={entitlement.can("email_reports")} branding={branding} />
+  )
 }
