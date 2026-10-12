@@ -20,18 +20,44 @@ export const SUBSCRIPTION_PERIOD_DAYS: Record<SubscriptionTier, number> = {
   institutional: 365,
 }
 
-export type Feature = "reports" | "email_reports" | "support_team"
+export type Feature =
+  | "screening"
+  | "screening_in_depth"
+  | "reports"
+  | "email_reports"
+  | "support_team"
+  | "team_dashboard"
+  | "branding"
+  | "bulk_enrollment"
+  | "data_export"
 
+// Restored round 2 under the tiers they were originally advertised for:
+// Free "basic screening", Premium "full screening", Pro "multi-user
+// dashboard" + "branded reports", Institutional "bulk enrollment" +
+// "data export". Each is enforced server-side and (where it inserts data)
+// in SQL -- see tests/unit/entitlements-sql.test.ts.
 export const FEATURE_MIN_TIER: Record<Feature, SubscriptionTier> = {
+  screening: "free",
+  screening_in_depth: "premium",
   reports: "premium",
   email_reports: "pro",
   support_team: "pro",
+  team_dashboard: "pro",
+  branding: "pro",
+  bulk_enrollment: "institutional",
+  data_export: "institutional",
 }
 
 export const FEATURE_LABELS: Record<Feature, string> = {
+  screening: "Basic screening: a quick, non-diagnostic check-in for each learner",
+  screening_in_depth: "Full screening: bring in-depth Neu Rafiki assessment results into a learner's record",
   reports: "Monthly and quarterly progress reports",
   email_reports: "Email reports to family, teachers and therapists",
   support_team: "Invite caregivers, teachers and therapists to a support team",
+  team_dashboard: "Multi-user dashboard of all your learners and staff",
+  branding: "Branded reports and report emails with your logo and colour",
+  bulk_enrollment: "Bulk enrollment of learners from a CSV file",
+  data_export: "Data export (CSV and JSON) of learners, goals, progress and reports",
 }
 
 /** Features every tier gets, including Free. Only list things that exist. */

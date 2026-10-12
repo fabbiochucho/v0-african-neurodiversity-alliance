@@ -139,6 +139,21 @@ export default async function DashboardPage() {
             <Link href="/iep/reports" className="hover:underline">
               Reports
             </Link>
+            <Link href="/screening" className="hover:underline">
+              Screening
+            </Link>
+            <Link href="/team-dashboard" className="hover:underline">
+              Team dashboard
+            </Link>
+            <Link href="/learners/import" className="hover:underline">
+              Bulk enrollment
+            </Link>
+            <Link href="/export" className="hover:underline">
+              Export data
+            </Link>
+            <Link href="/settings/branding" className="hover:underline">
+              Branding
+            </Link>
             <Link href="/iep/settings/subscription" className="hover:underline">
               Plan: {SUBSCRIPTION_TIERS[entitlement.tier].name}
             </Link>
