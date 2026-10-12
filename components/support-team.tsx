@@ -10,17 +10,18 @@ function useAction() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function run(url: string, init: RequestInit): Promise<boolean> {
+  async function run(url: string, init: RequestInit): Promise<{ emailSent?: boolean; link?: string } | null> {
     setBusy(true)
     setError(null)
     try {
       const res = await fetch(url, { headers: { "Content-Type": "application/json" }, ...init })
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Something went wrong")
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || "Something went wrong")
       router.refresh()
-      return true
+      return data
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong")
-      return false
+      return null
     } finally {
       setBusy(false)
     }
@@ -30,8 +31,29 @@ function useAction() {
 }
 
 /** Owner view: who's on this person's team, and invite someone new. */
-export function TeamManager({ learnerId, members }: { learnerId: string; members: SupportTeamMember[] }) {
+export function TeamManager({
+  learnerId,
+  members,
+  emailConfigured,
+}: {
+  learnerId: string
+  members: SupportTeamMember[]
+  emailConfigured: boolean
+}) {
   const { busy, error, run } = useAction()
+  const [notice, setNotice] = useState<{ text: string; link?: string } | null>(null)
+
+  function report(result: { emailSent?: boolean; link?: string } | null, email: string) {
+    if (!result) return
+    setNotice(
+      result.emailSent
+        ? { text: `Invitation emailed to ${email}.` }
+        : {
+            text: "Invite emails aren't set up on this site, so no email was sent. Share this link with them yourself (it expires in 7 days):",
+            link: result.link,
+          },
+    )
+  }
   const [email, setEmail] = useState("")
   const [role, setRole] = useState<SupportRole>("caregiver")
 
@@ -45,11 +67,33 @@ export function TeamManager({ learnerId, members }: { learnerId: string; members
             <li key={m.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 text-sm">
               <span>
                 {m.invited_email} · <span className="capitalize">{m.role}</span>
-                {m.status === "pending" && <span className="text-muted-foreground"> · invited, not yet accepted</span>}
+                {m.status === "pending" && (
+                  <span className="text-muted-foreground">
+                    {" "}
+                    ·{" "}
+                    {m.invite_expires_at && new Date(m.invite_expires_at) <= new Date()
+                      ? "invite expired"
+                      : "invited, not yet accepted"}
+                  </span>
+                )}
               </span>
-              <Button size="sm" variant="ghost" disabled={busy} onClick={() => run(`/api/team/${m.id}`, { method: "DELETE" })}>
-                Remove
-              </Button>
+              <span className="flex gap-1">
+                {m.status === "pending" && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={busy}
+                    onClick={async () =>
+                      report(await run(`/api/team/${m.id}`, { method: "POST", body: JSON.stringify({ action: "resend" }) }), m.invited_email)
+                    }
+                  >
+                    Resend
+                  </Button>
+                )}
+                <Button size="sm" variant="ghost" disabled={busy} onClick={() => run(`/api/team/${m.id}`, { method: "DELETE" })}>
+                  {m.status === "pending" ? "Revoke" : "Remove"}
+                </Button>
+              </span>
             </li>
           ))}
         </ul>
@@ -59,7 +103,11 @@ export function TeamManager({ learnerId, members }: { learnerId: string; members
         className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-2 items-end"
         onSubmit={async (e) => {
           e.preventDefault()
-          if (await run("/api/team", { method: "POST", body: JSON.stringify({ learner_id: learnerId, email, role }) })) setEmail("")
+          const result = await run("/api/team", { method: "POST", body: JSON.stringify({ learner_id: learnerId, email, role }) })
+          if (result) {
+            report(result, email)
+            setEmail("")
+          }
         }}
       >
         <label className="text-sm font-medium space-y-1">
@@ -87,7 +135,18 @@ export function TeamManager({ learnerId, members }: { learnerId: string; members
           Invite
         </Button>
       </form>
-      <p className="text-xs text-muted-foreground">{ROLE_DESCRIPTIONS[role]} They accept the invite from their own ANDA dashboard after signing in with this email.</p>
+      <p className="text-xs text-muted-foreground">
+        {ROLE_DESCRIPTIONS[role]}{" "}
+        {emailConfigured
+          ? "We'll email them a link that expires in 7 days. They sign in with that email address to accept."
+          : "Invite emails aren't set up on this site yet: you'll get a link to share yourself, and they can also accept from their dashboard after signing in with this email."}
+      </p>
+      {notice && (
+        <div role="status" className="rounded-lg border p-3 text-sm space-y-1">
+          <p>{notice.text}</p>
+          {notice.link && <code className="block break-all text-xs">{notice.link}</code>}
+        </div>
+      )}
       {error && (
         <p role="alert" className="text-sm text-destructive">
           {error}

@@ -20,6 +20,7 @@ export const config = {
     "/protected/:path*",
     "/dashboard",
     "/journey/:path*",
+    "/team/:path*",
     "/iep/:path*",
     "/settings/:path*",
     "/connect",

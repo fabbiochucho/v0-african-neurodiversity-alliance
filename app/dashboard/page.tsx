@@ -33,7 +33,10 @@ export default async function DashboardPage() {
     getEntitlement(supabase, user.id),
     // RLS returns memberships of mine plus pending invites to my email
     // (and teams I own, filtered out below).
-    supabase.from("support_team_members").select("*").neq("owner_id", user.id),
+    supabase
+      .from("support_team_members")
+      .select("id, learner_id, learner_name, invited_email, role, status, member_user_id, invite_expires_at")
+      .neq("owner_id", user.id),
   ])
 
   const team = (teamRows ?? []) as SupportTeamMember[]
@@ -41,6 +44,12 @@ export default async function DashboardPage() {
   const sharedIds = team.filter((m) => m.status === "active" && m.member_user_id === user.id).map((m) => m.learner_id)
   const { data: shared } =
     sharedIds.length > 0 ? await supabase.from("learner_profiles").select("*").in("id", sharedIds) : { data: [] }
+
+  // Memberships whose learner RLS now hides: the owner's plan has lapsed
+  // (scripts/034). Access returns automatically when they renew.
+  const paused = team.filter(
+    (m) => m.status === "active" && m.member_user_id === user.id && !(shared ?? []).some((l) => l.id === m.learner_id),
+  )
 
   const [people, sharedPeople] = await Promise.all([
     loadJourneys(supabase, (learners ?? []) as LearnerProfile[]),
@@ -97,6 +106,13 @@ export default async function DashboardPage() {
               ))}
             </section>
             )
+          )}
+
+          {paused.length > 0 && (
+            <p role="status" className="rounded-lg border p-4 text-sm text-muted-foreground">
+              Your access to {paused.map((m) => m.learner_name).join(", ")}&apos;s support team is paused because the
+              plan of the person who invited you has lapsed. It comes back automatically if they renew.
+            </p>
           )}
 
           {sharedPeople.length > 0 && (

@@ -25,6 +25,7 @@ export interface SupportTeamMember {
   role: SupportRole
   status: "pending" | "active"
   member_user_id: string | null
+  invite_expires_at?: string | null
 }
 
 export function isSupportRole(value: unknown): value is SupportRole {

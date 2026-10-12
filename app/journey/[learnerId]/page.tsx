@@ -53,7 +53,10 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
     loadJourneys(supabase, [learner as LearnerProfile]),
     getEntitlement(supabase, user.id),
     // Owner: the whole team. Member: just their own membership (RLS).
-    supabase.from("support_team_members").select("*").eq("learner_id", learner.id),
+    supabase
+      .from("support_team_members")
+      .select("id, learner_id, learner_name, invited_email, role, status, member_user_id, invite_expires_at")
+      .eq("learner_id", learner.id),
   ])
   const team = (teamRows ?? []) as SupportTeamMember[]
   const myRole = isOwner ? null : team.find((m) => m.member_user_id === user.id && m.status === "active")?.role
@@ -169,7 +172,7 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
                 Support team
               </h2>
               {entitlement.can("support_team") ? (
-                <TeamManager learnerId={learner.id} members={team} />
+                <TeamManager learnerId={learner.id} members={team} emailConfigured={Boolean(process.env.RESEND_API_KEY)} />
               ) : (
                 <UpgradePrompt
                   message={`Invite caregivers, teachers and therapists to follow and contribute to ${learner.name}'s plan.`}
