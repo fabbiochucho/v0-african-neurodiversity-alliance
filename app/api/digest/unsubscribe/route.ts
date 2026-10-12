@@ -2,6 +2,9 @@ import { NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase/service"
 import { appUrl } from "@/lib/digest"
 
+// Token lookups must never come from Next's fetch cache.
+export const dynamic = "force-dynamic"
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 async function unsubscribe(request: Request): Promise<boolean> {
