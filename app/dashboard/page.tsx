@@ -160,6 +160,12 @@ export default async function DashboardPage() {
             <Link href="/iep/settings/subscription" className="hover:underline">
               Plan: {SUBSCRIPTION_TIERS[entitlement.tier].name}
             </Link>
+            <Link href="/account" className="hover:underline">
+              Account
+            </Link>
+            <Link href="/people/new" className="hover:underline">
+              Create support profile
+            </Link>
             <Link href="/settings/connections" className="hover:underline">
               Connected accounts
             </Link>

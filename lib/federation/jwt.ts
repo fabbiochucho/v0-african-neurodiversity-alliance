@@ -67,3 +67,35 @@ export async function signRequestToken(payload: RequestTokenPayload): Promise<st
     .setExpirationTime("2m")
     .sign(key)
 }
+
+// ---- Round 3 cross-app contract ---------------------------------------------
+// Neu Rafiki calls this app's /api/federation/entitlements and
+// /api/federation/check-in-summary with a request token it signed with its
+// own private key (same shape as RequestTokenPayload, issuer "neurafiki"):
+//   requesting_user_id    = the Neu Rafiki user
+//   target_remote_user_id = this app's user (from Neu Rafiki's linked_accounts)
+//   scope                 = "entitlements_read" | "check_in_summary"
+export interface SiblingRequestToken {
+  requesting_user_id: string
+  target_remote_user_id: string
+  scope: string
+}
+
+export async function verifySiblingRequestToken(token: string, expectedScope: string): Promise<SiblingRequestToken> {
+  const key = await getSiblingPublicKey()
+  const { payload } = await jwtVerify(token, key, { issuer: SIBLING_APP_ID, maxTokenAge: "2m" })
+  if (payload.scope !== expectedScope) throw new Error("wrong scope")
+  if (typeof payload.requesting_user_id !== "string" || typeof payload.target_remote_user_id !== "string") {
+    throw new Error("malformed token")
+  }
+  return {
+    requesting_user_id: payload.requesting_user_id,
+    target_remote_user_id: payload.target_remote_user_id,
+    scope: payload.scope,
+  }
+}
+
+export function bearerToken(request: Request): string | null {
+  const header = request.headers.get("authorization") ?? ""
+  return header.startsWith("Bearer ") ? header.slice(7) : null
+}
