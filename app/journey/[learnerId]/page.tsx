@@ -12,6 +12,7 @@ import { loadJourneys } from "@/lib/journey-data"
 import { allGoals, buildTimeline, goalTrend, summarisePerson, type TimelineKind } from "@/lib/journey"
 import type { LearnerProfile } from "@/lib/types/iep"
 import { TeamManager } from "@/components/support-team"
+import { WhatChanged } from "@/components/what-changed"
 import { UpgradePrompt } from "@/components/upgrade-prompt"
 import { FEATURE_MIN_TIER } from "@/lib/entitlements"
 import { ROLE_DESCRIPTIONS, ROLE_PERMISSIONS, type SupportTeamMember } from "@/lib/support-team"
@@ -153,6 +154,13 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
                 )
               })
             )}
+          </section>
+
+          <section aria-labelledby="changed-heading" className="space-y-4">
+            <h2 id="changed-heading" className="text-2xl font-semibold">
+              What changed?
+            </h2>
+            <WhatChanged learnerId={learner.id} snapshots={journey.input.summaries} canSave={isOwner} />
           </section>
 
           {isOwner && (

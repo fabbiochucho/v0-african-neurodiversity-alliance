@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { dbErrorResponse } from "@/lib/api-error"
 import { NextResponse } from "next/server"
+import { snapshotFromGoals } from "@/lib/journey"
 
 export async function POST(request: Request, { params }: { params: { learnerId: string } }) {
   try {
@@ -36,27 +37,11 @@ export async function POST(request: Request, { params }: { params: { learnerId: 
       )
       .in("iep_id", iepIds)
 
-    // Calculate domain progress
-    const domainProgress: Record<string, number[]> = {}
-
-    goals?.forEach((goal) => {
-      if (!domainProgress[goal.domain]) {
-        domainProgress[goal.domain] = []
-      }
-
-      const ratings = (goal.progress_logs || []).map((log: any) => log.rating)
-      if (ratings.length > 0) {
-        const avg = ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length
-        domainProgress[goal.domain].push(avg)
-      }
-    })
-
-    // Calculate average per domain
-    const domainAverages: Record<string, number> = {}
-    Object.entries(domainProgress).forEach(([domain, ratings]) => {
-      const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length
-      domainAverages[domain] = Number.parseFloat(avg.toFixed(2))
-    })
+    const snapshot = snapshotFromGoals(goals ?? [])
+    if (!snapshot) {
+      return NextResponse.json({ error: "No check-ins in the last 30 days to snapshot yet." }, { status: 400 })
+    }
+    const { domainAverages, summaryText } = snapshot
 
     // Get week boundaries
     const today = new Date()
@@ -66,11 +51,6 @@ export async function POST(request: Request, { params }: { params: { learnerId: 
 
     const weekStartStr = weekStart.toISOString().split("T")[0]
     const weekEndStr = weekEnd.toISOString().split("T")[0]
-
-    // Create summary
-    const summaryText = `Weekly Summary: Made progress across ${Object.keys(domainProgress).length} domains. Average progress: ${(
-      Object.values(domainAverages).reduce((a, b) => a + b, 0) / Object.keys(domainAverages).length
-    ).toFixed(2)}/5`
 
     const { data: summary, error } = await supabase
       .from("progress_summaries")

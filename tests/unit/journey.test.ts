@@ -1,5 +1,58 @@
 import { describe, expect, it } from "vitest"
-import { buildTimeline, goalTrend, summarisePerson, type JourneyGoal, type JourneyInput } from "@/lib/journey"
+import {
+  buildTimeline,
+  compareSnapshots,
+  goalTrend,
+  snapshotFromGoals,
+  summarisePerson,
+  type JourneyGoal,
+  type JourneyInput,
+} from "@/lib/journey"
+
+describe("snapshotFromGoals", () => {
+  const now = new Date("2026-03-31T12:00:00Z")
+
+  it("averages only the last 30 days per area", () => {
+    const snap = snapshotFromGoals(
+      [
+        { domain: "academic", progress_logs: [{ rating: 4, logged_date: "2026-03-20" }, { rating: 2, logged_date: "2026-03-25" }] },
+        { domain: "academic", progress_logs: [{ rating: 1, logged_date: "2026-01-01" }] },
+        { domain: null, progress_logs: [{ rating: 5, logged_date: "2026-03-30" }] },
+      ],
+      now,
+    )
+    expect(snap?.domainAverages).toEqual({ academic: 3, general: 5 })
+    expect(snap?.summaryText).toBe("Last 30 days: 3 check-ins across 2 areas, averaging 4.0/5.")
+  })
+
+  it("returns null (not NaN) with no recent check-ins", () => {
+    expect(snapshotFromGoals([{ domain: "motor", progress_logs: [] }], now)).toBeNull()
+  })
+})
+
+describe("compareSnapshots", () => {
+  const snap = (id: string, domain_progress: Record<string, number>) => ({
+    id,
+    week_start_date: null,
+    summary_text: null,
+    domain_progress,
+    created_at: "2026-01-01T00:00:00Z",
+  })
+
+  it("reports per-area change, ignoring sub-quarter-point noise, and new/dropped areas", () => {
+    const rows = compareSnapshots(
+      snap("a", { academic: 2, sensory: 4, motor: 3 }),
+      snap("b", { academic: 3.5, sensory: 3.6, communication: 2 }),
+    )
+    expect(rows).toEqual([
+      { domain: "academic", before: 2, after: 3.5, change: 1.5, direction: "better" },
+      { domain: "communication", before: null, after: 2, change: null, direction: "new" },
+      { domain: "motor", before: 3, after: null, change: null, direction: "dropped" },
+      { domain: "sensory", before: 4, after: 3.6, change: -0.4, direction: "worse" },
+    ])
+    expect(compareSnapshots(snap("a", { x: 3 }), snap("b", { x: 3.2 }))[0].direction).toBe("same")
+  })
+})
 
 let n = 0
 const log = (rating: number, logged_date: string) => ({
