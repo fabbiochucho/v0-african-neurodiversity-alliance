@@ -45,7 +45,7 @@ export function GoalCheckIn({ goalId, canMarkAchieved = true }: { goalId: string
             <label
               key={n}
               className={`cursor-pointer rounded-md border px-3 py-1.5 text-sm has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring ${
-                rating === n ? "border-[#3C9C87] bg-[#3C9C87]/10" : ""
+                rating === n ? "border-primary bg-primary/10" : ""
               }`}
             >
               <input
@@ -72,12 +72,12 @@ export function GoalCheckIn({ goalId, canMarkAchieved = true }: { goalId: string
         />
       </label>
       {error && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {error}
         </p>
       )}
       <div className="flex flex-wrap gap-2">
-        <Button type="submit" size="sm" disabled={busy || !rating} className="bg-[#3C9C87] hover:bg-[#2d7a6a]">
+        <Button type="submit" size="sm" disabled={busy || !rating} className="bg-primary hover:bg-primary/90">
           {busy ? "Saving..." : "Save check-in"}
         </Button>
         {canMarkAchieved && (

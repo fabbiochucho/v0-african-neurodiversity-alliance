@@ -36,7 +36,7 @@ export function ConnectActions({ token }: { token: string }) {
   return (
     <div className="space-y-4">
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
+        <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive">{error}</div>
       )}
       <div className="flex gap-4">
         <Button
@@ -47,7 +47,7 @@ export function ConnectActions({ token }: { token: string }) {
         >
           Cancel
         </Button>
-        <Button onClick={handleAccept} disabled={submitting} className="bg-[#3C9C87] hover:bg-[#2d7a6a]">
+        <Button onClick={handleAccept} disabled={submitting} className="bg-primary hover:bg-primary/90">
           {submitting ? "Connecting..." : "Connect Account"}
         </Button>
       </div>

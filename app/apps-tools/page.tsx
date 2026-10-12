@@ -96,31 +96,31 @@ const categoryMeta: Record<string, { name: string; description: string; icon: ty
     name: "Learning & Education",
     description: "Educational tools and learning support apps",
     icon: BookOpen,
-    color: "bg-secondary/10 text-secondary",
+    color: "bg-terracotta/10 text-terracotta",
   },
   sensory: {
     name: "Sensory Support",
     description: "Tools for sensory processing and regulation",
     icon: Eye,
-    color: "bg-accent/10 text-accent",
+    color: "bg-terracotta/10 text-terracotta",
   },
   organization: {
     name: "Organization & Planning",
     description: "Time management and organizational tools",
     icon: Calendar,
-    color: "bg-green-100 text-green-700",
+    color: "bg-primary/10 text-primary",
   },
   social: {
     name: "Social Skills",
     description: "Apps to develop social interaction skills",
     icon: Heart,
-    color: "bg-purple-100 text-purple-700",
+    color: "bg-secondary text-secondary-foreground",
   },
   wellness: {
     name: "Mental Wellness",
     description: "Mindfulness, relaxation, and emotional regulation",
     icon: Smartphone,
-    color: "bg-blue-100 text-blue-700",
+    color: "bg-secondary text-secondary-foreground",
   },
 }
 
@@ -241,7 +241,7 @@ export default function AppsToolsPage() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 anda-pattern py-20">
+      <section className="bg-gradient-to-br from-primary/5 via-terracotta/5 to-terracotta/5 anda-pattern py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="secondary" className="mb-6">
@@ -313,7 +313,7 @@ export default function AppsToolsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(categoryMeta).map(([key, meta]) => (
-              <Card key={key} className="group hover:shadow-lg transition-all duration-300">
+              <Card key={key} className="group transition-colors">
                 <CardHeader>
                   <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 ${meta.color}`}>
                     <meta.icon className="h-6 w-6" />
@@ -375,7 +375,7 @@ export default function AppsToolsPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filtered.map((app) => (
-                    <Card key={app.id} className="group hover:shadow-lg transition-all duration-300">
+                    <Card key={app.id} className="group transition-colors">
                       <CardHeader>
                         <div className="flex items-start gap-3 mb-3">
                           <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
@@ -410,7 +410,7 @@ export default function AppsToolsPage() {
                         <div className="space-y-4">
                           <div className="flex items-center justify-between text-sm">
                             <div className="flex items-center gap-1">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              <Star className="h-4 w-4 fill-yellow-400 text-brand-terracotta" />
                               <span className="font-medium">{app.rating}</span>
                               <span className="text-muted-foreground">({app.reviews})</span>
                             </div>
@@ -493,12 +493,12 @@ export default function AppsToolsPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {filtered.map((tech) => (
-                    <Card key={tech.id} className="group hover:shadow-lg transition-all duration-300">
+                    <Card key={tech.id} className="group transition-colors">
                       <CardHeader>
                         <div className="flex items-start justify-between mb-2">
                           <Badge variant="outline">{categoryMeta[tech.category]?.name || tech.category}</Badge>
                           <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <Star className="h-4 w-4 fill-yellow-400 text-brand-terracotta" />
                             <span className="text-sm font-medium">{tech.rating}</span>
                             <span className="text-xs text-muted-foreground">({tech.reviews})</span>
                           </div>
@@ -581,22 +581,22 @@ export default function AppsToolsPage() {
               <p className="text-sm text-muted-foreground">High contrast, large text, screen reader compatibility</p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <MessageSquare className="h-6 w-6 text-secondary" />
+              <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <MessageSquare className="h-6 w-6 text-terracotta" />
               </div>
               <h3 className="font-semibold mb-2">Audio Features</h3>
               <p className="text-sm text-muted-foreground">Voice output, sound control, audio descriptions</p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <Wrench className="h-6 w-6 text-accent" />
+              <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <Wrench className="h-6 w-6 text-terracotta" />
               </div>
               <h3 className="font-semibold mb-2">Motor Support</h3>
               <p className="text-sm text-muted-foreground">Switch control, touch sensitivity, gesture alternatives</p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <BookOpen className="h-6 w-6 text-green-700" />
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <BookOpen className="h-6 w-6 text-primary" />
               </div>
               <h3 className="font-semibold mb-2">Cognitive Support</h3>
               <p className="text-sm text-muted-foreground">
@@ -608,7 +608,7 @@ export default function AppsToolsPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary to-secondary text-primary-foreground">
+      <section className="py-20 bg-gradient-to-r from-primary to-terracotta text-primary-foreground">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">
             Can&apos;t Find What You&apos;re Looking For?
@@ -783,7 +783,7 @@ export default function AppsToolsPage() {
               {[1, 2, 3, 4, 5].map((n) => (
                 <button key={n} type="button" onClick={() => setRatingValue(n)} aria-label={`${n} star${n > 1 ? "s" : ""}`}>
                   <Star
-                    className={`h-7 w-7 ${n <= ratingValue ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
+                    className={`h-7 w-7 ${n <= ratingValue ? "fill-yellow-400 text-brand-terracotta" : "text-muted-foreground"}`}
                   />
                 </button>
               ))}

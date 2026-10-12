@@ -223,10 +223,10 @@ export default function DirectoryPage() {
   const getTypeColor = (type: string) => {
     const colors = {
       school: "bg-primary/10 text-primary",
-      therapist: "bg-accent/10 text-accent",
-      support_group: "bg-secondary/10 text-secondary",
+      therapist: "bg-terracotta/10 text-terracotta",
+      support_group: "bg-terracotta/10 text-terracotta",
       healthcare: "bg-primary/10 text-primary",
-      caregiver: "bg-accent/10 text-accent",
+      caregiver: "bg-terracotta/10 text-terracotta",
     }
     return colors[type as keyof typeof colors] || "bg-muted text-muted-foreground"
   }
@@ -373,7 +373,7 @@ export default function DirectoryPage() {
                 {filteredResources.map((resource) => {
                   const TypeIcon = getTypeIcon(resource.type)
                   return (
-                    <Card key={resource.id} className="hover:shadow-lg transition-shadow">
+                    <Card key={resource.id} className=" transition-colors">
                       <CardHeader>
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-3">
@@ -402,7 +402,7 @@ export default function DirectoryPage() {
                           {/* Rating */}
                           <div className="flex items-center gap-2">
                             <div className="flex items-center">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              <Star className="h-4 w-4 fill-yellow-400 text-brand-terracotta" />
                               <span className="ml-1 font-medium">{resource.rating}</span>
                             </div>
                             <span className="text-sm text-muted-foreground">({resource.reviews} reviews)</span>
@@ -526,7 +526,7 @@ export default function DirectoryPage() {
         </Tabs>
 
         {/* Add Resource CTA */}
-        <Card className="bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
+        <Card className="bg-gradient-to-r from-primary/5 to-terracotta/5 border-primary/20">
           <CardContent className="p-8 text-center">
             <h3 className="text-xl font-semibold mb-2">Can&apos;t find what you&apos;re looking for?</h3>
             <p className="text-muted-foreground mb-4">Help us grow our directory by adding resources in your area</p>
@@ -727,7 +727,7 @@ export default function DirectoryPage() {
                   aria-label={`${n} star${n > 1 ? "s" : ""}`}
                 >
                   <Star
-                    className={`h-7 w-7 ${n <= ratingValue ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
+                    className={`h-7 w-7 ${n <= ratingValue ? "fill-yellow-400 text-brand-terracotta" : "text-muted-foreground"}`}
                   />
                 </button>
               ))}

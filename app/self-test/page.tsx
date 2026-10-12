@@ -88,8 +88,8 @@ export default function SelfTestPage() {
                 </div>
 
                 {federationEnabled && siblingAppUrl && (
-                  <div className="flex items-start gap-3 p-4 bg-[#3C9C87]/10 border border-[#3C9C87]/30 rounded-lg">
-                    <Brain className="h-5 w-5 text-[#3C9C87] mt-0.5 flex-shrink-0" aria-hidden="true" />
+                  <div className="flex items-start gap-3 p-4 bg-primary/10 border border-primary/30 rounded-lg">
+                    <Brain className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" aria-hidden="true" />
                     <div className="text-sm">
                       <p className="font-medium mb-1 text-foreground">Looking for the full assessment?</p>
                       <p className="text-muted-foreground">
@@ -232,7 +232,7 @@ export default function SelfTestPage() {
               </p>
 
               {federationEnabled && siblingAppUrl ? (
-                <div className="p-4 bg-[#3C9C87]/10 border border-[#3C9C87]/30 rounded-lg space-y-3">
+                <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg space-y-3">
                   <p className="font-medium">You might want to explore this further.</p>
                   <p className="text-sm text-muted-foreground">
                     Neu Rafiki offers a complete, in-depth neurodivergence assessment that goes far beyond this quick

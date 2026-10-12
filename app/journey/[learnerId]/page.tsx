@@ -77,7 +77,7 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-5xl mx-auto space-y-12">
           <header>
-            <Link href="/dashboard" className="inline-flex items-center gap-2 text-[#2d7a6a] hover:underline mb-4">
+            <Link href="/dashboard" className="inline-flex items-center gap-2 text-primary hover:underline mb-4">
               <Icons.ArrowLeft className="h-4 w-4" />
               Dashboard
             </Link>
@@ -106,7 +106,7 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
               <Card>
                 <CardContent className="p-8 text-center text-muted-foreground">
                   No active goals.{" "}
-                  <Link href="/iep/generate" className="text-[#2d7a6a] hover:underline">
+                  <Link href="/iep/generate" className="text-primary hover:underline">
                     Create a plan
                   </Link>{" "}
                   to set some.
@@ -194,7 +194,7 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
                   <li key={event.id} className="ml-6">
                     <span
                       aria-hidden="true"
-                      className="absolute -left-1.5 mt-1.5 h-3 w-3 rounded-full border-2 border-background bg-[#3C9C87]"
+                      className="absolute -left-1.5 mt-1.5 h-3 w-3 rounded-full border-2 border-background bg-primary"
                     />
                     <p className="text-xs text-muted-foreground">
                       <time dateTime={event.date}>{formatDate(event.date)}</time> · {KIND_LABEL[event.kind]}

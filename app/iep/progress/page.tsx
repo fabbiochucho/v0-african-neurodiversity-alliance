@@ -95,7 +95,7 @@ export default async function IEPProgressPage() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-5xl mx-auto">
           <div className="mb-10">
-            <Link href="/dashboard" className="inline-flex items-center gap-2 text-[#3C9C87] hover:underline mb-4">
+            <Link href="/dashboard" className="inline-flex items-center gap-2 text-primary hover:underline mb-4">
               <Icons.ArrowLeft className="h-4 w-4" />
               Back to Dashboard
             </Link>
@@ -113,7 +113,7 @@ export default async function IEPProgressPage() {
                 <p className="text-muted-foreground mb-6">
                   Create an IEP and start logging progress against its goals to see trends here.
                 </p>
-                <Button asChild className="bg-[#3C9C87] hover:bg-[#2d7a6a]">
+                <Button asChild className="bg-primary hover:bg-primary/90">
                   <Link href="/iep/generate">Create New IEP</Link>
                 </Button>
               </CardContent>

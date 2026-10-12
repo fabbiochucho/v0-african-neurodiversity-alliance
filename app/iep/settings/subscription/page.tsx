@@ -22,7 +22,7 @@ function SubscriptionStatusBanner() {
 
   if (success === "payment_completed") {
     return (
-      <div className="mb-6 p-4 bg-[#3C9C87]/10 border border-[#3C9C87]/30 rounded-lg text-sm text-[#2d7a6a]">
+      <div className="mb-6 p-4 bg-primary/10 border border-primary/30 rounded-lg text-sm text-primary">
         Payment completed successfully. Your subscription has been updated.
       </div>
     )
@@ -30,7 +30,7 @@ function SubscriptionStatusBanner() {
 
   if (error) {
     return (
-      <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+      <div className="mb-6 p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive">
         There was a problem processing your payment ({error.replace(/_/g, " ")}). Please try again.
       </div>
     )
@@ -110,7 +110,7 @@ export default function SubscriptionSettingsPage() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-4xl mx-auto">
           <div className="mb-10">
-            <Link href="/dashboard" className="inline-flex items-center gap-2 text-[#3C9C87] hover:underline mb-4">
+            <Link href="/dashboard" className="inline-flex items-center gap-2 text-primary hover:underline mb-4">
               <Icons.ArrowLeft className="h-4 w-4" />
               Back to Dashboard
             </Link>
@@ -131,7 +131,7 @@ export default function SubscriptionSettingsPage() {
                 <p className="text-muted-foreground">Loading subscription...</p>
               ) : (
                 <div className="flex items-center gap-4">
-                  <Badge className="bg-[#3C9C87]/10 text-[#3C9C87] text-base px-3 py-1 capitalize">
+                  <Badge className="bg-primary/10 text-primary text-base px-3 py-1 capitalize">
                     {SUBSCRIPTION_TIERS[currentTier]?.name || currentTier}
                   </Badge>
                   {subscription?.renewal_date && (
@@ -144,7 +144,7 @@ export default function SubscriptionSettingsPage() {
             </CardContent>
           </Card>
 
-          {error && <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>}
+          {error && <div className="mb-6 p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive">{error}</div>}
 
           <div className="flex items-center gap-3 mb-6">
             <span className="text-sm text-muted-foreground">Pay with:</span>
@@ -153,7 +153,7 @@ export default function SubscriptionSettingsPage() {
                 type="button"
                 onClick={() => setProvider("flutterwave")}
                 className={`px-3 py-1 text-sm rounded-md transition-colors ${
-                  provider === "flutterwave" ? "bg-[#3C9C87] text-white" : "text-muted-foreground"
+                  provider === "flutterwave" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
                 }`}
               >
                 Flutterwave
@@ -162,7 +162,7 @@ export default function SubscriptionSettingsPage() {
                 type="button"
                 onClick={() => setProvider("paystack")}
                 className={`px-3 py-1 text-sm rounded-md transition-colors ${
-                  provider === "paystack" ? "bg-[#3C9C87] text-white" : "text-muted-foreground"
+                  provider === "paystack" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
                 }`}
               >
                 Paystack
@@ -176,7 +176,7 @@ export default function SubscriptionSettingsPage() {
               const isCurrent = tier === currentTier
 
               return (
-                <Card key={tier} className={isCurrent ? "border-2 border-[#3C9C87]" : ""}>
+                <Card key={tier} className={isCurrent ? "border-2 border-primary" : ""}>
                   <CardHeader>
                     <CardTitle>{plan.name}</CardTitle>
                     <CardDescription>
@@ -188,13 +188,13 @@ export default function SubscriptionSettingsPage() {
                     <ul className="space-y-2 text-sm">
                       {plan.features.map((feature) => (
                         <li key={feature} className="flex items-start gap-2">
-                          <Icons.Check className="h-4 w-4 text-[#3C9C87] mt-0.5 flex-shrink-0" />
+                          <Icons.Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                           <span>{feature}</span>
                         </li>
                       ))}
                     </ul>
                     <Button
-                      className="w-full bg-[#3C9C87] hover:bg-[#2d7a6a]"
+                      className="w-full bg-primary hover:bg-primary/90"
                       variant={isCurrent ? "outline" : "default"}
                       disabled={isCurrent || tier === "free" || upgradingTier === tier}
                       onClick={() => handleUpgrade(tier)}
