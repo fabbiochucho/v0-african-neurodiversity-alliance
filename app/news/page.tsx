@@ -6,6 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ExternalLink, FlaskConical, Newspaper } from "lucide-react"
 import { TOPICS } from "@/lib/feeds"
 
+// Next 14 caches server-side fetches (including supabase-js reads) forever
+// by default, so the first render's results stuck. Refresh every 5 minutes.
+export const revalidate = 300
+
 export const metadata = {
   title: "News & Research | ANDA",
   description: "Neurodiversity news from across Africa and new open-access research, updated daily.",
