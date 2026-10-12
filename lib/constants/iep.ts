@@ -1,40 +1,14 @@
+import { tierFeatures } from "@/lib/entitlements"
+
 // IEP Tracker Constants
 
+// Feature lists are derived from lib/entitlements.ts so pricing copy can
+// only ever advertise what the server actually gates.
 export const SUBSCRIPTION_TIERS = {
-  free: {
-    name: "Free",
-    price: 0,
-    period: null as string | null,
-    features: ["Basic screening and summary", "Single profile"],
-  },
-  premium: {
-    name: "Premium",
-    price: 4.99,
-    period: "month",
-    features: ["Full screening", "Basic IEP summary", "Email summary (limited)"],
-  },
-  pro: {
-    name: "Pro",
-    price: 9.99,
-    period: "month",
-    features: [
-      "Dynamic IEP generator",
-      "Full progress tracker",
-      "Multi-user dashboard",
-      "Automated branded reports with attachments",
-    ],
-  },
-  institutional: {
-    name: "Institutional",
-    price: 99,
-    period: "year",
-    features: [
-      "Bulk enrollment",
-      "Multi-student dashboards",
-      "Organization branding add-on",
-      "Data export and analytics",
-    ],
-  },
+  free: { name: "Free", price: 0, period: null as string | null, features: tierFeatures("free") },
+  premium: { name: "Premium", price: 4.99, period: "month", features: tierFeatures("premium") },
+  pro: { name: "Pro", price: 9.99, period: "month", features: tierFeatures("pro") },
+  institutional: { name: "Institutional", price: 99, period: "year", features: tierFeatures("institutional") },
 }
 
 export const GOAL_DOMAINS = ["communication", "sensory", "academic", "motor", "attention", "behavior"] as const

@@ -42,7 +42,7 @@ export function ConnectActions({ token }: { token: string }) {
         <Button
           variant="outline"
           className="bg-transparent"
-          onClick={() => router.push("/protected")}
+          onClick={() => router.push("/dashboard")}
           disabled={submitting}
         >
           Cancel
