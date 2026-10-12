@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { dbErrorResponse, upgradeRequiredResponse } from "@/lib/api-error"
 import { FEATURE_MIN_TIER, getEntitlement } from "@/lib/entitlements"
 import { generateReportContent } from "@/lib/reports-service"
+import { getBranding } from "@/lib/branding"
 import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
@@ -48,7 +49,8 @@ export async function POST(request: Request) {
       .limit(report_type === "monthly" ? 4 : 13)
 
     // Generate report content
-    const reportContent = generateReportContent(learner, ieps, summaries ?? [], report_type, report_period)
+    const branding = await getBranding(supabase, user.id)
+    const reportContent = generateReportContent(learner, ieps, summaries ?? [], report_type, report_period, branding?.orgName)
 
     // Save report to database
     const { data: report, error } = await supabase
