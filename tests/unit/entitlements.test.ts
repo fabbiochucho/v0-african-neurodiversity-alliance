@@ -93,7 +93,9 @@ describe("getEntitlement", () => {
     const query = { select: vi.fn(), eq: vi.fn() }
     query.select.mockReturnValue(query)
     query.eq.mockReturnValueOnce(query).mockReturnValueOnce(Promise.resolve(result))
-    return { from: vi.fn(() => query), query }
+    // RPC missing (032 not applied yet) -> falls back to the TS rule.
+    const rpc = vi.fn(async () => ({ data: null, error: { message: "function public.entitled_tier does not exist" } }))
+    return { from: vi.fn(() => query), query, rpc }
   }
 
   it("resolves the tier from the user's active subscriptions", async () => {
@@ -105,6 +107,15 @@ describe("getEntitlement", () => {
     expect(ent.learnerLimit).toBe(LEARNER_LIMITS.premium)
     expect(ent.can("reports")).toBe(true)
     expect(ent.can("email_reports")).toBe(false)
+  })
+
+  it("uses the database's entitled_tier() when it is available", async () => {
+    const client = { rpc: vi.fn(async () => ({ data: "institutional", error: null })), from: vi.fn() }
+    const ent = await getEntitlement(client as never, "user-1")
+    expect(client.rpc).toHaveBeenCalledWith("entitled_tier", { p_user: "user-1" })
+    expect(client.from).not.toHaveBeenCalled()
+    expect(ent.tier).toBe("institutional")
+    expect(ent.learnerLimit).toBe(50)
   })
 
   it("fails closed to free on a query error", async () => {

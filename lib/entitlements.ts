@@ -92,10 +92,19 @@ export interface Entitlement {
 }
 
 /**
- * Reads the signed-in user's subscriptions (via their own RLS-scoped
- * client) and resolves what they're entitled to. Fails closed to Free.
+ * Resolves what the signed-in user is entitled to. Fails closed to Free.
+ *
+ * Asks the database first (public.entitled_tier, scripts/032) so the app
+ * and the RLS/trigger checks use one rule. Until 032 is applied that RPC
+ * doesn't exist, so it falls back to the identical TypeScript rule above.
  */
 export async function getEntitlement(supabase: SupabaseClient, userId: string): Promise<Entitlement> {
+  const rpc = await supabase.rpc("entitled_tier", { p_user: userId })
+  if (!rpc.error && isTier(rpc.data)) {
+    const tier = rpc.data
+    return { tier, learnerLimit: LEARNER_LIMITS[tier], can: (feature) => tierAllows(tier, feature) }
+  }
+
   const { data, error } = await supabase
     .from("subscriptions")
     .select("tier, status, renewal_date, payment_transactions(status)")
