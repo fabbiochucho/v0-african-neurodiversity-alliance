@@ -4,6 +4,7 @@ import { DigestSignup } from "@/components/digest-signup"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ExternalLink, FlaskConical, Newspaper } from "lucide-react"
+import { TOPICS } from "@/lib/feeds"
 
 export const metadata = {
   title: "News & Research | ANDA",
@@ -21,14 +22,19 @@ function formatDate(d: string | null) {
   return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
 }
 
-export default async function NewsPage({ searchParams }: { searchParams: { digest?: string } }) {
+export default async function NewsPage({ searchParams }: { searchParams: { digest?: string; topic?: string } }) {
   // Plain anon client (no cookies) so the page can be cached; RLS hides
   // anything an admin has hidden.
   const supabase = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const topic = TOPICS.some((t) => t.name === searchParams.topic) ? searchParams.topic! : null
+  const research = (scope: "africa" | "global") => {
+    const q = supabase.from("research_feed").select("id, title, url, journal, published_on, topics").eq("scope", scope)
+    return (topic ? q.contains("topics", [topic]) : q).order("published_on", { ascending: false }).limit(20)
+  }
   const [{ data: news }, { data: africa }, { data: global }] = await Promise.all([
     supabase.from("news_items").select("id, title, url, source, country, published_at").order("published_at", { ascending: false, nullsFirst: false }).limit(40),
-    supabase.from("research_feed").select("id, title, url, authors, journal, published_on").eq("scope", "africa").order("published_on", { ascending: false }).limit(20),
-    supabase.from("research_feed").select("id, title, url, authors, journal, published_on").eq("scope", "global").order("published_on", { ascending: false }).limit(20),
+    research("africa"),
+    research("global"),
   ])
   const digestMessage = searchParams.digest ? DIGEST_MESSAGES[searchParams.digest] : undefined
 
@@ -100,10 +106,32 @@ export default async function NewsPage({ searchParams }: { searchParams: { diges
             </a>
             .
           </p>
+          <nav aria-label="Filter research by topic" className="flex flex-wrap gap-2">
+            {[null, ...TOPICS.map((t) => t.name)].map((name) => {
+              const active = name === topic
+              return (
+                <a
+                  key={name ?? "all"}
+                  href={name ? `/news?topic=${encodeURIComponent(name)}#research` : "/news#research"}
+                  aria-current={active ? "page" : undefined}
+                  className={`rounded-full border px-3 py-1.5 text-sm ${active ? "border-primary bg-primary text-primary-foreground" : "hover:border-primary hover:text-primary"}`}
+                >
+                  {name ?? "All topics"}
+                </a>
+              )
+            })}
+          </nav>
+          <p className="text-sm text-muted-foreground">
+            Want the bigger picture first? Read{" "}
+            <a href="/learning/what-works" className="underline">
+              What works?
+            </a>
+            , our plain-language guide to the evidence.
+          </p>
           <div className="grid gap-6 lg:grid-cols-2">
             {[
               { title: "By African researchers", badge: "African authors", rows: africa },
-              { title: "Reviews from around the world", badge: "Review", rows: global },
+              { title: "Reviews and trials from around the world", badge: "Worldwide", rows: global },
             ].map((group) => (
               <Card key={group.title} className="min-w-0">
                 <CardHeader>
@@ -111,7 +139,9 @@ export default async function NewsPage({ searchParams }: { searchParams: { diges
                 </CardHeader>
                 <CardContent>
                   {!group.rows?.length ? (
-                    <p className="text-sm text-muted-foreground">No new papers yet. Check back soon.</p>
+                    <p className="text-sm text-muted-foreground">
+                      {topic ? `No ${topic.toLowerCase()} papers yet. Try another topic.` : "No new papers yet. Check back soon."}
+                    </p>
                   ) : (
                     <ul className="space-y-4">
                       {group.rows.map((r) => (
@@ -122,9 +152,16 @@ export default async function NewsPage({ searchParams }: { searchParams: { diges
                           <p className="text-sm text-muted-foreground mt-1">
                             {[r.journal, formatDate(r.published_on)].filter(Boolean).join(" · ")}
                           </p>
-                          <Badge variant="outline" className="mt-1 text-xs">
-                            Open access · {group.badge}
-                          </Badge>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            <Badge variant="outline" className="text-xs">
+                              Open access · {group.badge}
+                            </Badge>
+                            {r.topics?.map((t: string) => (
+                              <Badge key={t} variant="secondary" className="text-xs">
+                                {t}
+                              </Badge>
+                            ))}
+                          </div>
                         </li>
                       ))}
                     </ul>

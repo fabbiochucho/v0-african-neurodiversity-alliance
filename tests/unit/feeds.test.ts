@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { countryFromHeadline, isNeuroHeadline, mapEuropePmc, parseGdeltDate, parseRss } from "@/lib/feeds"
+import { countryFromHeadline, isNeuroHeadline, mapEuropePmc, parseGdeltDate, parseRss, topicsFor } from "@/lib/feeds"
 import { digestHtml, escapeHtml, isDigestEmpty } from "@/lib/digest"
 
 describe("isNeuroHeadline", () => {
@@ -56,6 +56,7 @@ describe("mapEuropePmc", () => {
       journal: "J X",
       published_on: "2026-10-08",
       scope: "africa",
+      topics: [],
     })
   })
   it("drops papers that aren't open access", () => {
@@ -81,5 +82,19 @@ describe("digest email", () => {
   it("is empty only when every section is empty", () => {
     expect(isDigestEmpty({ news: [], research: [], resources: [] })).toBe(true)
     expect(isDigestEmpty({ news: [], research: [], resources: [{ name: "X", country: null, url: null }] })).toBe(false)
+  })
+})
+
+describe("topicsFor", () => {
+  it("tags papers by everyday topic, allowing several", () => {
+    expect(topicsFor("Omega-3 supplementation and sleep in autistic children")).toEqual(["Sleep", "Supplements"])
+    expect(topicsFor("Aerobic exercise and executive function in ADHD")).toEqual(["Exercise"])
+    expect(topicsFor("Probiotics for gastrointestinal symptoms in autism")).toEqual(["Gut health"])
+    expect(topicsFor("Structured phonics teaching for dyslexia in primary school")).toEqual(["Education"])
+    expect(topicsFor("Music therapy for autistic people")).toEqual(["Natural therapies"])
+  })
+  it("doesn't match words that only contain a keyword", () => {
+    expect(topicsFor("Environmental risk factors for ADHD")).toEqual([])
+    expect(topicsFor("Genetic architecture of autism")).toEqual([])
   })
 })

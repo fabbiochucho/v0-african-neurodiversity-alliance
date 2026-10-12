@@ -48,7 +48,7 @@ ${section(
 )}
 ${section(
   "New open-access research",
-  c.research.map((r) => li(r.title, r.url, [r.journal, r.scope === "africa" ? "African authors" : "Review"].filter(Boolean).join(" · "))),
+  c.research.map((r) => li(r.title, r.url, [r.journal, r.scope === "africa" ? "African authors" : "Worldwide"].filter(Boolean).join(" · "))),
 )}
 ${section(
   "New in the Find Support directory",

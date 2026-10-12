@@ -31,11 +31,13 @@ create table if not exists public.research_feed (
   authors text,
   journal text,
   published_on date,
-  scope text not null check (scope in ('africa', 'global')), -- africa = African-affiliated authors; global = reviews
+  scope text not null check (scope in ('africa', 'global')), -- africa = African-affiliated authors; global = reviews + topic trials
+  topics text[] not null default '{}', -- lib/feeds.ts TOPICS, matched on the title
   is_hidden boolean not null default false,
   created_at timestamp with time zone not null default now()
 );
 create index if not exists research_feed_published_idx on public.research_feed (published_on desc);
+create index if not exists research_feed_topics_idx on public.research_feed using gin (topics);
 
 alter table public.research_feed enable row level security;
 create policy "research_feed_select_visible"

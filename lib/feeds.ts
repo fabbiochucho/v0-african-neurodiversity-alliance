@@ -16,6 +16,23 @@ export interface ResearchItem {
   journal: string | null
   published_on: string | null
   scope: "africa" | "global"
+  topics: string[]
+}
+
+// Topic tags for the research feed, matched on the paper title. A paper can
+// have several. Order is the order shown on /news.
+export const TOPICS: { name: string; pattern: RegExp }[] = [
+  { name: "Education", pattern: /\b(school|classroom|teach\w*|educat\w*|literacy|reading|phonics|learning support|inclusive)/i },
+  { name: "Exercise", pattern: /\b(exercise|physical activity|sport\w*|aerobic|motor (skill|training)|movement)/i },
+  { name: "Sleep", pattern: /\b(sleep\w*|insomnia|melatonin)/i },
+  { name: "Nutrition", pattern: /\b(diet\w*|nutri\w*|food\w*|eating|gluten|casein|ketogenic)/i },
+  { name: "Supplements", pattern: /\b(supplement\w*|vitamin\w*|omega|fatty acid\w*|fish oil|iron|ferritin|zinc|magnesium|micronutrient\w*|folinic|sulforaphane)/i },
+  { name: "Gut health", pattern: /\b(gut|microbio\w*|probiotic\w*|prebiotic\w*|gastrointestinal|faecal|fecal|constipation)/i },
+  { name: "Natural therapies", pattern: /\b(music therap\w*|yoga|mindfulness|massage|acupuncture|animal[- ]assisted|equine|herbal|meditation)/i },
+]
+
+export function topicsFor(title: string): string[] {
+  return TOPICS.filter((t) => t.pattern.test(title)).map((t) => t.name)
 }
 
 // Headline must mention a neurodivergent condition. Full-text matches are
@@ -164,14 +181,16 @@ interface EuropePmcResult {
 
 export function mapEuropePmc(r: EuropePmcResult, scope: ResearchItem["scope"]): ResearchItem | null {
   if (!r.title || r.isOpenAccess !== "Y") return null
+  const title = r.title.replace(/\.$/, "")
   return {
-    title: r.title.replace(/\.$/, ""),
+    title,
     // Europe PMC's own page shows the open-access full text.
     url: `https://europepmc.org/article/${r.source}/${r.id}`,
     authors: r.authorString?.replace(/\.$/, "") || null,
     journal: r.journalTitle || null,
     published_on: r.firstPublicationDate || null,
     scope,
+    topics: topicsFor(title),
   }
 }
 
@@ -193,6 +212,9 @@ async function europePmcSearch(query: string, scope: ResearchItem["scope"]): Pro
 // Open-access papers from the last `days` days: every paper with an
 // African-affiliated author, plus reviews worldwide (the global firehose is
 // hundreds of papers a week; reviews are what families and teachers can use).
+const TOPIC_TERMS =
+  'school OR classroom OR teacher* OR education OR literacy OR reading OR exercise OR "physical activity" OR sport* OR sleep OR melatonin OR diet* OR nutrition OR supplement* OR vitamin* OR omega OR iron OR probiotic* OR microbio* OR gut OR music OR yoga OR mindfulness OR massage OR acupuncture'
+
 function dateRange(days: number): string {
   const to = new Date()
   const from = new Date(to.getTime() - days * 86400000)
@@ -203,7 +225,13 @@ function dateRange(days: number): string {
 // indexes some late); the upsert skips ones already stored.
 export async function fetchResearch(days = 7): Promise<ResearchItem[]> {
   const africa = await europePmcSearch(`${RESEARCH_TERMS} AND AFF:(${AFRICAN_AFFILIATIONS}) AND OPEN_ACCESS:y AND ${dateRange(Math.max(days, 30))}`, "africa")
-  const global = await europePmcSearch(`${RESEARCH_TERMS} AND PUB_TYPE:"review" AND OPEN_ACCESS:y AND ${dateRange(days)}`, "global")
-  const africanUrls = new Set(africa.map((r) => r.url))
-  return [...africa, ...global.filter((r) => !africanUrls.has(r.url))]
+  const reviews = await europePmcSearch(`${RESEARCH_TERMS} AND PUB_TYPE:"review" AND OPEN_ACCESS:y AND ${dateRange(days)}`, "global")
+  // Randomised trials too, but only on everyday topics families ask about
+  // (education, exercise, sleep, diet, supplements, gut, natural therapies).
+  const trials = await europePmcSearch(
+    `${RESEARCH_TERMS} AND TITLE_ABS:(${TOPIC_TERMS}) AND PUB_TYPE:"randomized controlled trial" AND OPEN_ACCESS:y AND ${dateRange(days)}`,
+    "global",
+  )
+  const seen = new Set<string>()
+  return [...africa, ...reviews, ...trials].filter((r) => !seen.has(r.url) && seen.add(r.url))
 }

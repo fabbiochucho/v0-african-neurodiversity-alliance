@@ -87,7 +87,7 @@ export default async function AdminFeedsPage() {
             table="research"
             rows={(research ?? []).map((r) => ({
               ...r,
-              meta: [r.journal, r.scope === "africa" ? "African authors" : "Review"].filter(Boolean).join(" · "),
+              meta: [r.journal, r.scope === "africa" ? "African authors" : "Worldwide"].filter(Boolean).join(" · "),
             }))}
           />
         </section>
