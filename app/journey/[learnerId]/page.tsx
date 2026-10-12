@@ -66,6 +66,11 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
             </Link>
             <h1 className="text-4xl font-bold text-balance mb-2">{learner.name}&apos;s journey</h1>
             <p className="text-lg text-muted-foreground">{summary.headline}</p>
+            {learner.user_id === user.id && (
+              <Link href={`/iep/generate?learner=${learner.id}`} className="inline-block mt-3 text-sm font-medium text-primary hover:underline">
+                Add goals in a new plan
+              </Link>
+            )}
           </header>
 
           <SummaryCards summary={summary} />
@@ -106,7 +111,23 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
                       </div>
                       <CardTitle className="text-lg">{goal.goal_text}</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-4">
+                      {(goal.baseline || goal.target || goal.measurement) && (
+                        <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                          <div>
+                            <dt className="text-muted-foreground">Started from</dt>
+                            <dd>{goal.baseline || "Not recorded"}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-muted-foreground">Aiming for</dt>
+                            <dd>{goal.target || "Not recorded"}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-muted-foreground">Measured by</dt>
+                            <dd>{goal.measurement || "Check-ins"}</dd>
+                          </div>
+                        </dl>
+                      )}
                       <GoalCheckIn goalId={goal.id} />
                     </CardContent>
                   </Card>

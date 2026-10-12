@@ -16,6 +16,9 @@ export interface JourneyGoal {
   goal_text: string
   domain: string | null
   status: string
+  baseline?: string | null
+  target?: string | null
+  measurement?: string | null
   created_at: string
   updated_at: string
   progress_logs: JourneyLog[] | null

@@ -78,12 +78,18 @@ export interface LearnerProfile {
 // ieps.adaptive_goals / ieps.custom_goals (jsonb arrays). When an IEP is
 // created, app/api/iep/create copies these into normalized public.iep_goals
 // rows (goal_text = goal_description, domain, status = 'in_progress').
+// Wizard goal shape (audit F.7): baseline -> target -> measurement.
+// target_metric is the target; baseline/measurement/target_date are stored on
+// iep_goals (scripts/030) when the IEP is created.
 export interface GeneratedGoal {
   domain: GoalDomain
   goal_description: string
   target_metric: string
   timeline: string
   notes?: string
+  baseline?: string
+  measurement?: string
+  target_date?: string
 }
 
 // ---- public.ieps --------------------------------------------------------------
@@ -111,6 +117,9 @@ export interface IEPGoal {
   domain: GoalDomain | string | null
   status: GoalStatus
   target_completion_date: string | null
+  baseline: string | null
+  target: string | null
+  measurement: string | null
   created_at: string
   updated_at: string
 }

@@ -20,7 +20,7 @@ export async function loadJourneys(supabase: SupabaseClient, learners: LearnerPr
     supabase
       .from("ieps")
       .select(
-        "id, learner_id, title, status, created_at, custom_goals, iep_goals(id, goal_text, domain, status, created_at, updated_at, progress_logs(id, rating, notes, logged_date, created_at))",
+        "id, learner_id, title, status, created_at, custom_goals, iep_goals(id, goal_text, domain, status, baseline, target, measurement, created_at, updated_at, progress_logs(id, rating, notes, logged_date, created_at))",
       )
       .in("learner_id", ids)
       .order("created_at", { ascending: false }),
