@@ -89,7 +89,7 @@ export default async function DashboardPage() {
               Reports
             </Link>
             <Link href="/companion" className="hover:underline">
-              AI Companion
+              Companion
             </Link>
             <Link href="/iep/settings/subscription" className="hover:underline">
               Plan: {SUBSCRIPTION_TIERS[entitlement.tier].name}

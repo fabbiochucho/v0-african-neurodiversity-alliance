@@ -31,14 +31,18 @@ export const FEATURE_MIN_TIER: Record<Feature, SubscriptionTier> = {
 export const FEATURE_LABELS: Record<Feature, string> = {
   reports: "Monthly and quarterly progress reports",
   email_reports: "Email reports to family, teachers and therapists",
-  ai_companion: "AI Companion (beta, daily message limit)",
+  ai_companion: "AI chat with the Companion (beta, daily message limit)",
 }
 
 /** AI Companion messages per rolling 24h. Caps provider cost per subscriber. */
 export const AI_DAILY_MESSAGES: Record<SubscriptionTier, number> = { free: 0, premium: 0, pro: 20, institutional: 40 }
 
 /** Features every tier gets, including Free. Only list things that exist. */
-export const BASE_FEATURES = ["Personalised IEP with suggested goals", "Goal check-ins and My Journey timeline"]
+export const BASE_FEATURES = [
+  "Personalised IEP with suggested goals",
+  "Goal check-ins and My Journey timeline",
+  "Companion prompts and next steps from your own check-ins (no AI)",
+]
 
 export function isTier(value: unknown): value is SubscriptionTier {
   return typeof value === "string" && Object.prototype.hasOwnProperty.call(TIER_RANK, value)

@@ -3,9 +3,13 @@
 //
 // OWNER REVIEW REQUIRED before launch: provider/model choice, cost budget
 // (AI_DAILY_MESSAGES in lib/entitlements.ts), and all user-facing safety copy
-// below (SYSTEM_PROMPT, CRISIS_RESPONSE, DISCLAIMER).
+// below (SYSTEM_PROMPT, CRISIS_RESPONSE, DISCLAIMER, CONSENT_TEXT).
 
-export const COMPANION_MODEL = "claude-sonnet-5-5"
+// Owner decision (round 2): cheapest current model by default, overridable.
+export const DEFAULT_COMPANION_MODEL = "claude-haiku-5-5"
+export function companionModel(env: Record<string, string | undefined> = process.env): string {
+  return env.ANTHROPIC_MODEL?.trim() || DEFAULT_COMPANION_MODEL
+}
 export const MAX_MESSAGE_CHARS = 2000
 export const MAX_HISTORY_MESSAGES = 12
 export const BURST_LIMIT_PER_MINUTE = 5
@@ -106,4 +110,67 @@ export function checkRateLimit(timestamps: string[], dailyLimit: number, now: Da
   if (today >= dailyLimit) return { allowed: false, reason: "daily", remainingToday: 0 }
   if (lastMinute >= BURST_LIMIT_PER_MINUTE) return { allowed: false, reason: "burst", remainingToday }
   return { allowed: true, remainingToday }
+}
+
+// ---- Learner data in chat: explicit, per-learner, revocable consent ------
+
+/** Bump when CONSENT_FIELDS or CONSENT_TEXT changes; old consents stop counting. */
+export const CONSENT_VERSION = "2026-10-v1"
+
+/** Exactly what is sent, shown verbatim on the consent screen. */
+export const CONSENT_FIELDS = [
+  "Their first name (the first word of the name you entered), never their surname",
+  "The text and area of each goal they're currently working on",
+  "A short summary of their check-ins from the last 30 days (average rating per goal and whether it's going up or down)",
+]
+
+export const NOT_SHARED = ["Surname", "Age or date of birth", "Gender", "Country", "Support areas or diagnoses", "Check-in notes", "Reports"]
+
+export const CONSENT_TEXT = {
+  recipient: "Anthropic, the company that provides the AI model behind the companion",
+  why: "So the companion's suggestions can fit the goals you're actually working on.",
+  storage: "ANDA doesn't save your conversations. Anthropic processes each message to produce a reply under its API terms.",
+  withdraw: "You can withdraw at any time on this page. From then on, no learner information is sent, starting with the very next message.",
+}
+
+/** Latest consent event wins; it must be a grant of the current version. */
+export function hasActiveConsent(events: { action: string; consent_version: string; created_at: string }[]): boolean {
+  const latest = [...events].sort((a, b) => b.created_at.localeCompare(a.created_at))[0]
+  return latest?.action === "granted" && latest.consent_version === CONSENT_VERSION
+}
+
+export interface ContextGoal {
+  goal_text: string
+  domain: string | null
+  status: string
+  progress_logs: { rating: number; logged_date: string }[] | null
+}
+
+/** The minimal learner context described by CONSENT_FIELDS, as plain text. */
+export function buildLearnerContext(fullName: string, goals: ContextGoal[], now: Date = new Date()): string {
+  const firstName = fullName.trim().split(/\s+/)[0] || "the learner"
+  const since = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+  const lines = goals
+    .filter((g) => g.status === "in_progress")
+    .slice(0, 10)
+    .map((g) => {
+      const recent = (g.progress_logs ?? [])
+        .filter((l) => l.logged_date >= since)
+        .sort((a, b) => a.logged_date.localeCompare(b.logged_date))
+      if (recent.length === 0) return `- ${g.goal_text} (${g.domain ?? "general"}): no check-ins in the last 30 days`
+      const mean = recent.reduce((s, l) => s + l.rating, 0) / recent.length
+      const dir =
+        recent.length >= 2
+          ? recent[recent.length - 1].rating > recent[0].rating
+            ? ", trending up"
+            : recent[recent.length - 1].rating < recent[0].rating
+              ? ", trending down"
+              : ", steady"
+          : ""
+      return `- ${g.goal_text} (${g.domain ?? "general"}): ${recent.length} check-ins, average ${mean.toFixed(1)}/5${dir}`
+    })
+
+  return `The user is supporting ${firstName} and has consented to share these current goals and a 30-day check-in summary (ratings 1-5):
+${lines.length > 0 ? lines.join("\n") : "- No active goals yet."}
+Use this only to tailor practical, everyday suggestions. Do not infer or discuss diagnoses.`
 }

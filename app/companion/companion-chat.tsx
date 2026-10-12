@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { MAX_MESSAGE_CHARS, type ChatTurn } from "@/lib/companion"
 
-export function CompanionChat() {
+export function CompanionChat({ learners }: { learners: { id: string; name: string; consented: boolean }[] }) {
+  const [learnerId, setLearnerId] = useState("")
   // Conversation lives only in this component's memory.
   const [turns, setTurns] = useState<(ChatTurn & { crisis?: boolean })[]>([])
   const [draft, setDraft] = useState("")
@@ -27,7 +29,10 @@ export function CompanionChat() {
       const res = await fetch("/api/companion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next.map(({ role, content }) => ({ role, content })) }),
+        body: JSON.stringify({
+          messages: next.map(({ role, content }) => ({ role, content })),
+          learner_id: learnerId || undefined,
+        }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error || "Something went wrong")
@@ -68,6 +73,38 @@ export function CompanionChat() {
           {error}
         </p>
       )}
+
+      <div className="space-y-2 text-sm">
+        <label htmlFor="companion-learner" className="font-medium">
+          Include a learner&apos;s goals?
+        </label>
+        <select
+          id="companion-learner"
+          value={learnerId}
+          onChange={(e) => setLearnerId(e.target.value)}
+          className="w-full px-3 py-2 border rounded-lg bg-background"
+        >
+          <option value="">No, don&apos;t share any learner information</option>
+          {learners
+            .filter((l) => l.consented)
+            .map((l) => (
+              <option key={l.id} value={l.id}>
+                Yes, {l.name.trim().split(/\s+/)[0]}&apos;s goals and 30-day summary
+              </option>
+            ))}
+        </select>
+        <p className="text-xs text-muted-foreground">
+          Sharing is off until you agree for each learner.{" "}
+          {learners.map((l, i) => (
+            <span key={l.id}>
+              {i > 0 && " · "}
+              <Link href={`/companion/consent/${l.id}`} className="text-primary hover:underline">
+                {l.consented ? `Manage sharing for ${l.name}` : `Set up sharing for ${l.name}`}
+              </Link>
+            </span>
+          ))}
+        </p>
+      </div>
 
       <form onSubmit={send} className="space-y-2">
         <label htmlFor="companion-input" className="text-sm font-medium">
