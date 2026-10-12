@@ -5,38 +5,45 @@ import { Badge } from "@/components/ui/badge"
 import { Icons } from "@/lib/icons"
 import Link from "next/link"
 import { Partners } from "@/components/partners"
+import { PATHWAYS } from "@/lib/pathways"
+import { getSiblingAppUrl } from "@/lib/federation/config"
+import { neuRafikiLinks } from "@/lib/federation/contract"
 
 // Re-render hourly so a newly published partner appears without a redeploy.
 export const revalidate = 3600
 
 export default function HomePage() {
+  // NeuRafiki is the assessment entry point; without it configured, fall back
+  // to ANDA's own quick self-check rather than a dead link.
+  const nrUrl = getSiblingAppUrl()
+  const startUrl = nrUrl ? neuRafikiLinks(nrUrl).assessment() : "/self-test"
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      {/* Hero Section */}
+      {/* Hero Section (brief §45) */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-terracotta/5 to-terracotta/5 anda-pattern">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="secondary" className="mb-6 text-sm font-medium">
-              Pan-African Initiative
+              African Neurodiversity Alliance
             </Badge>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">
-              Empowering <span className="text-primary">Neurodivergent</span> Individuals Across{" "}
-              <span className="text-terracotta">Africa</span>
+              Understand every mind. <span className="text-primary">Support every journey.</span>
             </h1>
             <p className="text-xl text-muted-foreground text-pretty mb-8 max-w-3xl mx-auto leading-relaxed">
-              The African Neurodiversity Alliance (ANDA) provides comprehensive support, education, and advocacy for
-              neurodivergent individuals, families, and communities across the continent.
+              ANDA helps individuals, families, educators and professionals turn neurodiversity assessment into practical
+              support, meaningful goals and measurable progress.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button size="lg" asChild className="text-lg px-8 py-6">
-                <Link href="/self-test">
-                  Take Self-Test <Icons.ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
+                <a href={startUrl}>
+                  Start with NeuraFiki <Icons.ArrowRight className="ml-2 h-5 w-5" />
+                </a>
               </Button>
               <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6 bg-transparent">
-                <Link href="/directory">Find Support</Link>
+                <Link href="#pathways">Explore ANDA</Link>
               </Button>
             </div>
 
@@ -55,6 +62,32 @@ export default function HomePage() {
                 <div className="text-sm text-muted-foreground">community of members and advocates</div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pathways (brief §45) */}
+      <section id="pathways" aria-labelledby="pathways-heading" className="py-20 bg-background scroll-mt-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 id="pathways-heading" className="text-3xl lg:text-4xl font-bold text-balance text-center mb-12">
+            Where would you like to start?
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {PATHWAYS.map((p) => (
+              <Card key={p.slug}>
+                <CardHeader>
+                  <CardTitle>{p.title}</CardTitle>
+                  <CardDescription>{p.intro}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button variant="ghost" asChild className="w-full justify-between">
+                    <Link href={`/pathways/${p.slug}`}>
+                      See your path <Icons.ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
