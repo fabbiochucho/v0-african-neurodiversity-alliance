@@ -39,7 +39,7 @@ function LoginForm() {
       // user to log in and land back where they started. Only relative paths
       // are honored to avoid an open redirect.
       const redirectTo = searchParams.get("redirect")
-      router.push(redirectTo && redirectTo.startsWith("/") ? redirectTo : "/protected")
+      router.push(redirectTo && redirectTo.startsWith("/") ? redirectTo : "/dashboard")
     } catch (err) {
       setError("An error occurred. Please try again.")
       setLoading(false)

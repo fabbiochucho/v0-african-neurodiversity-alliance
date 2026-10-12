@@ -210,7 +210,7 @@ export function GenerateIEPForm() {
         throw new Error(iep.error || "Failed to create IEP")
       }
 
-      window.location.href = "/iep/dashboard"
+      window.location.href = "/dashboard"
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.")
       setIsSubmitting(false)

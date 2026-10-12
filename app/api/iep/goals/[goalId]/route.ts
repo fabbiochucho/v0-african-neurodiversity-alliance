@@ -14,7 +14,16 @@ export async function PUT(request: Request, { params }: { params: { goalId: stri
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const updateData = await request.json()
+    const body = await request.json()
+
+    // Only goal content/status are user-editable; iep_id etc. are not.
+    const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() }
+    for (const key of ["goal_text", "domain", "status", "target_completion_date"]) {
+      if (key in body) updateData[key] = body[key]
+    }
+    if ("status" in body && !["in_progress", "achieved", "revised"].includes(body.status)) {
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 })
+    }
 
     const { data, error } = await supabase
       .from("iep_goals")

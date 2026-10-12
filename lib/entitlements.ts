@@ -33,7 +33,7 @@ export const FEATURE_LABELS: Record<Feature, string> = {
 }
 
 /** Features every tier gets, including Free. Only list things that exist. */
-export const BASE_FEATURES = ["Personalised IEP with suggested goals", "Progress tracking"]
+export const BASE_FEATURES = ["Personalised IEP with suggested goals", "Goal check-ins and My Journey timeline"]
 
 export function isTier(value: unknown): value is SubscriptionTier {
   return typeof value === "string" && Object.prototype.hasOwnProperty.call(TIER_RANK, value)

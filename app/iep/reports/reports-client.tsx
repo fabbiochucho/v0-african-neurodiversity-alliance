@@ -118,7 +118,7 @@ export function ReportsClient({ canGenerate, canEmail }: { canGenerate: boolean;
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-4xl mx-auto">
           <div className="mb-10">
-            <Link href="/iep/dashboard" className="inline-flex items-center gap-2 text-[#3C9C87] hover:underline mb-4">
+            <Link href="/dashboard" className="inline-flex items-center gap-2 text-[#3C9C87] hover:underline mb-4">
               <Icons.ArrowLeft className="h-4 w-4" />
               Back to Dashboard
             </Link>
