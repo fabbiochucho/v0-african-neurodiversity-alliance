@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
-import { dbErrorResponse } from "@/lib/api-error"
+import { dbErrorResponse, upgradeRequiredResponse } from "@/lib/api-error"
+import { FEATURE_MIN_TIER, getEntitlement } from "@/lib/entitlements"
 import { generateReportContent } from "@/lib/reports-service"
 import { NextResponse } from "next/server"
 
@@ -13,6 +14,10 @@ export async function POST(request: Request) {
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    if (!(await getEntitlement(supabase, user.id)).can("reports")) {
+      return upgradeRequiredResponse("Progress reports are part of a paid plan.", FEATURE_MIN_TIER.reports)
     }
 
     const { learner_id, report_type, report_period } = await request.json()

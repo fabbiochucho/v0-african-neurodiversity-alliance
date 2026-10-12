@@ -10,7 +10,10 @@ import { Badge } from "@/components/ui/badge"
 import { Icons } from "@/lib/icons"
 import { createClient } from "@/lib/supabase/client"
 import { SUBSCRIPTION_TIERS } from "@/lib/constants/iep"
+import { effectiveTier, type SubscriptionRow } from "@/lib/entitlements"
 import type { Subscription, SubscriptionTier } from "@/lib/types/iep"
+
+type SubscriptionWithPayments = Subscription & SubscriptionRow
 
 function SubscriptionStatusBanner() {
   const searchParams = useSearchParams()
@@ -40,7 +43,7 @@ type PaymentProvider = "flutterwave" | "paystack"
 
 export default function SubscriptionSettingsPage() {
   const router = useRouter()
-  const [subscription, setSubscription] = useState<Subscription | null>(null)
+  const [subscriptions, setSubscriptions] = useState<SubscriptionWithPayments[]>([])
   const [loading, setLoading] = useState(true)
   const [upgradingTier, setUpgradingTier] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -60,19 +63,20 @@ export default function SubscriptionSettingsPage() {
 
       const { data } = await supabase
         .from("subscriptions")
-        .select("*")
+        .select("*, payment_transactions(status)")
         .eq("user_id", user.id)
+        .eq("status", "active")
         .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle()
 
-      setSubscription(data)
+      setSubscriptions((data as SubscriptionWithPayments[]) || [])
       setLoading(false)
     }
     load()
   }, [])
 
-  const currentTier: SubscriptionTier = subscription?.status === "active" ? subscription.tier : "free"
+  // Same rule the server enforces: only a paid, unexpired, active row counts.
+  const currentTier: SubscriptionTier = effectiveTier(subscriptions)
+  const subscription = subscriptions.find((s) => s.tier === currentTier) ?? null
 
   const handleUpgrade = async (tier: SubscriptionTier) => {
     const plan = SUBSCRIPTION_TIERS[tier]
@@ -130,9 +134,6 @@ export default function SubscriptionSettingsPage() {
                   <Badge className="bg-[#3C9C87]/10 text-[#3C9C87] text-base px-3 py-1 capitalize">
                     {SUBSCRIPTION_TIERS[currentTier]?.name || currentTier}
                   </Badge>
-                  <span className="text-sm text-muted-foreground capitalize">
-                    Status: {subscription?.status || "active"}
-                  </span>
                   {subscription?.renewal_date && (
                     <span className="text-sm text-muted-foreground">
                       Renews {new Date(subscription.renewal_date).toLocaleDateString()}

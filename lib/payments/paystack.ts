@@ -5,6 +5,7 @@
 import type { createServiceClient } from "@/lib/supabase/service"
 import { transactionMatchesRecord, type VerifiedTransaction } from "@/lib/payments/flutterwave"
 import { createHmac, timingSafeEqual } from "node:crypto"
+import { isTier, SUBSCRIPTION_PERIOD_DAYS } from "@/lib/entitlements"
 
 const PAYSTACK_BASE_URL = "https://api.paystack.co"
 
@@ -164,6 +165,14 @@ export async function finalizeSuccessfulPaystackPayment(
   }
 
   if (recordedTx.purpose === "subscription" && recordedTx.subscription_id) {
+    // Institutional is billed yearly; premium/pro monthly.
+    const { data: sub } = await service
+      .from("subscriptions")
+      .select("tier")
+      .eq("id", recordedTx.subscription_id)
+      .maybeSingle()
+    const periodDays = isTier(sub?.tier) ? SUBSCRIPTION_PERIOD_DAYS[sub.tier] : 30
+
     await service
       .from("subscriptions")
       .update({
@@ -171,7 +180,7 @@ export async function finalizeSuccessfulPaystackPayment(
         flutterwave_ref: paystackReference,
         amount_paid: recordedTx.amount,
         payment_date: new Date().toISOString(),
-        renewal_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        renewal_date: new Date(Date.now() + periodDays * 24 * 60 * 60 * 1000).toISOString(),
       })
       .eq("id", recordedTx.subscription_id)
   }
