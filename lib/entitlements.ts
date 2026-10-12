@@ -20,16 +20,18 @@ export const SUBSCRIPTION_PERIOD_DAYS: Record<SubscriptionTier, number> = {
   institutional: 365,
 }
 
-export type Feature = "reports" | "email_reports"
+export type Feature = "reports" | "email_reports" | "support_team"
 
 export const FEATURE_MIN_TIER: Record<Feature, SubscriptionTier> = {
   reports: "premium",
   email_reports: "pro",
+  support_team: "pro",
 }
 
 export const FEATURE_LABELS: Record<Feature, string> = {
   reports: "Monthly and quarterly progress reports",
   email_reports: "Email reports to family, teachers and therapists",
+  support_team: "Invite caregivers, teachers and therapists to a support team",
 }
 
 /** Features every tier gets, including Free. Only list things that exist. */

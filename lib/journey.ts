@@ -16,6 +16,9 @@ export interface JourneyGoal {
   goal_text: string
   domain: string | null
   status: string
+  baseline?: string | null
+  target?: string | null
+  measurement?: string | null
   created_at: string
   updated_at: string
   progress_logs: JourneyLog[] | null
@@ -41,7 +44,72 @@ export interface JourneySnapshot {
   id: string
   week_start_date: string | null
   summary_text: string | null
+  domain_progress?: Record<string, number> | null
   created_at: string
+}
+
+export interface SnapshotChange {
+  domain: string
+  before: number | null
+  after: number | null
+  change: number | null
+  direction: "better" | "worse" | "same" | "new" | "dropped"
+}
+
+export const SNAPSHOT_WINDOW_DAYS = 30
+
+/**
+ * A progress snapshot: average check-in rating per area over the last 30
+ * days (not all-time, so two snapshots a month apart actually differ).
+ * Null when there are no recent check-ins.
+ */
+export function snapshotFromGoals(
+  goals: { domain: string | null; progress_logs: { rating: number; logged_date: string }[] | null }[],
+  now: Date = new Date(),
+): { domainAverages: Record<string, number>; summaryText: string } | null {
+  const since = new Date(now.getTime() - SNAPSHOT_WINDOW_DAYS * DAY_MS).toISOString().slice(0, 10)
+  const byDomain: Record<string, number[]> = {}
+
+  for (const goal of goals) {
+    for (const log of goal.progress_logs ?? []) {
+      if (log.logged_date < since) continue
+      ;(byDomain[goal.domain || "general"] ??= []).push(log.rating)
+    }
+  }
+
+  const domains = Object.keys(byDomain)
+  if (domains.length === 0) return null
+
+  const domainAverages = Object.fromEntries(
+    domains.map((d) => [d, Math.round((byDomain[d].reduce((s, r) => s + r, 0) / byDomain[d].length) * 100) / 100]),
+  )
+  const overall = Object.values(domainAverages).reduce((s, v) => s + v, 0) / domains.length
+  const checkIns = Object.values(byDomain).reduce((s, r) => s + r.length, 0)
+
+  return {
+    domainAverages,
+    summaryText: `Last ${SNAPSHOT_WINDOW_DAYS} days: ${checkIns} check-in${checkIns === 1 ? "" : "s"} across ${domains.length} area${
+      domains.length === 1 ? "" : "s"
+    }, averaging ${overall.toFixed(1)}/5.`,
+  }
+}
+
+/** "What changed?" between two progress snapshots, per area (avg rating /5). */
+export function compareSnapshots(from: JourneySnapshot, to: JourneySnapshot): SnapshotChange[] {
+  const a = from.domain_progress ?? {}
+  const b = to.domain_progress ?? {}
+  const domains = Array.from(new Set([...Object.keys(a), ...Object.keys(b)])).sort()
+
+  return domains.map((domain) => {
+    const before = typeof a[domain] === "number" ? a[domain] : null
+    const after = typeof b[domain] === "number" ? b[domain] : null
+    if (before === null) return { domain, before, after, change: null, direction: "new" }
+    if (after === null) return { domain, before, after, change: null, direction: "dropped" }
+    const change = Math.round((after - before) * 100) / 100
+    // Under a quarter-point either way is noise on a 1-5 scale.
+    const direction = change >= 0.25 ? "better" : change <= -0.25 ? "worse" : "same"
+    return { domain, before, after, change, direction }
+  })
 }
 
 export interface JourneyInput {

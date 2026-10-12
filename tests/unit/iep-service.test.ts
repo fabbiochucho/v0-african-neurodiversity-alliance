@@ -1,6 +1,20 @@
 import { describe, expect, it } from "vitest"
 import { IEPService } from "@/lib/iep-service"
 
+describe("IEPService.suggestionsFor", () => {
+  it("returns only suggestions for the chosen goal area, from the selected support areas", () => {
+    const academic = IEPService.suggestionsFor(["ADHD", "Dyslexia"], "academic")
+    expect(academic.length).toBe(3)
+    expect(academic.every((s) => s.suggestion && s.metric)).toBe(true)
+    expect(IEPService.suggestionsFor(["ASD"], "academic")).toEqual([])
+  })
+
+  it("de-duplicates and handles areas with no templates", () => {
+    expect(IEPService.suggestionsFor(["ASD", "ASD"], "sensory")).toHaveLength(1)
+    expect(IEPService.suggestionsFor(["Sensory", "Cognitive"], "sensory")).toEqual([])
+  })
+})
+
 describe("IEPService.generateAdaptiveGoals", () => {
   it("returns adaptive goals for a supported diagnosis domain", () => {
     const goals = IEPService.generateAdaptiveGoals({ diagnosis_domains: ["ASD"] })

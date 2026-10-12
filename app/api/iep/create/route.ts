@@ -42,7 +42,15 @@ export async function POST(request: Request) {
     // Fan the jsonb adaptive_goals/custom_goals (GeneratedGoal shape:
     // { domain, goal_description, target_metric, timeline, notes? }) out into
     // normalized public.iep_goals rows.
-    const allGoals: Array<{ domain?: string; goal_description?: string; text?: string }> = [
+    const allGoals: Array<{
+      domain?: string
+      goal_description?: string
+      text?: string
+      target_metric?: string
+      baseline?: string
+      measurement?: string
+      target_date?: string
+    }> = [
       ...(adaptive_goals || []),
       ...(custom_goals || []),
     ]
@@ -54,6 +62,10 @@ export async function POST(request: Request) {
           goal_text: goal.goal_description || goal.text || "",
           domain: goal.domain || null,
           status: "in_progress",
+          baseline: goal.baseline || null,
+          target: goal.target_metric || null,
+          measurement: goal.measurement || null,
+          target_completion_date: /^\d{4}-\d{2}-\d{2}$/.test(goal.target_date || "") ? goal.target_date : null,
         }))
         .filter((goal) => goal.goal_text)
 
