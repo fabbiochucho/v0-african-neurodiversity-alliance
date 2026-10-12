@@ -36,7 +36,7 @@ export function PersonCard({ learner, summary }: { learner: LearnerProfile; summ
         )}
         <Link
           href={`/journey/${learner.id}`}
-          className="inline-block font-medium text-[#2d7a6a] underline-offset-4 hover:underline"
+          className="inline-block font-medium text-primary underline-offset-4 hover:underline"
         >
           Open {learner.name}&apos;s journey
         </Link>
@@ -96,7 +96,7 @@ export function SummaryCards({ summary }: { summary: PersonSummary }) {
               {summary.nextSteps.map((step) => (
                 <li key={step.label}>
                   {step.href ? (
-                    <Link href={step.href} className="text-[#2d7a6a] underline-offset-4 hover:underline">
+                    <Link href={step.href} className="text-primary underline-offset-4 hover:underline">
                       {step.label}
                     </Link>
                   ) : (

@@ -15,21 +15,21 @@ export default function IEPTrackerPage() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#3C9C87]/5 via-[#FFC857]/5 to-[#0081A7]/5">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-terracotta/5 to-terracotta/5">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="secondary" className="mb-6 text-sm font-medium">
               IEP Tracker Add-on
             </Badge>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">
-              ANDA <span className="text-[#3C9C87]">NeuroCare</span>
+              ANDA <span className="text-primary">NeuroCare</span>
             </h1>
             <p className="text-xl text-muted-foreground text-pretty mb-8 max-w-3xl mx-auto leading-relaxed">
               Create personalized Individualized Education Plans (IEPs), log progress against each goal, and share
               progress reports with the people supporting your learner.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button size="lg" asChild className="text-lg px-8 py-6 bg-[#3C9C87] hover:bg-[#2d7a6a]">
+              <Button size="lg" asChild className="text-lg px-8 py-6 bg-primary hover:bg-primary/90">
                 <Link href="/dashboard">
                   Go to Dashboard <Icons.ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
@@ -54,10 +54,10 @@ export default function IEPTrackerPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* IEP Generator */}
-            <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-[#3C9C87]/20">
+            <Card className="group transition-colors border-2 hover:border-primary/20">
               <CardHeader>
-                <div className="w-12 h-12 bg-[#3C9C87]/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#3C9C87]/20 transition-colors">
-                  <Icons.FileText className="h-6 w-6 text-[#3C9C87]" />
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <Icons.FileText className="h-6 w-6 text-primary" />
                 </div>
                 <CardTitle>IEP Generator</CardTitle>
                 <CardDescription>
@@ -74,10 +74,10 @@ export default function IEPTrackerPage() {
             </Card>
 
             {/* Progress Tracking */}
-            <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-[#FFC857]/20">
+            <Card className="group transition-colors border-2 hover:border-terracotta/20">
               <CardHeader>
-                <div className="w-12 h-12 bg-[#FFC857]/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#FFC857]/20 transition-colors">
-                  <Icons.TrendingUp className="h-6 w-6 text-[#FFC857]" />
+                <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-terracotta/20 transition-colors">
+                  <Icons.TrendingUp className="h-6 w-6 text-terracotta" />
                 </div>
                 <CardTitle>Progress Tracking</CardTitle>
                 <CardDescription>
@@ -94,10 +94,10 @@ export default function IEPTrackerPage() {
             </Card>
 
             {/* Automated Reports */}
-            <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-[#0081A7]/20">
+            <Card className="group transition-colors border-2 hover:border-terracotta/20">
               <CardHeader>
-                <div className="w-12 h-12 bg-[#0081A7]/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#0081A7]/20 transition-colors">
-                  <Icons.Mail className="h-6 w-6 text-[#0081A7]" />
+                <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-terracotta/20 transition-colors">
+                  <Icons.Mail className="h-6 w-6 text-terracotta" />
                 </div>
                 <CardTitle>Progress Reports</CardTitle>
                 <CardDescription>
@@ -143,7 +143,7 @@ export default function IEPTrackerPage() {
                     <ul className="space-y-2 text-sm">
                       {plan.features.map((feature) => (
                         <li key={feature} className="flex items-start gap-2">
-                          <Icons.Check className="h-4 w-4 text-[#3C9C87] mt-0.5 flex-shrink-0" />
+                          <Icons.Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                           {feature}
                         </li>
                       ))}

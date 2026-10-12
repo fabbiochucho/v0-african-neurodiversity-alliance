@@ -4,82 +4,97 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* ANDA Brand Colors */
-  --anda-blue: #4a90e2;
-  --anda-teal: #1abc9c;
-  --anda-coral: #ff6f61;
-  --anda-light-gray: #f5f5f5;
-  --anda-medium-gray: #9b9b9b;
-  --anda-dark-charcoal: #333333;
+  /*
+   * "African Calm + Intelligent Warmth" (audit item F.5).
+   * Brand colours as given; *-ink variants are the same hues darkened just
+   * enough to pass WCAG AA (4.5:1) for normal-size text and for white text
+   * on filled buttons. #2F8674 on #FAF7F2 is 4.1:1 and white on #2F8674 is
+   * 4.4:1, so the brand teal itself is used for large/decorative elements.
+   */
+  --brand-teal: #2f8674;
+  --brand-terracotta: #b85f41;
 
-  /* Semantic Design Tokens */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.55 0.15 220);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.6 0.12 180);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.65 0.15 25);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --background: #faf7f2; /* warm off-white */
+  --foreground: #2b2420; /* warm charcoal, 14:1 on background */
+  --card: #fffdf9;
+  --card-foreground: #2b2420;
+  --popover: #fffdf9;
+  --popover-foreground: #2b2420;
+  --primary: #2a7a69; /* teal-ink: 4.8:1 on background, 5.1:1 with white text */
+  --primary-foreground: #ffffff;
+  --terracotta: #a3522f; /* terracotta-ink: 5.1:1 on background, 5.4:1 with white text */
+  --terracotta-foreground: #ffffff;
+  --secondary: #efe7dc; /* warm sand surface */
+  --secondary-foreground: #2b2420;
+  --muted: #f1ebe2;
+  --muted-foreground: #6b5f57; /* 5.8:1 on background */
+  --accent: #efe5d8; /* shadcn hover/focus surface */
+  --accent-foreground: #2b2420;
+  --destructive: #b42318;
+  --destructive-foreground: #ffffff;
+  --border: #e6ddd1;
+  --input: #d9cdbf;
+  --ring: #2f8674;
+  --chart-1: #2f8674;
+  --chart-2: #b85f41;
+  --chart-3: #c9973a;
+  --chart-4: #4f6d8a;
+  --chart-5: #7e9a6e;
+  --radius: 0.75rem;
+  --sidebar: #f5f0e8;
+  --sidebar-foreground: #2b2420;
+  --sidebar-primary: #2a7a69;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #efe5d8;
+  --sidebar-accent-foreground: #2b2420;
+  --sidebar-border: #e6ddd1;
+  --sidebar-ring: #2f8674;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.6 0.15 220);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.65 0.12 180);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.7 0.15 25);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --background: #1a1613;
+  --foreground: #f3ede4;
+  --card: #231e1a;
+  --card-foreground: #f3ede4;
+  --popover: #231e1a;
+  --popover-foreground: #f3ede4;
+  --primary: #6cc2ae; /* 8.5:1 on background */
+  --primary-foreground: #10201c;
+  --terracotta: #e08e6d; /* 7:1 on background */
+  --terracotta-foreground: #1a1613;
+  --secondary: #2e2722;
+  --secondary-foreground: #f3ede4;
+  --muted: #2a241f;
+  --muted-foreground: #b8ada2; /* 8:1 on background */
+  --accent: #332b25;
+  --accent-foreground: #f3ede4;
+  --destructive: #f08a7e;
+  --destructive-foreground: #1a1613;
+  --border: #3a322c;
+  --input: #4a4038;
+  --ring: #6cc2ae;
+  --chart-1: #6cc2ae;
+  --chart-2: #e08e6d;
+  --chart-3: #e0b35c;
+  --chart-4: #8eabc8;
+  --chart-5: #a8c298;
+  --sidebar: #201b17;
+  --sidebar-foreground: #f3ede4;
+  --sidebar-primary: #6cc2ae;
+  --sidebar-primary-foreground: #10201c;
+  --sidebar-accent: #332b25;
+  --sidebar-accent-foreground: #f3ede4;
+  --sidebar-border: #3a322c;
+  --sidebar-ring: #6cc2ae;
 }
 
 @theme inline {
-  /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
+  --font-sans: var(--font-source-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-foreground: var(--terracotta-foreground);
+  --color-brand-teal: var(--brand-teal);
+  --color-brand-terracotta: var(--brand-terracotta);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -126,14 +141,22 @@
     @apply bg-background text-foreground font-sans;
   }
 
-  /* Custom ANDA utilities */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    letter-spacing: -0.01em;
+  }
+
+  /* Legacy ANDA utilities, re-pointed at the calm palette. */
   .anda-gradient {
-    background: linear-gradient(135deg, var(--anda-blue) 0%, var(--anda-teal) 100%);
+    background: linear-gradient(135deg, var(--brand-teal) 0%, var(--primary) 100%);
   }
 
   .anda-pattern {
-    background-image: radial-gradient(circle at 25% 25%, rgba(74, 144, 226, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 75% 75%, rgba(26, 188, 156, 0.1) 0%, transparent 50%);
+    background-image: radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--brand-teal) 7%, transparent) 0%, transparent 55%),
+      radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--brand-terracotta) 6%, transparent) 0%, transparent 55%);
   }
 
   .text-balance {
@@ -142,5 +165,23 @@
 
   .text-pretty {
     text-wrap: pretty;
+  }
+}
+
+/* Minimal, purposeful motion -- and none at all if the user asks for that. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

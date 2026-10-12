@@ -169,7 +169,7 @@ export default function LearningPage() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 anda-pattern py-20">
+      <section className="bg-gradient-to-br from-primary/5 via-terracotta/5 to-terracotta/5 anda-pattern py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="secondary" className="mb-6">
@@ -238,7 +238,7 @@ export default function LearningPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map((r) => (
-                <Card key={r.id} className="group hover:shadow-lg transition-all duration-300">
+                <Card key={r.id} className="group transition-colors">
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
                       <Badge variant="outline">{formatLabels[r.format] || r.format}</Badge>
@@ -255,7 +255,7 @@ export default function LearningPage() {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                          <Star className="h-4 w-4 fill-yellow-400 text-brand-terracotta" />
                           <span className="font-medium">{r.rating}</span>
                           <span className="text-muted-foreground">({r.reviews})</span>
                         </div>
@@ -303,7 +303,7 @@ export default function LearningPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary to-secondary text-primary-foreground">
+      <section className="py-20 bg-gradient-to-r from-primary to-terracotta text-primary-foreground">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">Know a Great Learning Resource?</h2>
           <p className="text-xl opacity-90 text-pretty mb-8 max-w-2xl mx-auto">
@@ -458,7 +458,7 @@ export default function LearningPage() {
               {[1, 2, 3, 4, 5].map((n) => (
                 <button key={n} type="button" onClick={() => setRatingValue(n)} aria-label={`${n} star${n > 1 ? "s" : ""}`}>
                   <Star
-                    className={`h-7 w-7 ${n <= ratingValue ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
+                    className={`h-7 w-7 ${n <= ratingValue ? "fill-yellow-400 text-brand-terracotta" : "text-muted-foreground"}`}
                   />
                 </button>
               ))}

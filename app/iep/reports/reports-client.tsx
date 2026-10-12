@@ -118,7 +118,7 @@ export function ReportsClient({ canGenerate, canEmail }: { canGenerate: boolean;
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-4xl mx-auto">
           <div className="mb-10">
-            <Link href="/dashboard" className="inline-flex items-center gap-2 text-[#3C9C87] hover:underline mb-4">
+            <Link href="/dashboard" className="inline-flex items-center gap-2 text-primary hover:underline mb-4">
               <Icons.ArrowLeft className="h-4 w-4" />
               Back to Dashboard
             </Link>
@@ -173,19 +173,19 @@ export function ReportsClient({ canGenerate, canEmail }: { canGenerate: boolean;
                 />
               </div>
 
-              {error && <p className="text-sm text-red-600">{error}</p>}
+              {error && <p className="text-sm text-destructive">{error}</p>}
 
               <Button
                 onClick={handleGenerate}
                 disabled={generating || !selectedLearner || !reportPeriod || learners.length === 0}
-                className="bg-[#3C9C87] hover:bg-[#2d7a6a]"
+                className="bg-primary hover:bg-primary/90"
               >
                 {generating ? "Generating..." : "Generate Report"}
               </Button>
               {learners.length === 0 && !loading && (
                 <p className="text-sm text-muted-foreground">
                   Create an IEP first from the{" "}
-                  <Link href="/iep/generate" className="text-[#3C9C87] hover:underline">
+                  <Link href="/iep/generate" className="text-primary hover:underline">
                     generator
                   </Link>
                   .
@@ -220,7 +220,7 @@ export function ReportsClient({ canGenerate, canEmail }: { canGenerate: boolean;
                         </CardDescription>
                       </div>
                       {report.email_sent ? (
-                        <Badge className="bg-[#3C9C87]/10 text-[#3C9C87]">Emailed</Badge>
+                        <Badge className="bg-primary/10 text-primary">Emailed</Badge>
                       ) : (
                         <Badge variant="outline">Not sent</Badge>
                       )}
@@ -250,7 +250,7 @@ export function ReportsClient({ canGenerate, canEmail }: { canGenerate: boolean;
                     ) : (
                       <p className="text-sm text-muted-foreground">
                         Emailing reports is available on the Pro plan.{" "}
-                        <Link href="/iep/settings/subscription" className="text-[#3C9C87] hover:underline">
+                        <Link href="/iep/settings/subscription" className="text-primary hover:underline">
                           See plans
                         </Link>
                       </p>

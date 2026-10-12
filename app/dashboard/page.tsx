@@ -48,7 +48,7 @@ export default async function DashboardPage() {
                 The people you support, how they&apos;re doing, and what&apos;s next.
               </p>
             </div>
-            <Button asChild className="bg-[#3C9C87] hover:bg-[#2d7a6a]">
+            <Button asChild className="bg-primary hover:bg-primary/90">
               <Link href="/iep/generate">Add a person</Link>
             </Button>
           </header>
@@ -61,7 +61,7 @@ export default async function DashboardPage() {
                   Create a plan for the person you support. Their goals, check-ins and reports will build up into
                   their journey here.
                 </p>
-                <Button asChild className="bg-[#3C9C87] hover:bg-[#2d7a6a]">
+                <Button asChild className="bg-primary hover:bg-primary/90">
                   <Link href="/iep/generate">Create a first plan</Link>
                 </Button>
               </CardContent>

@@ -129,7 +129,7 @@ export default function ResearchPage() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 anda-pattern py-20">
+      <section className="bg-gradient-to-br from-primary/5 via-terracotta/5 to-terracotta/5 anda-pattern py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="secondary" className="mb-6">
@@ -169,13 +169,13 @@ export default function ResearchPage() {
               <div className="text-sm text-muted-foreground">Published Studies</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-secondary">
+              <div className="text-3xl font-bold text-terracotta">
                 {new Set(papers.map((p) => p.journal).filter(Boolean)).size}
               </div>
               <div className="text-sm text-muted-foreground">Journals Represented</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-accent">
+              <div className="text-3xl font-bold text-terracotta">
                 {new Set(papers.flatMap((p) => p.countryFocus.split(",").map((c) => c.trim())).filter(Boolean)).size}
               </div>
               <div className="text-sm text-muted-foreground">Countries Represented</div>
@@ -224,7 +224,7 @@ export default function ResearchPage() {
           ) : (
             <div className="space-y-6">
               {filteredPapers.map((paper) => (
-                <Card key={paper.id} className="group hover:shadow-lg transition-all duration-300">
+                <Card key={paper.id} className="group transition-colors">
                   <CardContent className="p-6">
                     <div className="space-y-3">
                       <div className="flex items-start justify-between flex-wrap gap-2">
@@ -240,7 +240,7 @@ export default function ResearchPage() {
                           {paper.title}
                         </h3>
                         {paper.authors && <div className="text-sm text-muted-foreground mb-1">{paper.authors}</div>}
-                        {paper.journal && <div className="text-sm font-medium text-secondary mb-3">{paper.journal}</div>}
+                        {paper.journal && <div className="text-sm font-medium text-terracotta mb-3">{paper.journal}</div>}
                         <p className="text-muted-foreground text-sm leading-relaxed">{paper.summary}</p>
                       </div>
 
@@ -283,7 +283,7 @@ export default function ResearchPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {initiatives.map((init) => (
-                <Card key={init.id} className="hover:shadow-lg transition-all duration-300">
+                <Card key={init.id} className=" transition-colors">
                   <CardHeader>
                     <div className="flex items-center gap-2 mb-1">
                       <FlaskConical className="h-5 w-5 text-primary" />
@@ -317,7 +317,7 @@ export default function ResearchPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary to-secondary text-primary-foreground">
+      <section className="py-20 bg-gradient-to-r from-primary to-terracotta text-primary-foreground">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">
             Contribute to Neurodiversity Research in Africa

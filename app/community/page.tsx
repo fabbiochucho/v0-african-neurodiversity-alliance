@@ -50,28 +50,28 @@ const forumCategories = [
     id: "parents",
     name: "Parents & Caregivers",
     description: "Support and advice for families",
-    color: "bg-secondary/10 text-secondary",
+    color: "bg-terracotta/10 text-terracotta",
     icon: Heart,
   },
   {
     id: "educators",
     name: "Educators & Professionals",
     description: "Resources and strategies for professionals",
-    color: "bg-accent/10 text-accent",
+    color: "bg-terracotta/10 text-terracotta",
     icon: Users,
   },
   {
     id: "country",
     name: "Country-Specific Groups",
     description: "Connect with people in your region",
-    color: "bg-green-100 text-green-700",
+    color: "bg-primary/10 text-primary",
     icon: Globe,
   },
   {
     id: "success",
     name: "Success Stories",
     description: "Share achievements and positive experiences",
-    color: "bg-yellow-100 text-yellow-700",
+    color: "bg-terracotta/10 text-terracotta",
     icon: Star,
   },
 ]
@@ -238,7 +238,7 @@ export default function CommunityPage() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 anda-pattern py-20">
+      <section className="bg-gradient-to-br from-primary/5 via-terracotta/5 to-terracotta/5 anda-pattern py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="secondary" className="mb-6">
@@ -315,7 +315,7 @@ export default function CommunityPage() {
                     return (
                       <Card
                         key={category.id}
-                        className="group hover:shadow-md transition-all duration-300 cursor-pointer"
+                        className="group transition-colors cursor-pointer"
                         onClick={() => {
                           setActiveCategory(category.id)
                           setActiveTab("recent")
@@ -374,7 +374,7 @@ export default function CommunityPage() {
                     visiblePosts.map((post) => {
                       const category = forumCategories.find((c) => c.id === post.category)
                       return (
-                        <Card key={post.id} className="group hover:shadow-md transition-all duration-300">
+                        <Card key={post.id} className="group transition-colors">
                           <CardContent className="p-6">
                             <div className="flex items-start gap-4">
                               <Avatar className="h-10 w-10">
@@ -460,11 +460,11 @@ export default function CommunityPage() {
                     <div>Be respectful and supportive of all community members</div>
                   </div>
                   <div className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-secondary rounded-full mt-2 flex-shrink-0" />
+                    <div className="w-2 h-2 bg-terracotta rounded-full mt-2 flex-shrink-0" />
                     <div>Share experiences and advice constructively</div>
                   </div>
                   <div className="flex items-start gap-2">
-                    <div className="w-2 h-2 bg-accent rounded-full mt-2 flex-shrink-0" />
+                    <div className="w-2 h-2 bg-terracotta rounded-full mt-2 flex-shrink-0" />
                     <div>Respect privacy and confidentiality</div>
                   </div>
                   <div className="flex items-start gap-2">
@@ -478,7 +478,7 @@ export default function CommunityPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-secondary" />
+                    <TrendingUp className="h-5 w-5 text-terracotta" />
                     Trending Topics
                   </CardTitle>
                 </CardHeader>

@@ -67,7 +67,7 @@ export function Navigation() {
             <Button variant="outline" asChild>
               <Link href="/auth/login">Sign In</Link>
             </Button>
-            <Button asChild className="bg-accent hover:bg-accent/90">
+            <Button asChild className="bg-terracotta text-terracotta-foreground hover:bg-terracotta/90">
               <Link href="/donate">Donate</Link>
             </Button>
           </div>
@@ -155,7 +155,7 @@ export function Navigation() {
                 <Button variant="outline" asChild>
                   <Link href="/auth/login">Sign In</Link>
                 </Button>
-                <Button asChild className="bg-accent hover:bg-accent/90">
+                <Button asChild className="bg-terracotta text-terracotta-foreground hover:bg-terracotta/90">
                   <Link href="/donate">Donate</Link>
                 </Button>
               </div>

@@ -225,7 +225,7 @@ export function GenerateIEPForm() {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-12">
-            <Link href="/iep" className="inline-flex items-center gap-2 text-[#3C9C87] hover:underline mb-4">
+            <Link href="/iep" className="inline-flex items-center gap-2 text-primary hover:underline mb-4">
               <Icons.ArrowLeft className="h-4 w-4" />
               Back to IEP Tracker
             </Link>
@@ -247,10 +247,10 @@ export function GenerateIEPForm() {
                   aria-hidden="true"
                   className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
                     step === s
-                      ? "bg-[#3C9C87] text-white"
+                      ? "bg-primary text-primary-foreground"
                       : ["profile", "domains", "goals"].includes(s) &&
                           ["profile", "domains", "goals", "review"].indexOf(step) > i
-                        ? "bg-[#3C9C87]/20 text-[#3C9C87]"
+                        ? "bg-primary/20 text-primary"
                         : "bg-muted text-muted-foreground"
                   }`}
                 >
@@ -342,7 +342,7 @@ export function GenerateIEPForm() {
                   <Button
                     onClick={() => setStep("domains")}
                     disabled={!profile.name || !profile.age || !profile.country}
-                    className="bg-[#3C9C87] hover:bg-[#2d7a6a]"
+                    className="bg-primary hover:bg-primary/90"
                   >
                     Next: Select Diagnosis Domains
                   </Button>
@@ -355,7 +355,7 @@ export function GenerateIEPForm() {
           {step === "domains" && (
             <div className="space-y-6">
               {canImportFromNeuRafiki && (
-                <Card className="border-dashed border-[#3C9C87]/40">
+                <Card className="border-dashed border-primary/40">
                   <CardHeader>
                     <CardTitle>Import from Neu Rafiki</CardTitle>
                     <CardDescription>
@@ -366,7 +366,7 @@ export function GenerateIEPForm() {
                     {importError && (
                       <div
                         role="alert"
-                        className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700"
+                        className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive"
                       >
                         {importError}
                       </div>
@@ -374,7 +374,7 @@ export function GenerateIEPForm() {
                     {importedCount !== null && (
                       <div
                         role="status"
-                        className="p-3 bg-[#3C9C87]/10 border border-[#3C9C87]/30 rounded-lg text-sm text-[#2d7a6a]"
+                        className="p-3 bg-primary/10 border border-primary/30 rounded-lg text-sm text-primary"
                       >
                         Imported {importedCount} domain{importedCount === 1 ? "" : "s"} from your Neu Rafiki
                         assessment.
@@ -409,8 +409,8 @@ export function GenerateIEPForm() {
                       aria-pressed={selected}
                       className={`w-full text-left p-4 border-2 rounded-lg cursor-pointer transition-all ${
                         selected
-                          ? "border-[#3C9C87] bg-[#3C9C87]/5"
-                          : "border-muted hover:border-[#3C9C87]/50"
+                          ? "border-primary bg-primary/5"
+                          : "border-muted hover:border-primary/50"
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -418,11 +418,11 @@ export function GenerateIEPForm() {
                           aria-hidden="true"
                           className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
                             selected
-                              ? "bg-[#3C9C87] border-[#3C9C87]"
+                              ? "bg-primary border-primary"
                               : "border-muted"
                           }`}
                         >
-                          {selected && <Icons.Check className="h-3 w-3 text-white" />}
+                          {selected && <Icons.Check className="h-3 w-3 text-primary-foreground" />}
                         </div>
                         <div>
                           <div className="font-semibold">{domain}</div>
@@ -448,7 +448,7 @@ export function GenerateIEPForm() {
                   <Button
                     onClick={handleGenerateGoals}
                     disabled={!profile.diagnosis_domains || profile.diagnosis_domains.length === 0}
-                    className="bg-[#3C9C87] hover:bg-[#2d7a6a]"
+                    className="bg-primary hover:bg-primary/90"
                   >
                     Generate Adaptive Goals
                   </Button>
@@ -580,7 +580,7 @@ export function GenerateIEPForm() {
                 <Button variant="outline" onClick={() => setStep("domains")} className="bg-transparent">
                   Back
                 </Button>
-                <Button onClick={() => setStep("review")} className="bg-[#3C9C87] hover:bg-[#2d7a6a]">
+                <Button onClick={() => setStep("review")} className="bg-primary hover:bg-primary/90">
                   Review & Create IEP
                 </Button>
               </div>
@@ -644,7 +644,7 @@ export function GenerateIEPForm() {
                 </div>
 
                 {submitError && (
-                  <div role="alert" className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                  <div role="alert" className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive">
                     {submitError}
                   </div>
                 )}
@@ -656,7 +656,7 @@ export function GenerateIEPForm() {
                   <Button
                     onClick={handleCreateIEP}
                     disabled={isSubmitting}
-                    className="bg-[#3C9C87] hover:bg-[#2d7a6a]"
+                    className="bg-primary hover:bg-primary/90"
                   >
                     {isSubmitting ? "Creating IEP..." : "Create IEP"}
                   </Button>

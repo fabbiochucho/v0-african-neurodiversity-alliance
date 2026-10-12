@@ -51,7 +51,7 @@ function LoginForm() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-4">
-            <div className="text-4xl font-bold bg-gradient-to-r from-[#3C9C87] to-[#0081A7] bg-clip-text text-transparent">
+            <div className="text-4xl font-bold bg-gradient-to-r from-primary to-terracotta bg-clip-text text-transparent">
               ANDA
             </div>
           </div>
@@ -61,9 +61,9 @@ function LoginForm() {
 
         <form onSubmit={handleLogin} className="space-y-6">
           {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-              <Icons.AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-red-700">{error}</p>
+            <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg flex items-start gap-3">
+              <Icons.AlertCircle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-destructive">{error}</p>
             </div>
           )}
 
@@ -78,7 +78,7 @@ function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               required
-              className="w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3C9C87] focus:border-transparent"
+              className="w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
 
@@ -93,14 +93,14 @@ function LoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3C9C87] focus:border-transparent"
+              className="w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 px-4 bg-[#3C9C87] text-white rounded-lg font-medium hover:bg-[#2d7a6a] disabled:opacity-50 transition"
+            className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 transition"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
@@ -117,7 +117,7 @@ function LoginForm() {
 
         <Link
           href="/auth/sign-up"
-          className="block w-full text-center py-2 px-4 border border-[#3C9C87] text-[#3C9C87] rounded-lg font-medium hover:bg-[#3C9C87]/5 transition"
+          className="block w-full text-center py-2 px-4 border border-primary text-primary rounded-lg font-medium hover:bg-primary/5 transition"
         >
           Create Account
         </Link>
