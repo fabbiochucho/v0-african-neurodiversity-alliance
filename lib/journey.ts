@@ -112,13 +112,34 @@ export function compareSnapshots(from: JourneySnapshot, to: JourneySnapshot): Sn
   })
 }
 
+export interface JourneyRecord {
+  id: string
+  kind: string // observation | professional_input | assessment | check_in (scripts/042)
+  record_type: string
+  title: string | null
+  record_date: string | null
+  fields: Record<string, unknown> | null
+  created_at: string
+}
+
 export interface JourneyInput {
   ieps: JourneyIEP[]
   reports: JourneyReport[]
   summaries: JourneySnapshot[]
+  records?: JourneyRecord[]
 }
 
-export type TimelineKind = "plan" | "assessment" | "goal" | "achieved" | "progress" | "report" | "snapshot"
+export type TimelineKind =
+  | "plan"
+  | "assessment"
+  | "goal"
+  | "achieved"
+  | "progress"
+  | "report"
+  | "snapshot"
+  | "check_in"
+  | "observation"
+  | "professional_input"
 
 export interface TimelineEvent {
   id: string
@@ -211,6 +232,19 @@ export function buildTimeline(input: JourneyInput): TimelineEvent[] {
       kind: "report",
       title: `${report.report_type === "quarterly" ? "Quarterly" : "Monthly"} report generated`,
       detail: report.report_period || undefined,
+    })
+  }
+
+  for (const r of input.records ?? []) {
+    const kind: TimelineKind =
+      r.kind === "check_in" ? "check_in" : r.kind === "assessment" ? "assessment" : r.kind === "observation" ? "observation" : "professional_input"
+    const summary = typeof r.fields?.summary === "string" ? r.fields.summary : undefined
+    events.push({
+      id: `record-${r.id}`,
+      date: r.record_date ?? r.created_at,
+      kind,
+      title: r.title || (r.record_type === "support_profile" ? "Support profile updated" : "Record added"),
+      detail: summary,
     })
   }
 

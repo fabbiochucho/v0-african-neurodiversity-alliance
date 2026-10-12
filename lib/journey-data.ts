@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { LearnerProfile } from "@/lib/types/iep"
-import type { JourneyIEP, JourneyInput, JourneyReport, JourneySnapshot } from "@/lib/journey"
+import type { JourneyIEP, JourneyInput, JourneyRecord, JourneyReport, JourneySnapshot } from "@/lib/journey"
 
 export interface PersonJourney {
   learner: LearnerProfile
@@ -16,7 +16,7 @@ export async function loadJourneys(supabase: SupabaseClient, learners: LearnerPr
   const ids = learners.map((l) => l.id)
   if (ids.length === 0) return []
 
-  const [{ data: ieps }, { data: reports }, { data: summaries }] = await Promise.all([
+  const [{ data: ieps }, { data: reports }, { data: summaries }, { data: records }] = await Promise.all([
     supabase
       .from("ieps")
       .select(
@@ -29,6 +29,11 @@ export async function loadJourneys(supabase: SupabaseClient, learners: LearnerPr
       .from("progress_summaries")
       .select("id, learner_id, week_start_date, summary_text, domain_progress, created_at")
       .in("learner_id", ids),
+    // Missing table (042 not applied yet) just yields no records.
+    supabase
+      .from("learner_records")
+      .select("id, learner_id, kind, record_type, title, record_date, fields, created_at")
+      .in("learner_id", ids),
   ])
 
   type WithLearner<T> = T & { learner_id: string }
@@ -40,6 +45,7 @@ export async function loadJourneys(supabase: SupabaseClient, learners: LearnerPr
       ieps: byLearner(ieps as WithLearner<JourneyIEP>[] | null, learner.id),
       reports: byLearner(reports as WithLearner<JourneyReport>[] | null, learner.id),
       summaries: byLearner(summaries as WithLearner<JourneySnapshot>[] | null, learner.id),
+      records: byLearner(records as WithLearner<JourneyRecord>[] | null, learner.id),
     },
   }))
 }

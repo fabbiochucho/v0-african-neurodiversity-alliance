@@ -25,6 +25,9 @@ const KIND_LABEL: Record<TimelineKind, string> = {
   progress: "Check-in",
   report: "Report",
   snapshot: "Snapshot",
+  check_in: "NeuRafiki check-in",
+  observation: "Observation",
+  professional_input: "Professional input",
 }
 
 const TREND_LABEL = { up: "improving", down: "slipping", steady: "steady" } as const
@@ -94,6 +97,9 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
                 Add goals in a new plan
               </Link>
             )}
+            <Link href={`/journey/${learner.id}/profile`} className="inline-block mt-3 ml-4 text-sm font-medium text-primary hover:underline">
+              Support profile and assessments
+            </Link>
           </header>
 
           <SummaryCards summary={summary} />
