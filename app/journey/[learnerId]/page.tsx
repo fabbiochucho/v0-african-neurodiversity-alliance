@@ -11,6 +11,10 @@ import { getEntitlement } from "@/lib/entitlements"
 import { loadJourneys } from "@/lib/journey-data"
 import { allGoals, buildTimeline, goalTrend, summarisePerson, type TimelineKind } from "@/lib/journey"
 import type { LearnerProfile } from "@/lib/types/iep"
+import { TeamManager } from "@/components/support-team"
+import { UpgradePrompt } from "@/components/upgrade-prompt"
+import { FEATURE_MIN_TIER } from "@/lib/entitlements"
+import { ROLE_DESCRIPTIONS, ROLE_PERMISSIONS, type SupportTeamMember } from "@/lib/support-team"
 
 const KIND_LABEL: Record<TimelineKind, string> = {
   plan: "Plan",
@@ -43,12 +47,21 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
   const { data: learner } = await supabase.from("learner_profiles").select("*").eq("id", params.learnerId).maybeSingle()
   if (!learner) notFound()
 
-  const [[journey], entitlement] = await Promise.all([
+  const isOwner = learner.user_id === user.id
+  const [[journey], entitlement, { data: teamRows }] = await Promise.all([
     loadJourneys(supabase, [learner as LearnerProfile]),
     getEntitlement(supabase, user.id),
+    // Owner: the whole team. Member: just their own membership (RLS).
+    supabase.from("support_team_members").select("*").eq("learner_id", learner.id),
   ])
+  const team = (teamRows ?? []) as SupportTeamMember[]
+  const myRole = isOwner ? null : team.find((m) => m.member_user_id === user.id && m.status === "active")?.role
+  const canMarkAchieved = isOwner || (myRole ? ROLE_PERMISSIONS[myRole].changeGoalStatus : false)
 
-  const summary = summarisePerson(journey.input, { canReports: entitlement.can("reports"), journeyHref: "#working-on" })
+  const summary = summarisePerson(journey.input, {
+    canReports: isOwner && entitlement.can("reports"),
+    journeyHref: "#working-on",
+  })
   const goals = allGoals(journey.input)
   const active = goals.filter((g) => g.status === "in_progress")
   const timeline = buildTimeline(journey.input)
@@ -66,7 +79,13 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
             </Link>
             <h1 className="text-4xl font-bold text-balance mb-2">{learner.name}&apos;s journey</h1>
             <p className="text-lg text-muted-foreground">{summary.headline}</p>
-            {learner.user_id === user.id && (
+            {myRole && (
+              <p className="mt-2 text-sm text-muted-foreground">
+                You&apos;re on {learner.name}&apos;s support team as a <span className="capitalize">{myRole}</span>.{" "}
+                {ROLE_DESCRIPTIONS[myRole]}
+              </p>
+            )}
+            {isOwner && (
               <Link href={`/iep/generate?learner=${learner.id}`} className="inline-block mt-3 text-sm font-medium text-primary hover:underline">
                 Add goals in a new plan
               </Link>
@@ -128,13 +147,29 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
                           </div>
                         </dl>
                       )}
-                      <GoalCheckIn goalId={goal.id} />
+                      <GoalCheckIn goalId={goal.id} canMarkAchieved={canMarkAchieved} />
                     </CardContent>
                   </Card>
                 )
               })
             )}
           </section>
+
+          {isOwner && (
+            <section aria-labelledby="team-heading" className="space-y-4">
+              <h2 id="team-heading" className="text-2xl font-semibold">
+                Support team
+              </h2>
+              {entitlement.can("support_team") ? (
+                <TeamManager learnerId={learner.id} members={team} />
+              ) : (
+                <UpgradePrompt
+                  message={`Invite caregivers, teachers and therapists to follow and contribute to ${learner.name}'s plan.`}
+                  requiredTier={FEATURE_MIN_TIER.support_team}
+                />
+              )}
+            </section>
+          )}
 
           <section aria-labelledby="timeline-heading" className="space-y-4">
             <h2 id="timeline-heading" className="text-2xl font-semibold">

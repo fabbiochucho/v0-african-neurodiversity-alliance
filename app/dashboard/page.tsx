@@ -10,6 +10,8 @@ import { SUBSCRIPTION_TIERS } from "@/lib/constants/iep"
 import { loadJourneys } from "@/lib/journey-data"
 import { summarisePerson } from "@/lib/journey"
 import type { LearnerProfile } from "@/lib/types/iep"
+import { PendingInvites } from "@/components/support-team"
+import type { SupportTeamMember } from "@/lib/support-team"
 
 // The unified, person-centred ANDA dashboard: one card per person being
 // supported, answering "how are they doing, what are we working on, what's
@@ -25,13 +27,25 @@ export default async function DashboardPage() {
     redirect("/auth/login?redirectTo=/dashboard")
   }
 
-  const [{ data: profile }, { data: learners }, entitlement] = await Promise.all([
+  const [{ data: profile }, { data: learners }, entitlement, { data: teamRows }] = await Promise.all([
     supabase.from("profiles").select("first_name").eq("id", user.id).maybeSingle(),
     supabase.from("learner_profiles").select("*").eq("user_id", user.id).order("created_at", { ascending: true }),
     getEntitlement(supabase, user.id),
+    // RLS returns memberships of mine plus pending invites to my email
+    // (and teams I own, filtered out below).
+    supabase.from("support_team_members").select("*").neq("owner_id", user.id),
   ])
 
-  const people = await loadJourneys(supabase, (learners ?? []) as LearnerProfile[])
+  const team = (teamRows ?? []) as SupportTeamMember[]
+  const invites = team.filter((m) => m.status === "pending")
+  const sharedIds = team.filter((m) => m.status === "active" && m.member_user_id === user.id).map((m) => m.learner_id)
+  const { data: shared } =
+    sharedIds.length > 0 ? await supabase.from("learner_profiles").select("*").in("id", sharedIds) : { data: [] }
+
+  const [people, sharedPeople] = await Promise.all([
+    loadJourneys(supabase, (learners ?? []) as LearnerProfile[]),
+    loadJourneys(supabase, (shared ?? []) as LearnerProfile[]),
+  ])
 
   return (
     <div className="min-h-screen bg-background">
@@ -53,7 +67,9 @@ export default async function DashboardPage() {
             </Button>
           </header>
 
-          {people.length === 0 ? (
+          <PendingInvites invites={invites} />
+
+          {people.length === 0 && sharedPeople.length === 0 ? (
             <Card>
               <CardContent className="p-12 text-center space-y-4">
                 <h2 className="text-lg font-semibold">No one here yet</h2>
@@ -67,6 +83,7 @@ export default async function DashboardPage() {
               </CardContent>
             </Card>
           ) : (
+            people.length > 0 && (
             <section aria-label="People you support" className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {people.map(({ learner, input }) => (
                 <PersonCard
@@ -78,6 +95,24 @@ export default async function DashboardPage() {
                   })}
                 />
               ))}
+            </section>
+            )
+          )}
+
+          {sharedPeople.length > 0 && (
+            <section aria-labelledby="shared-heading" className="space-y-4">
+              <h2 id="shared-heading" className="text-2xl font-semibold">
+                On your support teams
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {sharedPeople.map(({ learner, input }) => (
+                  <PersonCard
+                    key={learner.id}
+                    learner={learner}
+                    summary={summarisePerson(input, { journeyHref: `/journey/${learner.id}#working-on` })}
+                  />
+                ))}
+              </div>
             </section>
           )}
 
