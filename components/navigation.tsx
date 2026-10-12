@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { AndaLogo } from "@/components/anda-logo"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { Icons } from "@/lib/icons"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
@@ -64,6 +65,7 @@ export function Navigation() {
 
           {/* Desktop CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
+            <ThemeToggle />
             <Button variant="outline" asChild>
               <Link href="/auth/login">Sign In</Link>
             </Button>
@@ -152,6 +154,7 @@ export function Navigation() {
                 Research
               </Link>
               <div className="flex flex-col space-y-2 px-3 py-2">
+                <ThemeToggle />
                 <Button variant="outline" asChild>
                   <Link href="/auth/login">Sign In</Link>
                 </Button>

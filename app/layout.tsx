@@ -43,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fraunces.variable} ${sourceSans.variable}`} suppressHydrationWarning>
       <body className="font-sans antialiased">
-        {/* Follows the OS light/dark preference. */}
+        {/* System preference by default; the header toggle persists light/dark/system. */}
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Suspense fallback={null}>{children}</Suspense>
         </ThemeProvider>
