@@ -160,6 +160,21 @@ export default function ResearchPage() {
         </div>
       </section>
 
+      {/* Link to the daily open-access feed on /news */}
+      <section className="py-6 border-b">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <p className="text-sm text-pretty">
+            <span className="font-semibold">New open-access papers every day:</span> research by African authors, plus
+            reviews from around the world.
+          </p>
+          <Button variant="outline" size="sm" asChild>
+            <a href="/news#research">
+              See latest research <ExternalLink className="h-4 w-4 ml-2" aria-hidden="true" />
+            </a>
+          </Button>
+        </div>
+      </section>
+
       {/* Research Stats */}
       <section className="py-8 bg-background border-b">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">

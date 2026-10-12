@@ -60,6 +60,10 @@ export function Navigation() {
             <Link href="/research" className="text-foreground hover:text-primary transition-colors">
               Research
             </Link>
+
+            <Link href="/news" className="text-foreground hover:text-primary transition-colors">
+              News
+            </Link>
           </div>
 
           {/* Desktop CTA Buttons */}
@@ -150,6 +154,13 @@ export function Navigation() {
                 onClick={() => setIsOpen(false)}
               >
                 Research
+              </Link>
+              <Link
+                href="/news"
+                className="block px-3 py-2 text-foreground hover:text-primary transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                News
               </Link>
               <div className="flex flex-col space-y-2 px-3 py-2">
                 <Button variant="outline" asChild>

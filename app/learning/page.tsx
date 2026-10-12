@@ -186,6 +186,19 @@ export default function LearningPage() {
         </div>
       </section>
 
+      {/* Evidence guide */}
+      <section className="py-6 border-b">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <p className="text-sm text-pretty">
+            <span className="font-semibold">What works?</span> Plain-language ratings of the research on learning support,
+            exercise, sleep, nutrition, gut health, supplements and natural therapies.
+          </p>
+          <Button variant="outline" size="sm" asChild>
+            <a href="/learning/what-works">Read the evidence guide</a>
+          </Button>
+        </div>
+      </section>
+
       {/* Search and Filter */}
       <section className="py-8 bg-background border-b">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
