@@ -4,6 +4,7 @@ import { Fraunces, Source_Sans_3 } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import { ThemeProvider } from "@/components/theme-provider"
+import { SiteFooter } from "@/components/site-footer"
 import { PreferencesSync } from "@/components/preferences-sync"
 import { PREFERENCES_BOOT_SCRIPT } from "@/lib/preferences"
 import "./globals.css"
@@ -53,6 +54,7 @@ export default function RootLayout({
         {/* System preference by default; the header toggle persists light/dark/system. */}
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Suspense fallback={null}>{children}</Suspense>
+          <SiteFooter />
         </ThemeProvider>
         <Analytics />
       </body>

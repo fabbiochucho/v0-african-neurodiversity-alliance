@@ -3,8 +3,8 @@ import { ArrowRight } from "lucide-react"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Partners } from "@/components/partners"
-import { SiteFooter } from "@/components/site-footer"
 import { KenteStrip } from "@/components/afro/kente-strip"
+import { ThreadMark } from "@/components/afro/thread-mark"
 import { JourneyLoop, type JourneyStep } from "@/components/afro/journey-loop"
 import { PATHWAYS } from "@/lib/pathways"
 import { getSiteStats } from "@/lib/site-stats"
@@ -34,16 +34,16 @@ const ECOSYSTEM = [
 
 const COMMITMENTS = [
   {
-    title: "Addressing the gap",
-    text: "Limited awareness and resources for neurodivergent individuals across African communities.",
+    title: "No diagnosis needed",
+    text: "Start a support profile and a plan from what you already see at home or in class, then add assessments when you have them.",
   },
   {
-    title: "Cultural sensitivity",
-    text: "Culturally appropriate support that respects traditional beliefs while promoting acceptance.",
+    title: "Your senses, your settings",
+    text: "Calm or vibrant colours, larger text, less motion and higher contrast, set once and kept on every page.",
   },
   {
-    title: "Scalable solutions",
-    text: "A digital-first approach that can reach communities across all 54 African countries.",
+    title: "Free where it counts",
+    text: "The support directory, the research library, the What works? guide and the companion's prompts cost nothing.",
   },
 ]
 
@@ -60,8 +60,8 @@ export default async function HomePage() {
       name: "Assess",
       product: "NeuRafiki",
       text: "A guided, high-depth screening across autism, ADHD, learning, motor, sensory and executive function. It's screening, not a diagnosis.",
-      href: startUrl,
-      action: "Start with NeuraFiki",
+      href: nrHome,
+      action: "See what the screening covers",
     },
     {
       name: "Understand",
@@ -109,7 +109,7 @@ export default async function HomePage() {
         <section aria-labelledby="hero-heading" className="relative overflow-hidden">
           <div aria-hidden="true" className="afro-texture absolute inset-y-0 right-0 hidden lg:block lg:w-[52%]" />
           <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-14 grid gap-10 lg:grid-cols-[1fr_minmax(0,26rem)] lg:items-center">
-            <div className="max-w-xl">
+            <div className="max-w-xl min-w-0">
               <h1 id="hero-heading" className="text-5xl sm:text-6xl xl:text-[4.25rem] font-semibold leading-[1.02] text-balance">
                 Understand every mind. <span className="text-primary">Support every journey.</span>
               </h1>
@@ -120,7 +120,7 @@ export default async function HomePage() {
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
                 <Button size="lg" asChild className="h-12 px-7 text-base">
                   <a href={startUrl}>
-                    Start with NeuraFiki <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
+                    Start with NeuRafiki <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
                   </a>
                 </Button>
                 <Button size="lg" variant="outline" asChild className="h-12 px-7 text-base bg-background">
@@ -135,9 +135,11 @@ export default async function HomePage() {
           </div>
         </section>
 
+        <KenteStrip height={8} />
+
         {/* What's already here, from the live database (no estimates) */}
         {stats && (
-          <section aria-label="What you'll find" className="border-y bg-secondary/60">
+          <section aria-label="What you'll find" className="border-b bg-secondary/60">
             <p className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-lg text-pretty">
               Already gathered for you:{" "}
               <Link href="/directory" className="font-semibold underline decoration-[var(--thread-terracotta)] decoration-2">
@@ -173,7 +175,7 @@ export default async function HomePage() {
                   <li key={p.slug}>
                     <Link
                       href={`/pathways/${p.slug}`}
-                      className="group grid grid-cols-[4.5rem_1fr_auto] sm:grid-cols-[7rem_1fr_auto] items-center gap-5 sm:gap-8 py-6 hover:bg-secondary/50 focus-visible:bg-secondary/50 transition-colors"
+                      className="group grid grid-cols-[3rem_1fr_auto] min-[400px]:grid-cols-[4.5rem_1fr_auto] sm:grid-cols-[7rem_1fr_auto] items-center gap-3 min-[400px]:gap-5 sm:gap-8 py-6 hover:bg-secondary/50 focus-visible:bg-secondary/50 transition-colors"
                     >
                       <span
                         aria-hidden="true"
@@ -183,10 +185,10 @@ export default async function HomePage() {
                         <span className="afro-texture absolute inset-0" style={{ ["--texture" as string]: "rgb(255 255 255 / 0.38)" }} />
                       </span>
                       <span className="min-w-0">
-                        <span className="block font-display text-2xl sm:text-3xl font-semibold" style={{ color: t.ink }}>
+                        <span className="block font-display text-2xl sm:text-3xl font-semibold break-words hyphens-auto" style={{ color: t.ink }}>
                           {p.title}
                         </span>
-                        <span className="mt-1 block text-muted-foreground text-pretty max-w-2xl">{p.intro}</span>
+                        <span className="mt-1 block text-muted-foreground text-pretty break-words hyphens-auto max-w-2xl">{p.intro}</span>
                       </span>
                       <ArrowRight
                         aria-hidden="true"
@@ -210,15 +212,14 @@ export default async function HomePage() {
                 Everything in one place
               </h2>
               <p className="mt-4 text-lg text-muted-foreground text-pretty">
-                From self-assessment tools to community support, we provide everything needed to thrive in a
-                neurodiverse world.
+                From a first check-in to a plan a teacher can follow, and the people and evidence to back it up.
               </p>
             </div>
             <ul className="grid sm:grid-cols-2 gap-x-10">
               {ECOSYSTEM.map((e) => (
                 <li key={e.href} className="border-t">
                   <Link href={e.href} className="group flex gap-4 py-5">
-                    <span aria-hidden="true" className="mt-1.5 h-10 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: e.thread }} />
+                    <ThreadMark color={e.thread} className="mt-1" />
                     <span>
                       <span className="flex items-center gap-2 font-semibold text-lg group-hover:underline">
                         {e.name}
@@ -233,15 +234,17 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Why ANDA: the one committed colour field, woven texture over deep teal */}
+        <KenteStrip height={8} />
+
+        {/* Why ANDA: the one committed colour field, mudcloth marks light on dark */}
         <section aria-labelledby="why-heading" className="relative overflow-hidden bg-loom text-loom-foreground">
-          <div aria-hidden="true" className="afro-texture absolute inset-0" style={{ ["--texture" as string]: "rgb(243 237 228 / 0.08)" }} />
+          <div aria-hidden="true" className="afro-texture absolute inset-0" style={{ ["--texture" as string]: "rgb(243 237 228 / 0.14)" }} />
           <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
             <h2 id="why-heading" className="text-4xl lg:text-5xl font-semibold text-balance max-w-3xl">
-              Creating lasting impact across Africa
+              Made for how support really works in Africa
             </h2>
             <p className="mt-4 text-xl text-loom-muted text-pretty max-w-2xl">
-              Our approach addresses the unique challenges faced by neurodivergent individuals in African communities.
+              Often there&apos;s no specialist nearby, no diagnosis yet, and a slow connection. ANDA is built for that.
             </p>
             <ul className="mt-12 grid gap-10 md:grid-cols-3">
               {COMMITMENTS.map((c, i) => (
@@ -255,6 +258,8 @@ export default async function HomePage() {
         </section>
 
         <Partners />
+
+        <KenteStrip height={8} />
 
         {/* Close: a solid terracotta field between two strips */}
         <section aria-labelledby="join-heading" className="bg-terracotta text-terracotta-foreground">
@@ -284,8 +289,6 @@ export default async function HomePage() {
           </div>
         </section>
       </main>
-
-      <SiteFooter />
     </div>
   )
 }

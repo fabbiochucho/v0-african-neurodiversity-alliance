@@ -28,8 +28,8 @@ export default function SignUpPage() {
       return
     }
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters")
+    if (password.length < 12 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password)) {
+      setError("Password must be at least 12 characters, with an uppercase letter, a lowercase letter and a number")
       return
     }
 
@@ -139,10 +139,15 @@ export default function SignUpPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
+              autoComplete="new-password"
+              minLength={12}
+              aria-describedby="password-hint"
               required
               className="w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
-            <p className="text-xs text-muted-foreground">At least 8 characters</p>
+            <p id="password-hint" className="text-xs text-muted-foreground">
+              At least 12 characters, with an uppercase letter, a lowercase letter and a number
+            </p>
           </div>
 
           <div className="space-y-2">

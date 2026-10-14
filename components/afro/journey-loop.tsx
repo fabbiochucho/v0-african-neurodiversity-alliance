@@ -33,7 +33,8 @@ export function JourneyLoop({ steps }: { steps: JourneyStep[] }) {
   const n = steps.length
   const step = steps[active]
   const circumference = 2 * Math.PI * R
-  const progress = (active / n) * circumference
+  // The thread always reaches the chosen step, so it is visible on load.
+  const progress = ((active + 1) / n) * circumference
 
   function onKey(e: React.KeyboardEvent, i: number) {
     const delta = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0
@@ -48,9 +49,22 @@ export function JourneyLoop({ steps }: { steps: JourneyStep[] }) {
     <div className="w-full max-w-[26rem] mx-auto">
       <div className="relative aspect-square">
         <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="absolute inset-0 h-full w-full" aria-hidden="true">
-          {/* warp and weft of the ring */}
-          <circle cx={C} cy={C} r={R} fill="none" stroke="var(--border)" strokeWidth="10" />
-          <circle cx={C} cy={C} r={R} fill="none" stroke="var(--texture)" strokeWidth="10" strokeDasharray="2 6" />
+          {/* the ring is woven: thread colours in short repeating blocks, like a kente strip bent round */}
+          <circle cx={C} cy={C} r={R} fill="none" stroke="var(--border)" strokeWidth="12" />
+          {["var(--thread-teal)", "var(--thread-gold)", "var(--thread-terracotta)", "var(--thread-indigo)", "var(--thread-green)"].map((c, i) => (
+            <circle
+              key={c}
+              cx={C}
+              cy={C}
+              r={R}
+              fill="none"
+              stroke={c}
+              strokeWidth="12"
+              strokeOpacity="0.28"
+              strokeDasharray="9 36"
+              strokeDashoffset={-9 * i}
+            />
+          ))}
           {/* the journey so far, drawn as a thread from Assess */}
           <circle
             cx={C}
@@ -72,12 +86,13 @@ export function JourneyLoop({ steps }: { steps: JourneyStep[] }) {
         {/* centre: where you are in the loop */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="text-center px-4 max-w-[11rem]" aria-live="polite">
-            <p className="text-xs font-semibold" style={{ color: step.product === "NeuRafiki" ? "var(--indigo)" : "var(--primary)" }}>
-              {step.product}
-            </p>
             <p className="font-display text-3xl sm:text-4xl font-semibold leading-tight">{step.name}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {active === n - 1 ? "then reassess and go round again" : `then ${steps[active + 1].name.toLowerCase()}`}
+              <span className="font-semibold" style={{ color: step.product === "NeuRafiki" ? "var(--indigo)" : "var(--primary)" }}>
+                {step.product}
+              </span>
+              {" · "}
+              {active === n - 1 ? "then reassess" : `then ${steps[active + 1].name.toLowerCase()}`}
             </p>
           </div>
         </div>

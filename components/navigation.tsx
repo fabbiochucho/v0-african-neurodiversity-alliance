@@ -17,7 +17,7 @@ export function Navigation() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center gap-4 min-h-16 py-2">
           {/* Logo */}
-          <Link href="/" className="flex-shrink-0">
+          <Link href="/" className="min-w-0 shrink">
             <AndaLogo />
           </Link>
 

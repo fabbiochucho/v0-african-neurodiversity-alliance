@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { AndaLogo } from "@/components/anda-logo"
 import { KenteStrip } from "@/components/afro/kente-strip"
+import { getSiblingAppUrl } from "@/lib/federation/config"
+import { BECOMECHANGE_URL, LEGAL_CONTACT_EMAIL, LEGAL_OWNER } from "@/lib/legal"
 
 const COLUMNS = [
   {
@@ -32,19 +34,30 @@ const COLUMNS = [
   },
 ]
 
+// Site-wide footer (rendered once in app/layout.tsx). Hidden when printing
+// so printed reports stay clean.
 export function SiteFooter() {
+  const neurafikiUrl = getSiblingAppUrl()
+  const year = new Date().getFullYear()
+
   return (
-    <footer className="bg-background">
+    <footer className="bg-background print:hidden">
       <KenteStrip height={10} />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
-          <div className="space-y-4 max-w-sm">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
+          <div className="space-y-4 max-w-sm sm:col-span-2 lg:col-span-1">
             <Link href="/" className="inline-block" aria-label="ANDA home">
               <AndaLogo />
             </Link>
             <p className="text-muted-foreground text-pretty">
               Empowering neurodivergent individuals across Africa through awareness, education, and inclusive support
               systems.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Questions or data requests:{" "}
+              <a href={`mailto:${LEGAL_CONTACT_EMAIL}`} className="underline hover:text-foreground break-all">
+                {LEGAL_CONTACT_EMAIL}
+              </a>
             </p>
           </div>
           {COLUMNS.map((col) => (
@@ -62,8 +75,44 @@ export function SiteFooter() {
             </nav>
           ))}
         </div>
-        <p className="mt-12 border-t pt-6 text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} African Neurodiversity Alliance, part of BecomeChange Institute.
+
+        {/* Family of sites */}
+        <div className="mt-12 border-t pt-6 grid gap-4 md:grid-cols-2 md:items-center">
+          <p className="text-sm text-muted-foreground text-pretty">
+            ANDA and{" "}
+            {neurafikiUrl ? (
+              <a href={neurafikiUrl} className="underline hover:text-foreground">
+                NeuRafiki
+              </a>
+            ) : (
+              "NeuRafiki"
+            )}{" "}
+            are products of{" "}
+            <a href={BECOMECHANGE_URL} className="underline hover:text-foreground">
+              {LEGAL_OWNER}
+            </a>
+            .
+          </p>
+          <nav aria-label="Legal" className="flex flex-wrap gap-x-5 gap-y-2 text-sm md:justify-end">
+            <Link href="/privacy" className="text-muted-foreground hover:text-foreground hover:underline">
+              Privacy policy
+            </Link>
+            <Link href="/terms" className="text-muted-foreground hover:text-foreground hover:underline">
+              Terms of use
+            </Link>
+            <Link href="/guidelines" className="text-muted-foreground hover:text-foreground hover:underline">
+              Community guidelines
+            </Link>
+            <Link href="/settings/accessibility" className="text-muted-foreground hover:text-foreground hover:underline">
+              Accessibility settings
+            </Link>
+            <a href={`mailto:${LEGAL_CONTACT_EMAIL}`} className="text-muted-foreground hover:text-foreground hover:underline">
+              Contact
+            </a>
+          </nav>
+        </div>
+        <p className="mt-4 text-sm text-muted-foreground">
+          &copy; {year} {LEGAL_OWNER}. All rights reserved. ANDA: African Neurodiversity Alliance.
         </p>
       </div>
     </footer>

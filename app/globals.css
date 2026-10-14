@@ -171,6 +171,9 @@
     font-family: var(--font-display);
     font-optical-sizing: auto;
     letter-spacing: -0.01em;
+    /* Long words wrap on narrow phones with large text instead of overflowing. */
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
 
   /* Legacy ANDA utilities, re-pointed at the calm palette. */
