@@ -1,5 +1,6 @@
 "use client"
 
+import { KenteStrip } from "@/components/afro/kente-strip"
 import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -12,7 +13,7 @@ export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center gap-4 min-h-16 py-2">
           {/* Logo */}
@@ -188,6 +189,7 @@ export function Navigation() {
           </div>
         )}
       </div>
+      <KenteStrip height={6} />
     </nav>
   )
 }
