@@ -10,7 +10,7 @@ export async function GET(request: Request, { params }: { params: { learnerId: s
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
     }
 
     // Get learner profile
@@ -86,6 +86,6 @@ export async function GET(request: Request, { params }: { params: { learnerId: s
         .slice(0, 10),
     })
   } catch (err) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status: 500 })
   }
 }

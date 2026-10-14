@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { calmMessage } from "@/lib/calm"
 
 export function ConnectActions({ token }: { token: string }) {
   const router = useRouter()
@@ -28,7 +29,7 @@ export function ConnectActions({ token }: { token: string }) {
 
       router.push("/settings/connections")
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.")
+      setError(calmMessage(err))
       setSubmitting(false)
     }
   }
@@ -36,18 +37,18 @@ export function ConnectActions({ token }: { token: string }) {
   return (
     <div className="space-y-4">
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
+        <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive">{error}</div>
       )}
       <div className="flex gap-4">
         <Button
           variant="outline"
           className="bg-transparent"
-          onClick={() => router.push("/protected")}
+          onClick={() => router.push("/dashboard")}
           disabled={submitting}
         >
           Cancel
         </Button>
-        <Button onClick={handleAccept} disabled={submitting} className="bg-[#3C9C87] hover:bg-[#2d7a6a]">
+        <Button onClick={handleAccept} disabled={submitting} className="bg-primary hover:bg-primary/90">
           {submitting ? "Connecting..." : "Connect Account"}
         </Button>
       </div>

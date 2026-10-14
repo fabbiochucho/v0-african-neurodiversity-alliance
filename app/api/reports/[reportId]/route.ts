@@ -11,7 +11,7 @@ export async function GET(request: Request, { params }: { params: { reportId: st
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
     }
 
     const { data, error } = await supabase.from("reports").select("*").eq("id", params.reportId).single()
@@ -33,6 +33,6 @@ export async function GET(request: Request, { params }: { params: { reportId: st
 
     return NextResponse.json(data)
   } catch (err) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status: 500 })
   }
 }

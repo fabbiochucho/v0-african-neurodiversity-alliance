@@ -7,7 +7,7 @@ export default function ResearchLoading() {
       <Navigation />
 
       {/* Hero Section Skeleton */}
-      <section className="bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 py-20">
+      <section className="bg-gradient-to-br from-primary/5 via-terracotta/5 to-terracotta/5 py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center space-y-4">
             <Skeleton className="h-6 w-32 mx-auto" />

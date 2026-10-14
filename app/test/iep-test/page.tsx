@@ -1,4 +1,5 @@
 'use client';
+import { calmMessage } from "@/lib/calm"
 
 import { useState } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
@@ -251,13 +252,13 @@ export default function IEPTestPage() {
             </div>
 
             {message && (
-              <div className="p-3 bg-green-50 border border-green-200 rounded text-green-700 text-sm">
+              <div className="p-3 bg-primary/10 border border-primary/30 rounded text-primary text-sm">
                 {message}
               </div>
             )}
 
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+              <div className="p-3 bg-destructive/10 border border-destructive/30 rounded text-destructive text-sm">
                 {error}
               </div>
             )}

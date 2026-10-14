@@ -54,6 +54,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ transactionRef, paymentLink: result.link }, { status: 201 })
   } catch (err) {
     console.error(err)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status: 500 })
   }
 }

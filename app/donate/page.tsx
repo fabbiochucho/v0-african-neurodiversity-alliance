@@ -6,6 +6,7 @@ import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Icons } from "@/lib/icons"
+import { calmMessage } from "@/lib/calm"
 
 function DonateStatusBanner() {
   const searchParams = useSearchParams()
@@ -22,7 +23,7 @@ function DonateStatusBanner() {
 
   if (error) {
     return (
-      <div className="max-w-md mx-auto p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+      <div className="max-w-md mx-auto p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive">
         There was a problem processing your donation ({error.replace(/_/g, " ")}). Please try again.
       </div>
     )
@@ -55,7 +56,7 @@ export default function DonatePage() {
 
       window.location.href = data.paymentLink
     } catch (err) {
-      setDonateError(err instanceof Error ? err.message : "Failed to start donation checkout")
+      setDonateError(calmMessage(err))
       setDonatingTier(null)
     }
   }
@@ -93,7 +94,7 @@ export default function DonatePage() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">
+      <section className="py-20 bg-gradient-to-br from-primary/5 via-terracotta/5 to-terracotta/5">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">Support Our Mission</h1>
@@ -142,7 +143,7 @@ export default function DonatePage() {
           </div>
 
           {donateError && (
-            <div className="max-w-md mx-auto mb-8 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 text-center">
+            <div className="max-w-md mx-auto mb-8 p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive text-center">
               {donateError}
             </div>
           )}
@@ -249,7 +250,7 @@ export default function DonatePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Icons.Users className="h-5 w-5 text-secondary" />
+                  <Icons.Users className="h-5 w-5 text-terracotta" />
                   Volunteer
                 </CardTitle>
               </CardHeader>
@@ -266,7 +267,7 @@ export default function DonatePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Icons.Building2 className="h-5 w-5 text-accent" />
+                  <Icons.Building2 className="h-5 w-5 text-terracotta" />
                   Corporate
                 </CardTitle>
               </CardHeader>

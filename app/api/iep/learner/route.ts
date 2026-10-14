@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
-import { dbErrorResponse } from "@/lib/api-error"
+import { dbErrorResponse, upgradeRequiredResponse } from "@/lib/api-error"
+import { getEntitlement, nextTier } from "@/lib/entitlements"
 import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
@@ -11,10 +12,27 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
     }
 
     const { name, age, gender, country, diagnosis_domains } = await request.json()
+
+    const entitlement = await getEntitlement(supabase, user.id)
+    const { count, error: countError } = await supabase
+      .from("learner_profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+
+    if (countError) {
+      return dbErrorResponse(countError)
+    }
+
+    if ((count ?? 0) >= entitlement.learnerLimit) {
+      return upgradeRequiredResponse(
+        `Your plan allows ${entitlement.learnerLimit} learner profile${entitlement.learnerLimit === 1 ? "" : "s"}. Upgrade to add more.`,
+        nextTier(entitlement.tier),
+      )
+    }
 
     const { data, error } = await supabase
       .from("learner_profiles")
@@ -35,7 +53,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(data, { status: 201 })
   } catch (err) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status: 500 })
   }
 }
 
@@ -48,7 +66,7 @@ export async function GET() {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
     }
 
     const { data, error } = await supabase
@@ -63,6 +81,6 @@ export async function GET() {
 
     return NextResponse.json(data)
   } catch (err) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status: 500 })
   }
 }

@@ -9,7 +9,7 @@ export const config = {
   matcher: [
     // Session-refresh middleware only needs to run on routes that actually
     // read auth state. Every one of these already does its own independent
-    // supabase.auth.getUser() check server-side (see app/protected/page.tsx,
+    // supabase.auth.getUser() check server-side (see app/dashboard/page.tsx, app/journey/[learnerId]/page.tsx,
     // app/iep/*/page.tsx, app/settings/connections/page.tsx, app/connect/page.tsx),
     // so this isn't the only thing gating access -- it's here to refresh the
     // session cookie for logged-in users navigating the authenticated app
@@ -18,6 +18,18 @@ export const config = {
     // need this, so excluding them removes an unnecessary Supabase network
     // round-trip from nearly every page load on the site.
     "/protected/:path*",
+    "/dashboard",
+    "/journey/:path*",
+    "/account/:path*",
+    "/people/:path*",
+    "/plan/:path*",
+    "/welcome/:path*",
+    "/team/:path*",
+    "/companion/:path*",
+    "/team-dashboard",
+    "/screening",
+    "/learners/:path*",
+    "/export",
     "/iep/:path*",
     "/settings/:path*",
     "/connect",

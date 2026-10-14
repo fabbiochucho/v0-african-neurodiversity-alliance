@@ -4,7 +4,7 @@ import { DigestSignup } from "@/components/digest-signup"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ExternalLink, FlaskConical, Newspaper } from "lucide-react"
-import { TOPICS } from "@/lib/feeds"
+import { NEWS_WINDOW_DAYS, TOPICS } from "@/lib/feeds"
 
 // Next 14 caches server-side fetches (including supabase-js reads) forever
 // by default, so the first render's results stuck. Refresh every 5 minutes.
@@ -36,7 +36,12 @@ export default async function NewsPage({ searchParams }: { searchParams: { diges
     return (topic ? q.contains("topics", [topic]) : q).order("published_on", { ascending: false }).limit(20)
   }
   const [{ data: news }, { data: africa }, { data: global }] = await Promise.all([
-    supabase.from("news_items").select("id, title, url, source, country, published_at").order("published_at", { ascending: false, nullsFirst: false }).limit(40),
+    supabase
+      .from("news_items")
+      .select("id, title, url, source, country, published_at")
+      .gte("published_at", new Date(Date.now() - NEWS_WINDOW_DAYS * 86400000).toISOString())
+      .order("published_at", { ascending: false })
+      .limit(60),
     research("africa"),
     research("global"),
   ])
@@ -85,8 +90,8 @@ export default async function NewsPage({ searchParams }: { searchParams: { diges
               Includes headlines from{" "}
               <a href="https://allafrica.com/" target="_blank" rel="noopener noreferrer" className="underline">
                 allAfrica.com
-              </a>{" "}
-              and outlets indexed by the GDELT Project.
+              </a>
+              , MyJoyOnline, SABC News, Premium Times, Punch, Nation and Daily Maverick.
             </p>
           </section>
 
@@ -130,7 +135,11 @@ export default async function NewsPage({ searchParams }: { searchParams: { diges
             <a href="/learning/what-works" className="underline">
               What works?
             </a>
-            , our plain-language guide to the evidence.
+            , our plain-language guide to the evidence. Or{" "}
+            <a href="/news/research" className="underline">
+              browse all research from the last 5 years
+            </a>
+            .
           </p>
           <div className="grid gap-6 lg:grid-cols-2">
             {[

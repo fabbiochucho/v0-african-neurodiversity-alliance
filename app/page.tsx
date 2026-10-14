@@ -5,38 +5,45 @@ import { Badge } from "@/components/ui/badge"
 import { Icons } from "@/lib/icons"
 import Link from "next/link"
 import { Partners } from "@/components/partners"
+import { PATHWAYS } from "@/lib/pathways"
+import { getSiblingAppUrl } from "@/lib/federation/config"
+import { neuRafikiLinks } from "@/lib/federation/contract"
 
 // Re-render hourly so a newly published partner appears without a redeploy.
 export const revalidate = 3600
 
 export default function HomePage() {
+  // NeuRafiki is the assessment entry point; without it configured, fall back
+  // to ANDA's own quick self-check rather than a dead link.
+  const nrUrl = getSiblingAppUrl()
+  const startUrl = nrUrl ? neuRafikiLinks(nrUrl).assessment() : "/self-test"
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 anda-pattern">
+      {/* Hero Section (brief §45) */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-terracotta/5 to-terracotta/5 anda-pattern">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="secondary" className="mb-6 text-sm font-medium">
-              Pan-African Initiative
+              African Neurodiversity Alliance
             </Badge>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">
-              Empowering <span className="text-primary">Neurodivergent</span> Individuals Across{" "}
-              <span className="text-secondary">Africa</span>
+              Understand every mind. <span className="text-primary">Support every journey.</span>
             </h1>
             <p className="text-xl text-muted-foreground text-pretty mb-8 max-w-3xl mx-auto leading-relaxed">
-              The African Neurodiversity Alliance (ANDA) provides comprehensive support, education, and advocacy for
-              neurodivergent individuals, families, and communities across the continent.
+              ANDA helps individuals, families, educators and professionals turn neurodiversity assessment into practical
+              support, meaningful goals and measurable progress.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button size="lg" asChild className="text-lg px-8 py-6">
-                <Link href="/self-test">
-                  Take Self-Test <Icons.ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
+                <a href={startUrl}>
+                  Start with NeuraFiki <Icons.ArrowRight className="ml-2 h-5 w-5" />
+                </a>
               </Button>
               <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6 bg-transparent">
-                <Link href="/directory">Find Support</Link>
+                <Link href="#pathways">Explore ANDA</Link>
               </Button>
             </div>
 
@@ -47,14 +54,40 @@ export default function HomePage() {
                 <div className="text-sm text-muted-foreground">global estimate of neurodivergent individuals</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-secondary">Pan-African</div>
+                <div className="text-3xl font-bold text-terracotta">Pan-African</div>
                 <div className="text-sm text-muted-foreground">community, open to every country</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-accent">Growing</div>
+                <div className="text-3xl font-bold text-terracotta">Growing</div>
                 <div className="text-sm text-muted-foreground">community of members and advocates</div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pathways (brief §45) */}
+      <section id="pathways" aria-labelledby="pathways-heading" className="py-20 bg-background scroll-mt-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 id="pathways-heading" className="text-3xl lg:text-4xl font-bold text-balance text-center mb-12">
+            Where would you like to start?
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {PATHWAYS.map((p) => (
+              <Card key={p.slug}>
+                <CardHeader>
+                  <CardTitle>{p.title}</CardTitle>
+                  <CardDescription>{p.intro}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button variant="ghost" asChild className="w-full justify-between">
+                    <Link href={`/pathways/${p.slug}`}>
+                      See your path <Icons.ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -72,7 +105,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Self-Test Tool */}
-            <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
+            <Card className="group transition-colors border-2 hover:border-primary/20">
               <CardHeader>
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <Icons.Brain className="h-6 w-6 text-primary" />
@@ -93,10 +126,10 @@ export default function HomePage() {
             </Card>
 
             {/* Find Support Directory */}
-            <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-secondary/20">
+            <Card className="group transition-colors border-2 hover:border-terracotta/20">
               <CardHeader>
-                <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
-                  <Icons.Search className="h-6 w-6 text-secondary" />
+                <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-terracotta/20 transition-colors">
+                  <Icons.Search className="h-6 w-6 text-terracotta" />
                 </div>
                 <CardTitle>Find Support Directory</CardTitle>
                 <CardDescription>
@@ -113,10 +146,10 @@ export default function HomePage() {
             </Card>
 
             {/* Learning Platform */}
-            <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-accent/20">
+            <Card className="group transition-colors border-2 hover:border-terracotta/20">
               <CardHeader>
-                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                  <Icons.BookOpen className="h-6 w-6 text-accent" />
+                <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-terracotta/20 transition-colors">
+                  <Icons.BookOpen className="h-6 w-6 text-terracotta" />
                 </div>
                 <CardTitle>Online Learning</CardTitle>
                 <CardDescription>
@@ -133,7 +166,7 @@ export default function HomePage() {
             </Card>
 
             {/* Community Forum */}
-            <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
+            <Card className="group transition-colors border-2 hover:border-primary/20">
               <CardHeader>
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <Icons.MessageCircle className="h-6 w-6 text-primary" />
@@ -153,10 +186,10 @@ export default function HomePage() {
             </Card>
 
             {/* Apps & Tools */}
-            <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-secondary/20">
+            <Card className="group transition-colors border-2 hover:border-terracotta/20">
               <CardHeader>
-                <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
-                  <Icons.Lightbulb className="h-6 w-6 text-secondary" />
+                <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-terracotta/20 transition-colors">
+                  <Icons.Lightbulb className="h-6 w-6 text-terracotta" />
                 </div>
                 <CardTitle>Apps & Tools Repository</CardTitle>
                 <CardDescription>
@@ -173,10 +206,10 @@ export default function HomePage() {
             </Card>
 
             {/* Advocacy Center */}
-            <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-accent/20">
+            <Card className="group transition-colors border-2 hover:border-terracotta/20">
               <CardHeader>
-                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                  <Icons.Megaphone className="h-6 w-6 text-accent" />
+                <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-terracotta/20 transition-colors">
+                  <Icons.Megaphone className="h-6 w-6 text-terracotta" />
                 </div>
                 <CardTitle>Advocacy Center</CardTitle>
                 <CardDescription>
@@ -223,7 +256,7 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Icons.CheckCircle className="h-6 w-6 text-secondary mt-0.5 flex-shrink-0" />
+                    <Icons.CheckCircle className="h-6 w-6 text-terracotta mt-0.5 flex-shrink-0" />
                     <div>
                       <h4 className="font-semibold mb-1">Cultural Sensitivity</h4>
                       <p className="text-muted-foreground">
@@ -232,7 +265,7 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Icons.CheckCircle className="h-6 w-6 text-accent mt-0.5 flex-shrink-0" />
+                    <Icons.CheckCircle className="h-6 w-6 text-terracotta mt-0.5 flex-shrink-0" />
                     <div>
                       <h4 className="font-semibold mb-1">Scalable Solutions</h4>
                       <p className="text-muted-foreground">
@@ -250,13 +283,13 @@ export default function HomePage() {
                   <div className="text-sm text-muted-foreground">Reach</div>
                 </div>
                 <div className="text-center p-6 bg-background rounded-lg border">
-                  <Icons.Shield className="h-8 w-8 text-secondary mx-auto mb-3" />
-                  <div className="text-2xl font-bold text-secondary">Safe Spaces</div>
+                  <Icons.Shield className="h-8 w-8 text-terracotta mx-auto mb-3" />
+                  <div className="text-2xl font-bold text-terracotta">Safe Spaces</div>
                   <div className="text-sm text-muted-foreground">Community</div>
                 </div>
                 <div className="text-center p-6 bg-background rounded-lg border">
-                  <Icons.Users className="h-8 w-8 text-accent mx-auto mb-3" />
-                  <div className="text-2xl font-bold text-accent">Inclusive</div>
+                  <Icons.Users className="h-8 w-8 text-terracotta mx-auto mb-3" />
+                  <div className="text-2xl font-bold text-terracotta">Inclusive</div>
                   <div className="text-sm text-muted-foreground">Support</div>
                 </div>
                 <div className="text-center p-6 bg-background rounded-lg border">
@@ -273,7 +306,7 @@ export default function HomePage() {
       <Partners />
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary to-secondary text-primary-foreground">
+      <section className="py-20 bg-gradient-to-r from-primary to-terracotta text-primary-foreground">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">
             Join the Movement for Neurodiversity in Africa

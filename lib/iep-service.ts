@@ -30,6 +30,18 @@ export class IEPService {
   }
 
   /**
+   * Goal suggestions for one goal area, drawn from the templates for the
+   * learner's selected support areas (wizard step "pick a goal").
+   */
+  static suggestionsFor(diagnosisDomains: string[], goalDomain: string): { suggestion: string; metric: string }[] {
+    const seen = new Set<string>()
+    return diagnosisDomains
+      .flatMap((d) => ADAPTIVE_GOALS[d as keyof typeof ADAPTIVE_GOALS] || [])
+      .filter((g) => g.domain === goalDomain && !seen.has(g.suggestion) && seen.add(g.suggestion))
+      .map(({ suggestion, metric }) => ({ suggestion, metric }))
+  }
+
+  /**
    * Calculate progress summary (average rating per goal) from logs.
    */
   static calculateProgressSummary(logs: Pick<ProgressLog, "goal_id" | "rating">[]): Record<string, number> {

@@ -11,7 +11,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
     }
 
     const { data, error } = await supabase
@@ -30,7 +30,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
     return NextResponse.json(data)
   } catch (err) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status: 500 })
   }
 }
 
@@ -43,7 +43,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
     }
 
     const updateData = await request.json()
@@ -62,7 +62,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
     return NextResponse.json(data)
   } catch (err) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status: 500 })
   }
 }
 
@@ -75,7 +75,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
     }
 
     const { error } = await supabase.from("ieps").delete().eq("id", params.id).eq("created_by", user.id)
@@ -86,6 +86,6 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 
     return NextResponse.json({ message: "IEP deleted successfully" })
   } catch (err) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status: 500 })
   }
 }

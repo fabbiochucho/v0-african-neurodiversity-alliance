@@ -10,7 +10,7 @@ export default function AboutPage() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">
+      <section className="py-20 bg-gradient-to-br from-primary/5 via-terracotta/5 to-terracotta/5">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">
@@ -47,7 +47,7 @@ export default function AboutPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Icons.Eye className="h-6 w-6 text-secondary" />
+                  <Icons.Eye className="h-6 w-6 text-terracotta" />
                   Our Vision
                 </CardTitle>
               </CardHeader>
@@ -86,8 +86,8 @@ export default function AboutPage() {
 
             <Card>
               <CardHeader>
-                <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Icons.Lightbulb className="h-6 w-6 text-secondary" />
+                <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mb-4">
+                  <Icons.Lightbulb className="h-6 w-6 text-terracotta" />
                 </div>
                 <CardTitle>Empowerment</CardTitle>
               </CardHeader>
@@ -100,8 +100,8 @@ export default function AboutPage() {
 
             <Card>
               <CardHeader>
-                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-                  <Icons.Globe className="h-6 w-6 text-accent" />
+                <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mb-4">
+                  <Icons.Globe className="h-6 w-6 text-terracotta" />
                 </div>
                 <CardTitle>Cultural Sensitivity</CardTitle>
               </CardHeader>
@@ -167,7 +167,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary to-secondary text-primary-foreground">
+      <section className="py-20 bg-gradient-to-r from-primary to-terracotta text-primary-foreground">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">Get Involved</h2>
           <p className="text-xl opacity-90 text-pretty mb-8 max-w-2xl mx-auto">

@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
-import { dbErrorResponse } from "@/lib/api-error"
+import { dbErrorResponse, upgradeRequiredResponse } from "@/lib/api-error"
+import { FEATURE_MIN_TIER, getEntitlement } from "@/lib/entitlements"
 import { generateReportContent } from "@/lib/reports-service"
+import { getBranding } from "@/lib/branding"
 import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
@@ -12,7 +14,11 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
+    }
+
+    if (!(await getEntitlement(supabase, user.id)).can("reports")) {
+      return upgradeRequiredResponse("Progress reports are part of a paid plan.", FEATURE_MIN_TIER.reports)
     }
 
     const { learner_id, report_type, report_period } = await request.json()
@@ -43,7 +49,8 @@ export async function POST(request: Request) {
       .limit(report_type === "monthly" ? 4 : 13)
 
     // Generate report content
-    const reportContent = generateReportContent(learner, ieps, summaries ?? [], report_type, report_period)
+    const branding = await getBranding(supabase, user.id)
+    const reportContent = generateReportContent(learner, ieps, summaries ?? [], report_type, report_period, branding?.orgName)
 
     // Save report to database
     const { data: report, error } = await supabase
@@ -65,6 +72,6 @@ export async function POST(request: Request) {
     return NextResponse.json(report, { status: 201 })
   } catch (err) {
     console.error(err)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status: 500 })
   }
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { ALL_NEURODIVERGENT, CONDITIONS, matchesCondition } from "@/lib/conditions"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -42,6 +43,7 @@ interface Resource {
   rating: number
   reviews: number
   specialties: string[]
+  conditions: string[]
   description: string
   contact: {
     phone?: string
@@ -64,6 +66,7 @@ interface ResourceRow {
   rating: number | null
   reviews: number | null
   specialties: string[] | null
+  conditions: string[] | null
   contact_info: { phone?: string; email?: string; website?: string } | null
   verified: boolean | null
 }
@@ -78,6 +81,7 @@ function mapResourceRow(row: ResourceRow): Resource {
     rating: row.rating || 0,
     reviews: row.reviews || 0,
     specialties: row.specialties || [],
+    conditions: row.conditions || [],
     description: row.description || "",
     contact: row.contact_info || {},
     verified: row.verified || false,
@@ -115,6 +119,7 @@ const emptySubmission = {
   email: "",
   website: "",
   submittedByEmail: "",
+  conditions: [] as string[],
 }
 
 export default function DirectoryPage() {
@@ -123,6 +128,7 @@ export default function DirectoryPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCountry, setSelectedCountry] = useState("All Countries")
   const [selectedType, setSelectedType] = useState("all")
+  const [selectedCondition, setSelectedCondition] = useState("all")
   const [activeTab, setActiveTab] = useState("list")
 
   const [submitOpen, setSubmitOpen] = useState(false)
@@ -152,6 +158,7 @@ export default function DirectoryPage() {
         ...(submission.website.trim() && { website: submission.website.trim() }),
       },
       submitted_by_email: submission.submittedByEmail.trim() || null,
+      conditions: submission.conditions,
     })
     setSubmitting(false)
     if (!error) {
@@ -197,12 +204,15 @@ export default function DirectoryPage() {
     const matchesSearch =
       resource.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       resource.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      resource.specialties.some((specialty) => specialty.toLowerCase().includes(searchTerm.toLowerCase()))
+      resource.specialties.some((specialty) => specialty.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      resource.conditions.some((condition) => condition.toLowerCase().includes(searchTerm.toLowerCase()))
 
     const matchesCountry = selectedCountry === "All Countries" || resource.country === selectedCountry
     const matchesType = selectedType === "all" || resource.type === selectedType
 
-    return matchesSearch && matchesCountry && matchesType
+    const matchesConditionFilter = matchesCondition(resource.conditions, selectedCondition)
+
+    return matchesSearch && matchesCountry && matchesType && matchesConditionFilter
   })
 
   const getTypeIcon = (type: string) => {
@@ -213,10 +223,10 @@ export default function DirectoryPage() {
   const getTypeColor = (type: string) => {
     const colors = {
       school: "bg-primary/10 text-primary",
-      therapist: "bg-accent/10 text-accent",
-      support_group: "bg-secondary/10 text-secondary",
+      therapist: "bg-terracotta/10 text-terracotta",
+      support_group: "bg-terracotta/10 text-terracotta",
       healthcare: "bg-primary/10 text-primary",
-      caregiver: "bg-accent/10 text-accent",
+      caregiver: "bg-terracotta/10 text-terracotta",
     }
     return colors[type as keyof typeof colors] || "bg-muted text-muted-foreground"
   }
@@ -234,10 +244,32 @@ export default function DirectoryPage() {
           </p>
         </div>
 
+        {/* Coverage gap notice */}
+        <Card className="mb-8 border-primary/30 bg-primary/5">
+          <CardContent className="p-6 flex flex-col md:flex-row md:items-center gap-4">
+            <p className="text-sm text-pretty flex-1">
+              <span className="font-semibold">Most organisations here focus on autism.</span> Support for ADHD,
+              dyslexia, dyspraxia, dyscalculia and other neurodivergent conditions is much harder to find across
+              Africa, and very few organisations cover them all. ANDA is bringing that support together in one place.
+              Know an organisation that should be listed?
+            </p>
+            <Button
+              variant="outline"
+              className="shrink-0"
+              onClick={() => {
+                setSubmitDone(false)
+                setSubmitOpen(true)
+              }}
+            >
+              Suggest an organisation
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* Search and Filters */}
         <Card className="mb-8">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               {/* Search Input */}
               <div className="md:col-span-2 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -272,6 +304,22 @@ export default function DirectoryPage() {
                   {resourceTypes.map((type) => (
                     <SelectItem key={type.value} value={type.value}>
                       {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Condition Filter */}
+              <Select value={selectedCondition} onValueChange={setSelectedCondition}>
+                <SelectTrigger aria-label="Condition">
+                  <SelectValue placeholder="Condition" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Conditions</SelectItem>
+                  <SelectItem value={ALL_NEURODIVERGENT}>Supports all neurodivergent people</SelectItem>
+                  {CONDITIONS.map((condition) => (
+                    <SelectItem key={condition} value={condition}>
+                      {condition}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -313,6 +361,7 @@ export default function DirectoryPage() {
                       setSearchTerm("")
                       setSelectedCountry("All Countries")
                       setSelectedType("all")
+                      setSelectedCondition("all")
                     }}
                   >
                     Clear Filters
@@ -324,7 +373,7 @@ export default function DirectoryPage() {
                 {filteredResources.map((resource) => {
                   const TypeIcon = getTypeIcon(resource.type)
                   return (
-                    <Card key={resource.id} className="hover:shadow-lg transition-shadow">
+                    <Card key={resource.id} className=" transition-colors">
                       <CardHeader>
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-3">
@@ -353,7 +402,7 @@ export default function DirectoryPage() {
                           {/* Rating */}
                           <div className="flex items-center gap-2">
                             <div className="flex items-center">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              <Star className="h-4 w-4 fill-yellow-400 text-brand-terracotta" />
                               <span className="ml-1 font-medium">{resource.rating}</span>
                             </div>
                             <span className="text-sm text-muted-foreground">({resource.reviews} reviews)</span>
@@ -371,6 +420,21 @@ export default function DirectoryPage() {
                               {ratedIds.has(resource.id) ? "Thanks for rating" : "Rate"}
                             </Button>
                           </div>
+
+                          {/* Conditions */}
+                          {resource.conditions.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {resource.conditions.map((condition) => (
+                                <Badge
+                                  key={condition}
+                                  variant={condition === ALL_NEURODIVERGENT ? "default" : "secondary"}
+                                  className="text-xs"
+                                >
+                                  {condition === ALL_NEURODIVERGENT ? "Supports all neurodivergent people" : condition}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
 
                           {/* Specialties */}
                           <div className="flex flex-wrap gap-2">
@@ -462,7 +526,7 @@ export default function DirectoryPage() {
         </Tabs>
 
         {/* Add Resource CTA */}
-        <Card className="bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
+        <Card className="bg-gradient-to-r from-primary/5 to-terracotta/5 border-primary/20">
           <CardContent className="p-8 text-center">
             <h3 className="text-xl font-semibold mb-2">Can&apos;t find what you&apos;re looking for?</h3>
             <p className="text-muted-foreground mb-4">Help us grow our directory by adding resources in your area</p>
@@ -493,7 +557,7 @@ export default function DirectoryPage() {
 
       {/* Submit a Resource dialog */}
       <Dialog open={submitOpen} onOpenChange={setSubmitOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           {submitDone ? (
             <>
               <DialogHeader>
@@ -562,6 +626,34 @@ export default function DirectoryPage() {
                     onChange={(e) => setSubmission({ ...submission, location: e.target.value })}
                   />
                 </div>
+                <fieldset className="space-y-2">
+                  <legend className="text-sm font-medium">Conditions supported</legend>
+                  <div className="flex flex-wrap gap-2">
+                    {[ALL_NEURODIVERGENT, ...CONDITIONS].map((condition) => {
+                      const selected = submission.conditions.includes(condition)
+                      return (
+                        <Button
+                          key={condition}
+                          type="button"
+                          size="sm"
+                          variant={selected ? "default" : "outline"}
+                          aria-pressed={selected}
+                          className="h-7 text-xs"
+                          onClick={() =>
+                            setSubmission({
+                              ...submission,
+                              conditions: selected
+                                ? submission.conditions.filter((c) => c !== condition)
+                                : [...submission.conditions, condition],
+                            })
+                          }
+                        >
+                          {condition}
+                        </Button>
+                      )
+                    })}
+                  </div>
+                </fieldset>
                 <div className="space-y-2">
                   <Label htmlFor="sub-description">Description</Label>
                   <Textarea
@@ -635,7 +727,7 @@ export default function DirectoryPage() {
                   aria-label={`${n} star${n > 1 ? "s" : ""}`}
                 >
                   <Star
-                    className={`h-7 w-7 ${n <= ratingValue ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
+                    className={`h-7 w-7 ${n <= ratingValue ? "fill-yellow-400 text-brand-terracotta" : "text-muted-foreground"}`}
                   />
                 </button>
               ))}

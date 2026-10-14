@@ -57,7 +57,7 @@ const policyAreas = [
     name: "Employment",
     description: "Workplace rights and accommodation policies",
     icon: Briefcase,
-    color: "bg-secondary/10 text-secondary",
+    color: "bg-terracotta/10 text-terracotta",
     keyIssues: ["Reasonable Accommodations", "Anti-Discrimination", "Hiring Practices", "Career Development"],
   },
   {
@@ -65,7 +65,7 @@ const policyAreas = [
     name: "Healthcare",
     description: "Access to diagnosis, treatment, and support services",
     icon: Heart,
-    color: "bg-accent/10 text-accent",
+    color: "bg-terracotta/10 text-terracotta",
     keyIssues: ["Early Diagnosis", "Affordable Treatment", "Professional Training", "Service Availability"],
   },
   {
@@ -73,7 +73,7 @@ const policyAreas = [
     name: "Housing",
     description: "Accessible and supportive housing policies",
     icon: Home,
-    color: "bg-green-100 text-green-700",
+    color: "bg-primary/10 text-primary",
     keyIssues: ["Accessible Design", "Support Services", "Fair Housing", "Community Integration"],
   },
   {
@@ -81,7 +81,7 @@ const policyAreas = [
     name: "Public Services",
     description: "Accessible government and public services",
     icon: Building,
-    color: "bg-purple-100 text-purple-700",
+    color: "bg-secondary text-secondary-foreground",
     keyIssues: ["Service Accessibility", "Staff Training", "Communication Support", "Digital Inclusion"],
   },
 ]
@@ -123,7 +123,7 @@ export default function AdvocacyPage() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 anda-pattern py-20">
+      <section className="bg-gradient-to-br from-primary/5 via-terracotta/5 to-terracotta/5 anda-pattern py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="secondary" className="mb-6">
@@ -154,11 +154,11 @@ export default function AdvocacyPage() {
               <div className="text-sm text-muted-foreground">Active Campaigns</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-secondary">54</div>
+              <div className="text-3xl font-bold text-terracotta">54</div>
               <div className="text-sm text-muted-foreground">Countries Covered</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-accent">
+              <div className="text-3xl font-bold text-terracotta">
                 {activeCampaigns.reduce((sum, c) => sum + c.supporters, 0).toLocaleString()}
               </div>
               <div className="text-sm text-muted-foreground">Supporters</div>
@@ -201,7 +201,7 @@ export default function AdvocacyPage() {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {activeCampaigns.map((campaign) => (
-                  <Card key={campaign.id} className="group hover:shadow-lg transition-all duration-300">
+                  <Card key={campaign.id} className="group transition-colors">
                     <CardHeader>
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex gap-2">
@@ -209,7 +209,7 @@ export default function AdvocacyPage() {
                           <Badge variant="secondary">{campaign.country}</Badge>
                           <Badge
                             variant={campaign.status === "active" ? "default" : "secondary"}
-                            className={campaign.status === "active" ? "bg-green-500" : ""}
+                            className={campaign.status === "active" ? "bg-primary" : ""}
                           >
                             {campaign.status}
                           </Badge>
@@ -286,7 +286,7 @@ export default function AdvocacyPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {policyAreas.map((area) => (
-                  <Card key={area.id} className="group hover:shadow-lg transition-all duration-300">
+                  <Card key={area.id} className="group transition-colors">
                     <CardHeader>
                       <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 ${area.color}`}>
                         <area.icon className="h-6 w-6" />
@@ -347,11 +347,11 @@ export default function AdvocacyPage() {
 
               <div className="space-y-6">
                 {successStories.map((story) => (
-                  <Card key={story.id} className="group hover:shadow-md transition-all duration-300">
+                  <Card key={story.id} className="group transition-colors">
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <CheckCircle className="h-6 w-6 text-green-600" />
+                        <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <CheckCircle className="h-6 w-6 text-primary" />
                         </div>
                         <div className="flex-1">
                           <div className="flex items-start justify-between mb-2">
@@ -407,7 +407,7 @@ export default function AdvocacyPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {advocacyResources.map((resource) => (
-                  <Card key={resource.id} className="group hover:shadow-lg transition-all duration-300">
+                  <Card key={resource.id} className="group transition-colors">
                     <CardHeader>
                       <div className="flex items-start justify-between mb-2">
                         <Badge variant="outline">{resource.category}</Badge>
@@ -464,7 +464,7 @@ export default function AdvocacyPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {upcomingEvents.map((event) => (
-              <Card key={event.id} className="group hover:shadow-lg transition-all duration-300">
+              <Card key={event.id} className="group transition-colors">
                 <CardHeader>
                   <Badge variant="outline" className="w-fit">
                     {event.type}
@@ -498,7 +498,7 @@ export default function AdvocacyPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary to-secondary text-primary-foreground">
+      <section className="py-20 bg-gradient-to-r from-primary to-terracotta text-primary-foreground">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">Your Voice Can Change Policy</h2>
           <p className="text-xl opacity-90 text-pretty mb-8 max-w-2xl mx-auto">

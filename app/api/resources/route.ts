@@ -54,6 +54,6 @@ export async function GET(request: Request) {
     )
   } catch (err) {
     console.error(err)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status: 500 })
   }
 }
