@@ -33,7 +33,7 @@ export interface PlanItem {
 export async function loadPlan(supabase: SupabaseClient, learnerId: string, userId: string) {
   const { data: learner } = await supabase
     .from("learner_profiles")
-    .select("id, name, age, country, user_id, diagnosis_domains")
+    .select("*")
     .eq("id", learnerId)
     .maybeSingle()
   if (!learner) return null

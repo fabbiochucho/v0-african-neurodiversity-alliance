@@ -9,6 +9,7 @@ import { loadJourneys } from "@/lib/journey-data"
 import { buildReport, FINDING_SOURCE_LABELS, REPORT_TITLES, type ReportKind } from "@/lib/report-builder"
 import { PROGRESS_STATUS_LABELS, PROGRESS_STATUS_RULES, type ProgressStatus } from "@/lib/progress-status"
 import { logAudit } from "@/lib/audit"
+import { t, termsFor } from "@/lib/i18n"
 import type { LearnerProfile } from "@/lib/types/iep"
 
 const KINDS: ReportKind[] = ["weekly", "monthly", "quarterly", "changes"]
@@ -91,7 +92,7 @@ export default async function ReportPage({
           <article className="space-y-6">
             <header>
               <h1 className="text-3xl font-bold">
-                {report.title}: {learner.name}
+                {kind === "quarterly" ? t("plan.quarterlyReview", { plan: termsFor(learner.education_context).planShort }) : report.title}: {learner.name}
               </h1>
               <p className="text-muted-foreground">{report.period}</p>
             </header>

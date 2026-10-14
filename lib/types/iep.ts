@@ -70,6 +70,10 @@ export interface LearnerProfile {
   gender: string | null
   country: string | null
   diagnosis_domains: DiagnosisDomain[]
+  // scripts/046 (optional until applied)
+  region?: string | null
+  language?: string | null
+  education_context?: string | null
   created_at: string
   updated_at: string
 }

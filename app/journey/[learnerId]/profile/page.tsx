@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server"
 import { Navigation } from "@/components/navigation"
 import { DataKindBadge } from "@/components/data-kind-badge"
 import { ExistingAssessmentForm, SupportProfileForm } from "@/components/support-profile-form"
+import { LocalisationForm } from "@/components/localisation-form"
+import { t } from "@/lib/i18n"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ASSESSMENT_TYPES, SUPPORT_PROFILE_FIELDS, type DataKind, type SupportProfile } from "@/lib/learner-records"
 
@@ -19,14 +21,20 @@ interface RecordRow {
   created_at: string
 }
 
-export default async function LearnerProfilePage({ params }: { params: { learnerId: string } }) {
+export default async function LearnerProfilePage({
+  params,
+  searchParams,
+}: {
+  params: { learnerId: string }
+  searchParams: { add?: string }
+}) {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) redirect(`/auth/login?redirectTo=/journey/${params.learnerId}/profile`)
 
-  const { data: learner } = await supabase.from("learner_profiles").select("id, name, user_id").eq("id", params.learnerId).maybeSingle()
+  const { data: learner } = await supabase.from("learner_profiles").select("*").eq("id", params.learnerId).maybeSingle()
   if (!learner) notFound()
   const isOwner = learner.user_id === user.id
 
@@ -89,6 +97,23 @@ export default async function LearnerProfilePage({ params }: { params: { learner
             )}
           </section>
 
+          {isOwner && (
+            <section aria-labelledby="l10n-heading" className="space-y-3">
+              <h2 id="l10n-heading" className="text-2xl font-semibold">
+                {t("settings.localisation.title")}
+              </h2>
+              <LocalisationForm
+                learnerId={learner.id}
+                initial={{
+                  country: learner.country ?? null,
+                  region: learner.region ?? null,
+                  language: learner.language ?? null,
+                  education_context: learner.education_context ?? null,
+                }}
+              />
+            </section>
+          )}
+
           <section aria-labelledby="inputs-heading" className="space-y-4">
             <h2 id="inputs-heading" className="text-2xl font-semibold">
               Assessments and existing plans
@@ -121,7 +146,7 @@ export default async function LearnerProfilePage({ params }: { params: { learner
               ))
             )}
             {isOwner && (
-              <details className="rounded-lg border p-4">
+              <details className="rounded-lg border p-4" open={searchParams.add === "assessment"}>
                 <summary className="cursor-pointer font-medium">Add an existing assessment</summary>
                 <div className="mt-4">
                   <ExistingAssessmentForm learnerId={learner.id} />

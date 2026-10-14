@@ -274,12 +274,16 @@ export function PlanFlow({
   plan,
   facts,
   startAt,
+  planLabel,
+  disclaimer,
   ai,
 }: {
   plan: LoadedPlan
   facts: PlanFacts
   startAt: PlanStepKey
   ai: { configured: boolean; entitled: boolean; consented: boolean }
+  planLabel: string
+  disclaimer: string
 }) {
   const router = useRouter()
   const [step, setStep] = useState<PlanStepKey>(startAt)
@@ -499,7 +503,10 @@ export function PlanFlow({
   return (
     <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[16rem_1fr] gap-8">
       <nav aria-label="Plan steps">
-        <h1 className="text-2xl font-bold mb-4">{name}&apos;s plan</h1>
+        <h1 className="text-2xl font-bold mb-4">
+          {name}&apos;s {planLabel}
+        </h1>
+        <p className="mb-4 text-xs text-muted-foreground">{disclaimer}</p>
         <ol className="space-y-1 text-sm">
           {PLAN_STEPS.map((s, i) => (
             <li key={s.key}>

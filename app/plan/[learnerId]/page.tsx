@@ -6,6 +6,7 @@ import { hasActiveConsent } from "@/lib/companion"
 import { loadPlan } from "@/lib/plan-data"
 import { firstOpenStep } from "@/lib/iep-plan"
 import { PlanFlow } from "./plan-flow"
+import { termsFor } from "@/lib/i18n"
 
 // The full IEP (brief §18-19): a 12-step conversational flow that starts
 // at the first thing we don't already know.
@@ -46,7 +47,10 @@ export default async function PlanPage({ params }: { params: { learnerId: string
     <div className="min-h-screen bg-background">
       <Navigation />
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <PlanFlow plan={JSON.parse(JSON.stringify(plan))} facts={facts} startAt={firstOpenStep(facts)} ai={ai} />
+        <PlanFlow plan={JSON.parse(JSON.stringify(plan))} facts={facts} startAt={firstOpenStep(facts)} ai={ai}
+          planLabel={termsFor(plan.learner.education_context).planShort}
+          disclaimer={termsFor(plan.learner.education_context).disclaimer}
+        />
       </main>
     </div>
   )
