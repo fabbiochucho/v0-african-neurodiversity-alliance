@@ -33,7 +33,7 @@ const fetchEntitlementsCached = unstable_cache(
       iss: "alliance",
       requesting_user_id: localUserId,
       target_remote_user_id: remoteUserId,
-      scope: "entitlements_read",
+      scope: "entitlements",
     })
     const res = await fetch(new URL("/api/federation/entitlements", base), {
       headers: { Authorization: `Bearer ${token}` },

@@ -74,7 +74,7 @@ export async function signRequestToken(payload: RequestTokenPayload): Promise<st
 // own private key (same shape as RequestTokenPayload, issuer "neurafiki"):
 //   requesting_user_id    = the Neu Rafiki user
 //   target_remote_user_id = this app's user (from Neu Rafiki's linked_accounts)
-//   scope                 = "entitlements_read" | "check_in_summary"
+//   scope                 = "entitlements" | "check_in_summary"
 export interface SiblingRequestToken {
   requesting_user_id: string
   target_remote_user_id: string
