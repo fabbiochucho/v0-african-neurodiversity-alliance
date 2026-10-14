@@ -316,6 +316,8 @@ export default function LearningPage() {
         </div>
       </section>
 
+      <DiscoveredList kind="story" />
+      <DiscoveredList kind="video" />
       <DiscoveredList kind="book" />
 
       {/* CTA Section */}

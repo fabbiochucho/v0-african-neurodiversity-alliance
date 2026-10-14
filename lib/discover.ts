@@ -5,12 +5,12 @@
 import { isNeuroHeadline } from "@/lib/feeds"
 
 export interface DiscoveredResource {
-  kind: "book" | "app"
+  kind: "book" | "story" | "app" | "video"
   title: string
   creator: string | null
   url: string
   image_url: string | null
-  source: "Open Library" | "App Store"
+  source: string
   published_on: string | null // books: first publication (Jan 1 of the year); apps: last update
   price: string | null
   description: string | null
@@ -33,6 +33,18 @@ const BOOK_SUBJECTS = [
   "Neurodiversity",
 ]
 
+// Children's stories with neurodivergent characters: Open Library tags them
+// with the condition plus "Juvenile fiction" (or "Fiction" for the
+// autistic-children subject, which is already about children).
+const STORY_QUERIES = [
+  'subject:"Autism" subject:"Juvenile fiction"',
+  'subject:"Autistic children" subject:"Fiction"',
+  'subject:"Attention-deficit hyperactivity disorder" subject:"Juvenile fiction"',
+  'subject:"Dyslexia" subject:"Juvenile fiction"',
+  `subject:"Asperger's syndrome" subject:"Juvenile fiction"`,
+  'subject:"Tourette syndrome" subject:"Juvenile fiction"',
+]
+
 interface OpenLibraryDoc {
   key?: string
   title?: string
@@ -42,14 +54,14 @@ interface OpenLibraryDoc {
   language?: string[]
 }
 
-export function mapBook(d: OpenLibraryDoc, minYear: number): DiscoveredResource | null {
+export function mapBook(d: OpenLibraryDoc, minYear: number, kind: "book" | "story" = "book"): DiscoveredResource | null {
   if (!d.key || !d.title || !d.author_name?.length || !d.first_publish_year) return null
   if (d.first_publish_year < minYear) return null
   // English only for now (the site is English-only); untagged records are
   // skipped because Open Library leaves many translations untagged.
   if (!d.language?.includes("eng")) return null
   return {
-    kind: "book",
+    kind,
     title: d.title,
     creator: d.author_name.slice(0, 3).join(", "),
     url: `https://openlibrary.org${d.key}`,
@@ -61,14 +73,20 @@ export function mapBook(d: OpenLibraryDoc, minYear: number): DiscoveredResource 
   }
 }
 
+// Books and children's story books from the last 10 years. Story queries run
+// first so a story that also matches a general subject keeps the "story" kind.
 export async function fetchBooks(now = new Date()): Promise<DiscoveredResource[]> {
   const minYear = now.getUTCFullYear() - BOOK_WINDOW_YEARS
+  const queries = [
+    ...STORY_QUERIES.map((q) => ({ q, kind: "story" as const })),
+    ...BOOK_SUBJECTS.map((subject) => ({ q: `subject:"${subject}"`, kind: "book" as const })),
+  ]
   const results = await Promise.all(
-    BOOK_SUBJECTS.map(async (subject) => {
+    queries.map(async ({ q, kind }) => {
       const url =
         "https://openlibrary.org/search.json?" +
         new URLSearchParams({
-          q: `subject:"${subject}" first_publish_year:[${minYear} TO ${now.getUTCFullYear()}]`,
+          q: `${q} first_publish_year:[${minYear} TO ${now.getUTCFullYear()}]`,
           sort: "new",
           limit: "100",
           fields: "key,title,author_name,first_publish_year,cover_i,language",
@@ -77,9 +95,9 @@ export async function fetchBooks(now = new Date()): Promise<DiscoveredResource[]
         const res = await fetch(url, { headers: UA, cache: "no-store", signal: AbortSignal.timeout(20_000) })
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const data = (await res.json()) as { docs?: OpenLibraryDoc[] }
-        return (data.docs ?? []).map((d) => mapBook(d, minYear)).filter((b): b is DiscoveredResource => b !== null)
+        return (data.docs ?? []).map((d) => mapBook(d, minYear, kind)).filter((b): b is DiscoveredResource => b !== null)
       } catch (err) {
-        console.error(`Open Library (${subject}) failed:`, err)
+        console.error(`Open Library (${q}) failed:`, err)
         return []
       }
     }),

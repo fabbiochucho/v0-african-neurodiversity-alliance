@@ -26,6 +26,18 @@ const COPY = {
     date: (d: string) => `Published ${d.slice(0, 4)}`,
     action: "View on Open Library",
   },
+  story: {
+    heading: "Story books for children",
+    note: "Stories with autistic, ADHD, dyslexic and other neurodivergent characters, published in the last 10 years. Found automatically each week from Open Library and not reviewed by ANDA, so read a sample before sharing with your child.",
+    date: (d: string) => `Published ${d.slice(0, 4)}`,
+    action: "View on Open Library",
+  },
+  video: {
+    heading: "Cartoons and animations",
+    note: "Animated shows with neurodivergent characters, and short animations that explain autism, ADHD and dyslexia. A hand-checked list; where to watch varies by country.",
+    date: (d: string) => d.slice(0, 4),
+    action: "Find out more",
+  },
   app: {
     heading: "More apps, updated in the last 5 years",
     note: "Found automatically each week from the App Store. Not reviewed or endorsed by ANDA, so check an app's privacy and in-app purchases before installing.",
@@ -35,7 +47,7 @@ const COPY = {
 } as const
 
 // Books and apps from public.discovered_resources (scripts/047), newest first.
-export function DiscoveredList({ kind }: { kind: "book" | "app" }) {
+export function DiscoveredList({ kind }: { kind: keyof typeof COPY }) {
   const [rows, setRows] = useState<Row[]>([])
   const [state, setState] = useState<"loading" | "ready" | "error">("loading")
   const [hasMore, setHasMore] = useState(false)

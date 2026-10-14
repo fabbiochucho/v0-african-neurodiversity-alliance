@@ -94,12 +94,14 @@ export default async function AdminFeedsPage() {
           />
         </section>
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold">Books &amp; apps (latest 200)</h2>
+          <h2 className="text-xl font-semibold">Books, story books, cartoons &amp; apps (latest 200)</h2>
           <ItemList
             table="resources"
             rows={(resources ?? []).map((r) => ({
               ...r,
-              meta: [r.kind === "book" ? "Book" : "App", r.creator, r.source].filter(Boolean).join(" · "),
+              meta: [{ book: "Book", story: "Story book", app: "App", video: "Cartoon or animation" }[r.kind as string] ?? r.kind, r.creator, r.source]
+                .filter(Boolean)
+                .join(" · "),
             }))}
           />
         </section>

@@ -11,6 +11,9 @@ describe("mapBook", () => {
       published_on: "2024-01-01",
     })
   })
+  it("labels story books when asked", () => {
+    expect(mapBook(doc, 2016, "story")).toMatchObject({ kind: "story" })
+  })
   it("drops old, non-English, untagged or authorless books", () => {
     expect(mapBook({ ...doc, first_publish_year: 2010 }, 2016)).toBeNull()
     expect(mapBook({ ...doc, language: ["spa"] }, 2016)).toBeNull()
