@@ -1,35 +1,31 @@
-// Support Team roles. The database (scripts/031) is what enforces these;
-// this mirror only decides what the UI offers, and the test keeps the two
-// descriptions in step.
-
-export const SUPPORT_ROLES = ["caregiver", "teacher", "therapist"] as const
-export type SupportRole = (typeof SUPPORT_ROLES)[number]
-
-export const ROLE_PERMISSIONS: Record<SupportRole, { logCheckIns: boolean; viewReports: boolean; changeGoalStatus: boolean }> = {
-  caregiver: { logCheckIns: true, viewReports: true, changeGoalStatus: false },
-  teacher: { logCheckIns: true, viewReports: false, changeGoalStatus: false },
-  therapist: { logCheckIns: true, viewReports: true, changeGoalStatus: true },
-}
-
-export const ROLE_DESCRIPTIONS: Record<SupportRole, string> = {
-  caregiver: "Sees goals, check-ins and reports; can log check-ins.",
-  teacher: "Sees goals and check-ins; can log check-ins.",
-  therapist: "Sees goals, check-ins and reports; can log check-ins and mark goals achieved.",
-}
+// Support Team members. Access is per-member permissions (lib/team-permissions.ts,
+// enforced by public.has_permission() in scripts/044); the role is a preset label.
+import { PERMISSION_LABELS, PRESET_LABELS, isPreset, type Permission } from "@/lib/team-permissions"
 
 export interface SupportTeamMember {
   id: string
   learner_id: string
   learner_name: string
   invited_email: string
-  role: SupportRole
+  role: string
+  permissions?: Permission[] | null
   status: "pending" | "active"
   member_user_id: string | null
   invite_expires_at?: string | null
 }
 
-export function isSupportRole(value: unknown): value is SupportRole {
-  return typeof value === "string" && (SUPPORT_ROLES as readonly string[]).includes(value)
+const LEGACY_LABELS: Record<string, string> = { caregiver: "Caregiver", teacher: "Teacher", therapist: "Therapist" }
+
+export function roleLabel(role: string): string {
+  return isPreset(role) ? PRESET_LABELS[role] : (LEGACY_LABELS[role] ?? role)
+}
+
+/** "Can view the plan and progress, log progress and comment." */
+export function describePermissions(perms: Permission[] | null | undefined): string {
+  const list = (perms ?? []).map((p) => PERMISSION_LABELS[p].toLowerCase())
+  if (list.length === 0) return "No access yet."
+  const last = list.pop()
+  return `Can ${list.length > 0 ? `${list.join(", ")} and ${last}` : last}.`
 }
 
 /** Lower-cased, trimmed email if it looks like one; null otherwise. */

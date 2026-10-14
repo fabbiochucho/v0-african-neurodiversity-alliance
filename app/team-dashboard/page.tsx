@@ -39,7 +39,7 @@ export default async function TeamDashboardPage() {
     supabase.from("learner_profiles").select("*").eq("user_id", user.id).order("name"),
     supabase
       .from("support_team_members")
-      .select("id, learner_id, learner_name, invited_email, role, status, member_user_id, invite_expires_at")
+      .select("id, learner_id, learner_name, invited_email, role, permissions, status, member_user_id, invite_expires_at")
       .eq("owner_id", user.id),
   ])
   const people = await loadJourneys(supabase, (learners ?? []) as LearnerProfile[])

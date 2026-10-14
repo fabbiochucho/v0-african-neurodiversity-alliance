@@ -35,7 +35,7 @@ export default async function DashboardPage() {
     // (and teams I own, filtered out below).
     supabase
       .from("support_team_members")
-      .select("id, learner_id, learner_name, invited_email, role, status, member_user_id, invite_expires_at")
+      .select("id, learner_id, learner_name, invited_email, role, permissions, status, member_user_id, invite_expires_at")
       .neq("owner_id", user.id),
   ])
 

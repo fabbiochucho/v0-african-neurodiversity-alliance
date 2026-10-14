@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { Navigation } from "@/components/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ROLE_DESCRIPTIONS, isSupportRole } from "@/lib/support-team"
+import { describePermissions, roleLabel } from "@/lib/support-team"
 import { AcceptInviteButton } from "./accept-invite-button"
 
 // Landing page for emailed invite links. Accepting is a deliberate POST
@@ -24,7 +24,7 @@ export default async function AcceptInvitePage({ searchParams }: { searchParams:
   const { data: row } = invite
     ? await supabase
         .from("support_team_members")
-        .select("id, learner_name, role, status, invite_expires_at")
+        .select("id, learner_name, role, permissions, status, invite_expires_at")
         .eq("id", invite)
         .maybeSingle()
     : { data: null }
@@ -53,8 +53,8 @@ export default async function AcceptInvitePage({ searchParams }: { searchParams:
               <>
                 <p>
                   Join <strong>{row.learner_name}</strong>&apos;s support team as a{" "}
-                  <span className="capitalize">{row.role}</span>.{" "}
-                  {isSupportRole(row.role) && ROLE_DESCRIPTIONS[row.role]}
+                  {roleLabel(row.role)}.{" "}
+                  {describePermissions(row.permissions)}
                 </p>
                 <AcceptInviteButton inviteId={row.id} token={token} />
               </>

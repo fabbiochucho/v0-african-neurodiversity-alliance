@@ -15,7 +15,7 @@ import { TeamManager } from "@/components/support-team"
 import { WhatChanged } from "@/components/what-changed"
 import { UpgradePrompt } from "@/components/upgrade-prompt"
 import { FEATURE_MIN_TIER } from "@/lib/entitlements"
-import { ROLE_DESCRIPTIONS, ROLE_PERMISSIONS, type SupportTeamMember } from "@/lib/support-team"
+import { describePermissions, roleLabel, type SupportTeamMember } from "@/lib/support-team"
 import { logAudit } from "@/lib/audit"
 
 const KIND_LABEL: Record<TimelineKind, string> = {
@@ -61,12 +61,14 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
     // Owner: the whole team. Member: just their own membership (RLS).
     supabase
       .from("support_team_members")
-      .select("id, learner_id, learner_name, invited_email, role, status, member_user_id, invite_expires_at")
+      .select("id, learner_id, learner_name, invited_email, role, permissions, status, member_user_id, invite_expires_at")
       .eq("learner_id", learner.id),
   ])
   const team = (teamRows ?? []) as SupportTeamMember[]
-  const myRole = isOwner ? null : team.find((m) => m.member_user_id === user.id && m.status === "active")?.role
-  const canMarkAchieved = isOwner || (myRole ? ROLE_PERMISSIONS[myRole].changeGoalStatus : false)
+  const myMembership = isOwner ? null : team.find((m) => m.member_user_id === user.id && m.status === "active")
+  const myPerms = myMembership?.permissions ?? []
+  const can = (p: string) => isOwner || myPerms.includes(p as never)
+  const canMarkAchieved = can("manage_plan") || can("approve")
 
   const summary = summarisePerson(journey.input, {
     canReports: isOwner && entitlement.can("reports"),
@@ -89,10 +91,10 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
             </Link>
             <h1 className="text-4xl font-bold text-balance mb-2">{learner.name}&apos;s journey</h1>
             <p className="text-lg text-muted-foreground">{summary.headline}</p>
-            {myRole && (
+            {myMembership && (
               <p className="mt-2 text-sm text-muted-foreground">
-                You&apos;re on {learner.name}&apos;s support team as a <span className="capitalize">{myRole}</span>.{" "}
-                {ROLE_DESCRIPTIONS[myRole]}
+                You&apos;re on {learner.name}&apos;s support team as {roleLabel(myMembership.role)}.{" "}
+                {describePermissions(myPerms)}
               </p>
             )}
             {isOwner && (
@@ -160,7 +162,7 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
                           </div>
                         </dl>
                       )}
-                      <GoalCheckIn goalId={goal.id} canMarkAchieved={canMarkAchieved} />
+                      {can("log_progress") && <GoalCheckIn goalId={goal.id} canMarkAchieved={canMarkAchieved} />}
                     </CardContent>
                   </Card>
                 )
@@ -181,7 +183,12 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
                 Support team
               </h2>
               {entitlement.can("support_team") ? (
-                <TeamManager learnerId={learner.id} members={team} emailConfigured={Boolean(process.env.RESEND_API_KEY)} />
+                <TeamManager
+                  learnerId={learner.id}
+                  members={team}
+                  emailConfigured={Boolean(process.env.RESEND_API_KEY)}
+                  learnerAge={learner.age ?? null}
+                />
               ) : (
                 <UpgradePrompt
                   message={`Invite caregivers, teachers and therapists to follow and contribute to ${learner.name}'s plan.`}
