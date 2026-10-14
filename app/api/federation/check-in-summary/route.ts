@@ -7,7 +7,11 @@ import { validateCheckInSummary } from "@/lib/federation/contract"
 // POST /api/federation/check-in-summary -- Neu Rafiki sends a structured
 // summary of a check-in, signed with scope "check_in_summary". Neu Rafiki
 // only sends it once the user has consented on its side. Raw assessment
-// responses are never accepted here: only the validated summary shape.
+// responses are never accepted here: only the validated summary shape,
+// whose answers are option values (no free-text notes).
+// Gate: an ACTIVE link plus Neu Rafiki's per-check-in consent (its wording
+// version "check-in-share-1.0"). No specific link scope is required,
+// because existing links only carry assessment_sync.
 // Stored as data kind 'check_in' and shown on the learner's timeline.
 export async function POST(request: Request) {
   if (!isFederationEnabled()) return NextResponse.json({ error: "Federation is not enabled" }, { status: 503 })

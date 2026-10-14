@@ -6,7 +6,7 @@ import { andaEntitlementsPayload } from "@/lib/federation/contract"
 import { getEntitlement } from "@/lib/entitlements"
 
 // GET /api/federation/entitlements -- called by Neu Rafiki with a request
-// token it signed (scope "entitlements_read"). Returns ANDA's plan for the
+// token it signed (scope "entitlements"). Returns ANDA's plan for the
 // linked user so Neu Rafiki can *show* it. It never grants anything there.
 // 404 when the accounts aren't linked. Cacheable for 5 minutes.
 export async function GET(request: Request) {
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
   let claims
   try {
-    claims = await verifySiblingRequestToken(token, "entitlements_read")
+    claims = await verifySiblingRequestToken(token, "entitlements")
   } catch {
     return NextResponse.json({ error: "Invalid token" }, { status: 401 })
   }
