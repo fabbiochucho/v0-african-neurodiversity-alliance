@@ -305,7 +305,7 @@ export function summarisePerson(
     const mean = logged.reduce((s, g) => s + trends.get(g.id)!.recentAverage!, 0) / logged.length
     const ups = logged.filter((g) => trends.get(g.id)!.direction === "up").length
     const downs = logged.filter((g) => trends.get(g.id)!.direction === "down").length
-    const drift = ups > downs ? ", mostly improving" : downs > ups ? ", with some goals slipping" : ""
+    const drift = ups > downs ? ", mostly doing better" : downs > ups ? ", with some goals needing attention" : ""
     headline = `Recent check-ins average ${mean.toFixed(1)}/5 across ${logged.length} goal${
       logged.length === 1 ? "" : "s"
     }${drift}.`
@@ -325,7 +325,7 @@ export function summarisePerson(
         t.count === 0
           ? "No check-ins yet"
           : t.direction === "down"
-            ? `Slipping (recent ${t.recentAverage!.toFixed(1)}/5)`
+            ? `Needs attention (recent ${t.recentAverage!.toFixed(1)}/5)`
             : `Recent ${t.recentAverage!.toFixed(1)}/5`
       // Unlogged first, then slipping, then lowest recent average.
       const score = t.count === 0 ? -2 : (t.direction === "down" ? -1 : 0) + t.recentAverage! / 10

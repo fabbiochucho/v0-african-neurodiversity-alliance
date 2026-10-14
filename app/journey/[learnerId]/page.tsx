@@ -17,6 +17,8 @@ import { UpgradePrompt } from "@/components/upgrade-prompt"
 import { FEATURE_MIN_TIER } from "@/lib/entitlements"
 import { describePermissions, roleLabel, type SupportTeamMember } from "@/lib/support-team"
 import { logAudit } from "@/lib/audit"
+import { MicroLog } from "@/components/micro-log"
+import { PROGRESS_STATUS_LABELS, PROGRESS_STATUS_RULES, progressStatus } from "@/lib/progress-status"
 
 const KIND_LABEL: Record<TimelineKind, string> = {
   plan: "Plan",
@@ -31,7 +33,6 @@ const KIND_LABEL: Record<TimelineKind, string> = {
   professional_input: "Professional input",
 }
 
-const TREND_LABEL = { up: "improving", down: "slipping", steady: "steady" } as const
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })
@@ -112,6 +113,36 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
 
           <SummaryCards summary={summary} />
 
+          {can("log_progress") && active.length > 0 && (
+            <section aria-labelledby="today-heading" className="space-y-3">
+              <h2 id="today-heading" className="text-2xl font-semibold">
+                Today
+              </h2>
+              <MicroLog
+                goals={active.map((g) => ({ id: g.id, goal_text: g.goal_text }))}
+                loggedToday={active
+                  .filter((g) => (g.progress_logs ?? []).some((l) => l.logged_date === new Date().toISOString().slice(0, 10)))
+                  .map((g) => g.id)}
+              />
+            </section>
+          )}
+
+          <nav aria-label="Reports" className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+            <span className="font-medium">Reports:</span>
+            <Link href={`/journey/${learner.id}/report?kind=weekly`} className="text-primary hover:underline">
+              Weekly summary
+            </Link>
+            <Link href={`/journey/${learner.id}/report?kind=monthly`} className="text-primary hover:underline">
+              Monthly report
+            </Link>
+            <Link href={`/journey/${learner.id}/report?kind=quarterly`} className="text-primary hover:underline">
+              Quarterly IEP review
+            </Link>
+            <Link href={`/journey/${learner.id}/report?kind=changes`} className="text-primary hover:underline">
+              What changed?
+            </Link>
+          </nav>
+
           <section id="working-on" aria-labelledby="working-on-heading" className="space-y-4 scroll-mt-24">
             <h2 id="working-on-heading" className="text-2xl font-semibold">
               What we&apos;re working on
@@ -129,6 +160,7 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
             ) : (
               active.map((goal) => {
                 const trend = goalTrend(goal)
+                const status = progressStatus(goal.progress_logs ?? [])
                 return (
                   <Card key={goal.id}>
                     <CardHeader>
@@ -138,12 +170,12 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
                             {goal.domain}
                           </Badge>
                         )}
+                        {/* Plain words, neutral styling: no red/green (brief §21). */}
+                        <span className="rounded-full border px-2 py-0.5 text-xs font-medium" title={PROGRESS_STATUS_RULES[status.status]}>
+                          {PROGRESS_STATUS_LABELS[status.status]}
+                        </span>
                         <span className="text-sm text-muted-foreground">
-                          {trend.count === 0
-                            ? "No check-ins yet"
-                            : `${trend.count} check-in${trend.count === 1 ? "" : "s"} · latest ${trend.latest}/5${
-                                trend.direction ? ` · ${TREND_LABEL[trend.direction]}` : ""
-                              }`}
+                          {trend.count === 0 ? "No check-ins yet" : `${trend.count} check-in${trend.count === 1 ? "" : "s"}`}
                         </span>
                       </div>
                       <CardTitle className="text-lg">{goal.goal_text}</CardTitle>

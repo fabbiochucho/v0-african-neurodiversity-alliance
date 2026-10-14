@@ -147,7 +147,7 @@ describe("summarisePerson", () => {
     const s = summarisePerson(input([strong, slipping, unlogged, done]), { now })
     expect(s.priorities.map((p) => p.text)).toEqual(["Unlogged", "Slipping"])
     expect(s.strengths).toEqual(["Achieved: Done", "Doing well: Strong"])
-    expect(s.headline).toMatch(/^Recent check-ins average .*across 2 goals, with some goals slipping\.$/)
+    expect(s.headline).toMatch(/^Recent check-ins average .*across 2 goals, with some goals needing attention.$/)
     expect(s.nextSteps[0].label).toBe('Log a first check-in for "Unlogged"')
   })
 
