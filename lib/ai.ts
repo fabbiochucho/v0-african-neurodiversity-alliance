@@ -23,7 +23,10 @@ export const PROVIDERS: Record<AiProviderId, { recipient: string; storage: strin
   },
 }
 
-export const DEFAULT_CLOUDFLARE_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+// Owner decision: the smaller Llama 3.1 8B model by default, so the free
+// daily allowance lasts much longer in real use. CLOUDFLARE_AI_MODEL can
+// switch to a larger model (e.g. @cf/meta/llama-3.3-70b-instruct-fp8-fast).
+export const DEFAULT_CLOUDFLARE_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8"
 export const DEFAULT_ANTHROPIC_MODEL = "claude-haiku-5-5"
 
 export function aiProvider(env: Record<string, string | undefined> = process.env): AiProviderId | null {
