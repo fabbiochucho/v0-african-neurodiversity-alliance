@@ -16,6 +16,7 @@ import { WhatChanged } from "@/components/what-changed"
 import { UpgradePrompt } from "@/components/upgrade-prompt"
 import { FEATURE_MIN_TIER } from "@/lib/entitlements"
 import { ROLE_DESCRIPTIONS, ROLE_PERMISSIONS, type SupportTeamMember } from "@/lib/support-team"
+import { logAudit } from "@/lib/audit"
 
 const KIND_LABEL: Record<TimelineKind, string> = {
   plan: "Plan",
@@ -52,6 +53,8 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
   if (!learner) notFound()
 
   const isOwner = learner.user_id === user.id
+  // Record views by anyone other than the owner (e.g. support-team members).
+  if (!isOwner) await logAudit({ actorId: user.id, ownerId: learner.user_id, learnerId: learner.id, action: "view", resource: "journey page" })
   const [[journey], entitlement, { data: teamRows }] = await Promise.all([
     loadJourneys(supabase, [learner as LearnerProfile]),
     getEntitlement(supabase, user.id),

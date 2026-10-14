@@ -104,6 +104,12 @@ export default async function AccountPage() {
             <Link href="/settings/connections" className="hover:underline">
               Connected accounts
             </Link>
+            <Link href="/account/privacy" className="hover:underline">
+              Privacy and your data
+            </Link>
+            <Link href="/settings/accessibility" className="hover:underline">
+              Display and sensory settings
+            </Link>
           </nav>
         </div>
       </main>

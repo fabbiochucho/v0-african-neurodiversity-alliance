@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { dbErrorResponse } from "@/lib/api-error"
 import { NextResponse } from "next/server"
+import { logAudit, learnerIdForGoal } from "@/lib/audit"
 
 export async function POST(request: Request) {
   try {
@@ -36,6 +37,7 @@ export async function POST(request: Request) {
       return dbErrorResponse(error)
     }
 
+    await logAudit({ actorId: user.id, action: "change", resource: "progress check-in added", learnerId: await learnerIdForGoal(goal_id) })
     return NextResponse.json(data, { status: 201 })
   } catch (err) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

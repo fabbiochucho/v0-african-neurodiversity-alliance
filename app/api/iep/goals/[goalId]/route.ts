@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { dbErrorResponse } from "@/lib/api-error"
 import { NextResponse } from "next/server"
+import { logAudit, learnerIdForGoal } from "@/lib/audit"
 
 export async function PUT(request: Request, { params }: { params: { goalId: string } }) {
   try {
@@ -36,6 +37,7 @@ export async function PUT(request: Request, { params }: { params: { goalId: stri
       return dbErrorResponse(error)
     }
 
+    await logAudit({ actorId: user.id, action: "change", resource: `goal updated (${Object.keys(updateData).filter((k) => k !== "updated_at").join(", ")})`, learnerId: await learnerIdForGoal(params.goalId) })
     return NextResponse.json(data)
   } catch (err) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

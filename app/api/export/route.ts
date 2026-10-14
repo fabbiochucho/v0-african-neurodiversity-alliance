@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { dbErrorResponse, upgradeRequiredResponse } from "@/lib/api-error"
 import { FEATURE_MIN_TIER, getEntitlement } from "@/lib/entitlements"
 import { EXPORT_COLUMNS, EXPORT_TABLES, toCsv, type ExportTable } from "@/lib/data-export"
+import { logAudit } from "@/lib/audit"
 
 // GET /api/export?format=json            -- everything, one JSON file
 // GET /api/export?format=csv&table=goals -- one table as CSV
@@ -61,6 +62,7 @@ export async function GET(request: Request) {
     reports: reports ?? [],
   }
 
+  await logAudit({ actorId: user.id, ownerId: user.id, action: "export", resource: format === "csv" ? `export ${table} (CSV)` : "export everything (JSON)" })
   const stamp = new Date().toISOString().slice(0, 10)
   if (format === "csv" && table) {
     return new NextResponse(toCsv(data[table], EXPORT_COLUMNS[table]), {

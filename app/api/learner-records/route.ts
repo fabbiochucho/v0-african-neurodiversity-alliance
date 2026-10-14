@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { dbErrorResponse, upgradeRequiredResponse } from "@/lib/api-error"
 import { getEntitlement, nextTier } from "@/lib/entitlements"
+import { logAudit } from "@/lib/audit"
 import {
   ASSESSMENT_FILE_MAX_BYTES,
   ASSESSMENT_FILE_TYPES,
@@ -69,6 +70,7 @@ export async function POST(request: Request) {
       fields: profile,
     })
     if (error) return dbErrorResponse(error)
+    await logAudit({ actorId: user.id, action: "change", resource: "support profile added", learnerId })
     return NextResponse.json({ ok: true, learner_id: learnerId }, { status: 201 })
   }
 
@@ -103,6 +105,7 @@ export async function POST(request: Request) {
       if (filePath) await supabase.storage.from("learner-files").remove([filePath])
       return dbErrorResponse(error)
     }
+    await logAudit({ actorId: user.id, action: "change", resource: "assessment added", learnerId })
     return NextResponse.json({ ok: true, learner_id: learnerId }, { status: 201 })
   }
 
