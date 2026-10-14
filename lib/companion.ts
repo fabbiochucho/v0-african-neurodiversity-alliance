@@ -115,20 +115,22 @@ export function checkRateLimit(timestamps: string[], dailyLimit: number, now: Da
 // ---- Learner data in chat: explicit, per-learner, revocable consent ------
 
 /** Bump when CONSENT_FIELDS or CONSENT_TEXT changes; old consents stop counting. */
-export const CONSENT_VERSION = "2026-10-v1"
+// v2 (round 3): adds the support profile, used when drafting an IEP with AI.
+export const CONSENT_VERSION = "2026-10-v2"
 
 /** Exactly what is sent, shown verbatim on the consent screen. */
 export const CONSENT_FIELDS = [
   "Their first name (the first word of the name you entered), never their surname",
   "The text and area of each goal they're currently working on",
   "A short summary of their check-ins from the last 30 days (average rating per goal and whether it's going up or down)",
+  "Only when you ask for an AI-drafted plan: the support profile you wrote (strengths, difficulties, what helps, communication, sensory needs, school context)",
 ]
 
-export const NOT_SHARED = ["Surname", "Age or date of birth", "Gender", "Country", "Support areas or diagnoses", "Check-in notes", "Reports"]
+export const NOT_SHARED = ["Surname", "Age or date of birth", "Gender", "Country", "Support areas or diagnoses you selected", "Uploaded assessments or professional reports", "Check-in notes", "Reports"]
 
 export const CONSENT_TEXT = {
   recipient: "Anthropic, the company that provides the AI model behind the companion",
-  why: "So the companion's suggestions can fit the goals you're actually working on.",
+  why: "So the companion's suggestions, and any AI-drafted plan, can fit the person and the goals you're actually working on.",
   storage: "ANDA doesn't save your conversations. Anthropic processes each message to produce a reply under its API terms.",
   withdraw: "You can withdraw at any time on this page. From then on, no learner information is sent, starting with the very next message.",
 }

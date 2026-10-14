@@ -19,7 +19,20 @@ export async function PUT(request: Request, { params }: { params: { goalId: stri
 
     // Only goal content/status are user-editable; iep_id etc. are not.
     const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() }
-    for (const key of ["goal_text", "domain", "status", "target_completion_date", "baseline", "target", "measurement"]) {
+    for (const key of [
+      "goal_text",
+      "domain",
+      "status",
+      "target_completion_date",
+      "baseline",
+      "target",
+      "measurement",
+      "frequency",
+      "responsible_person",
+      "support_strategy",
+      "review_date",
+      "evidence",
+    ]) {
       if (key in body) updateData[key] = body[key]
     }
     if ("status" in body && !["in_progress", "achieved", "revised"].includes(body.status)) {

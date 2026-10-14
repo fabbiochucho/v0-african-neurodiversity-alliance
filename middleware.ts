@@ -22,6 +22,7 @@ export const config = {
     "/journey/:path*",
     "/account/:path*",
     "/people/:path*",
+    "/plan/:path*",
     "/team/:path*",
     "/companion/:path*",
     "/team-dashboard",

@@ -19,6 +19,13 @@ export interface JourneyGoal {
   baseline?: string | null
   target?: string | null
   measurement?: string | null
+  frequency?: string | null
+  responsible_person?: string | null
+  support_strategy?: string | null
+  review_date?: string | null
+  evidence?: string | null
+  source?: string | null
+  approval_status?: string | null
   created_at: string
   updated_at: string
   progress_logs: JourneyLog[] | null
@@ -150,6 +157,11 @@ export interface TimelineEvent {
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000
+
+/** Part of the official plan (scripts/045); rows from before 045 have no status and count. */
+export function isOfficialGoal(g: { approval_status?: string | null }): boolean {
+  return !g.approval_status || g.approval_status === "approved"
+}
 
 export function allGoals(input: Pick<JourneyInput, "ieps">): JourneyGoal[] {
   return input.ieps.flatMap((iep) => iep.iep_goals ?? [])

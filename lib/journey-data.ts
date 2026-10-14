@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { LearnerProfile } from "@/lib/types/iep"
-import type { JourneyIEP, JourneyInput, JourneyRecord, JourneyReport, JourneySnapshot } from "@/lib/journey"
+import { isOfficialGoal, type JourneyIEP, type JourneyInput, type JourneyRecord, type JourneyReport, type JourneySnapshot } from "@/lib/journey"
 
 export interface PersonJourney {
   learner: LearnerProfile
@@ -20,7 +20,7 @@ export async function loadJourneys(supabase: SupabaseClient, learners: LearnerPr
     supabase
       .from("ieps")
       .select(
-        "id, learner_id, title, status, created_at, custom_goals, iep_goals(id, goal_text, domain, status, baseline, target, measurement, created_at, updated_at, progress_logs(id, rating, notes, logged_date, created_at))",
+        "id, learner_id, title, status, created_at, custom_goals, iep_goals(*, progress_logs(id, rating, notes, logged_date, created_at))",
       )
       .in("learner_id", ids)
       .order("created_at", { ascending: false }),
@@ -42,7 +42,11 @@ export async function loadJourneys(supabase: SupabaseClient, learners: LearnerPr
   return learners.map((learner) => ({
     learner,
     input: {
-      ieps: byLearner(ieps as WithLearner<JourneyIEP>[] | null, learner.id),
+      // Only the official plan: drafts, suggestions and rejected items (045) are excluded.
+      ieps: byLearner(ieps as WithLearner<JourneyIEP>[] | null, learner.id).map((iep) => ({
+        ...iep,
+        iep_goals: (iep.iep_goals ?? []).filter((g) => isOfficialGoal(g)),
+      })),
       reports: byLearner(reports as WithLearner<JourneyReport>[] | null, learner.id),
       summaries: byLearner(summaries as WithLearner<JourneySnapshot>[] | null, learner.id),
       records: byLearner(records as WithLearner<JourneyRecord>[] | null, learner.id),

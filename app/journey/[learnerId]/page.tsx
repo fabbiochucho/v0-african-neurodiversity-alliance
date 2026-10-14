@@ -105,6 +105,9 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
             <Link href={`/journey/${learner.id}/profile`} className="inline-block mt-3 ml-4 text-sm font-medium text-primary hover:underline">
               Support profile and assessments
             </Link>
+            <Link href={`/plan/${learner.id}`} className="inline-block mt-3 ml-4 text-sm font-medium text-primary hover:underline">
+              Full support plan
+            </Link>
           </header>
 
           <SummaryCards summary={summary} />
