@@ -61,3 +61,45 @@ export async function getNeuRafikiPlan(supabase: SupabaseClient, userId: string)
     return { state: "unavailable" }
   }
 }
+
+/**
+ * Pulls the user's completed Neu Rafiki assessment results (domain-level
+ * summaries only; raw responses are never sent) for their active link
+ * with the assessment_sync scope. Shared by /api/federation/import-assessment
+ * and /api/federation/import-summary.
+ */
+export async function fetchNeuRafikiAssessments(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<{ ok: true; data: unknown } | { ok: false; status: number; error: string }> {
+  const base = getSiblingAppUrl()
+  if (!isFederationEnabled() || !base) return { ok: false, status: 503, error: "Cross-app account linking is not enabled on this deployment" }
+
+  const { data: link } = await supabase
+    .from("linked_accounts")
+    .select("remote_user_id")
+    .eq("local_user_id", userId)
+    .eq("remote_app", "neurafiki")
+    .eq("status", "active")
+    .contains("scopes", ["assessment_sync"])
+    .maybeSingle()
+  if (!link) return { ok: false, status: 404, error: "Connect your NeuRafiki account first." }
+
+  try {
+    const token = await signRequestToken({
+      iss: "alliance",
+      requesting_user_id: userId,
+      target_remote_user_id: link.remote_user_id,
+      scope: "assessment_sync",
+    })
+    const res = await fetch(new URL("/api/federation/assessment-results", base), {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000),
+    })
+    if (!res.ok) return { ok: false, status: 502, error: "NeuRafiki couldn't share the results just now. Try again shortly." }
+    return { ok: true, data: await res.json() }
+  } catch {
+    return { ok: false, status: 502, error: "We couldn't reach NeuRafiki just now. Try again shortly." }
+  }
+}

@@ -17,6 +17,10 @@ import { UpgradePrompt } from "@/components/upgrade-prompt"
 import { FEATURE_MIN_TIER } from "@/lib/entitlements"
 import { describePermissions, roleLabel, type SupportTeamMember } from "@/lib/support-team"
 import { logAudit } from "@/lib/audit"
+import { termsFor } from "@/lib/i18n"
+import { NeuRafikiActions } from "@/components/neurafiki-actions"
+import { getActiveLink } from "@/lib/federation/remote"
+import { getSiblingAppUrl } from "@/lib/federation/config"
 import { MicroLog } from "@/components/micro-log"
 import { PROGRESS_STATUS_LABELS, PROGRESS_STATUS_RULES, progressStatus } from "@/lib/progress-status"
 
@@ -107,9 +111,17 @@ export default async function JourneyPage({ params }: { params: { learnerId: str
               Support profile and assessments
             </Link>
             <Link href={`/plan/${learner.id}`} className="inline-block mt-3 ml-4 text-sm font-medium text-primary hover:underline">
-              Full support plan
+              Full {termsFor(learner.education_context).planShort}
             </Link>
           </header>
+
+          <NeuRafikiActions
+            learnerId={learner.id}
+            goalTitle={active[0]?.goal_text}
+            nrUrl={getSiblingAppUrl()}
+            linked={Boolean(await getActiveLink(supabase, user.id))}
+            canReports={isOwner ? entitlement.can("reports") : can("generate_report")}
+          />
 
           <SummaryCards summary={summary} />
 
