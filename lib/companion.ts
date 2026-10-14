@@ -1,15 +1,12 @@
 // AI Companion: safety rules and request shaping. Pure functions only (no
 // SDK, no Supabase) so every safety rule is unit tested.
 //
-// OWNER REVIEW REQUIRED before launch: provider/model choice, cost budget
-// (AI_DAILY_MESSAGES in lib/entitlements.ts), and all user-facing safety copy
-// below (SYSTEM_PROMPT, CRISIS_RESPONSE, DISCLAIMER, CONSENT_TEXT).
+// OWNER REVIEW REQUIRED before launch: daily limits (AI_DAILY_MESSAGES in
+// lib/entitlements.ts) and all user-facing safety copy below (SYSTEM_PROMPT,
+// CRISIS_RESPONSE, DISCLAIMER, CONSENT_TEXT). The AI provider and model are
+// configured in lib/ai.ts (owner decision: free Cloudflare Workers AI).
 
-// Owner decision (round 2): cheapest current model by default, overridable.
-export const DEFAULT_COMPANION_MODEL = "claude-haiku-5-5"
-export function companionModel(env: Record<string, string | undefined> = process.env): string {
-  return env.ANTHROPIC_MODEL?.trim() || DEFAULT_COMPANION_MODEL
-}
+import { aiProvider, PROVIDERS } from "@/lib/ai"
 export const MAX_MESSAGE_CHARS = 2000
 export const MAX_HISTORY_MESSAGES = 12
 export const BURST_LIMIT_PER_MINUTE = 5
@@ -116,7 +113,9 @@ export function checkRateLimit(timestamps: string[], dailyLimit: number, now: Da
 
 /** Bump when CONSENT_FIELDS or CONSENT_TEXT changes; old consents stop counting. */
 // v2 (round 3): adds the support profile, used when drafting an IEP with AI.
-export const CONSENT_VERSION = "2026-10-v2"
+// The provider is part of the version: switching provider means families
+// must agree again, because the consent names who receives the data.
+export const CONSENT_VERSION = `2026-10-v3-${aiProvider() ?? "off"}`
 
 /** Exactly what is sent, shown verbatim on the consent screen. */
 export const CONSENT_FIELDS = [
@@ -128,10 +127,13 @@ export const CONSENT_FIELDS = [
 
 export const NOT_SHARED = ["Surname", "Age or date of birth", "Gender", "Country", "Support areas or diagnoses you selected", "Uploaded assessments or professional reports", "Check-in notes", "Reports"]
 
+// Names whichever provider this deployment uses (fixed per deployment).
+const CONSENT_PROVIDER = PROVIDERS[aiProvider() ?? "cloudflare"]
+
 export const CONSENT_TEXT = {
-  recipient: "Anthropic, the company that provides the AI model behind the companion",
+  recipient: CONSENT_PROVIDER.recipient,
   why: "So the companion's suggestions, and any AI-drafted plan, can fit the person and the goals you're actually working on.",
-  storage: "ANDA doesn't save your conversations. Anthropic processes each message to produce a reply under its API terms.",
+  storage: CONSENT_PROVIDER.storage,
   withdraw: "You can withdraw at any time on this page. From then on, no learner information is sent, starting with the very next message.",
 }
 

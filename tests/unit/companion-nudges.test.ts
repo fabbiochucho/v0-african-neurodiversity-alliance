@@ -2,11 +2,10 @@ import { describe, expect, it } from "vitest"
 import { buildNudges, matchResources, thirtyDayChange, type NudgeGoal } from "@/lib/companion-nudges"
 import {
   buildLearnerContext,
-  companionModel,
   CONSENT_VERSION,
-  DEFAULT_COMPANION_MODEL,
   hasActiveConsent,
 } from "@/lib/companion"
+import { aiProvider, cloudflareText, DEFAULT_CLOUDFLARE_MODEL, extractJson, generate } from "@/lib/ai"
 
 const now = new Date("2026-06-30T12:00:00Z")
 const goal = (o: Partial<NudgeGoal>): NudgeGoal => ({
@@ -78,10 +77,57 @@ describe("matchResources", () => {
 })
 
 describe("AI chat model, consent and minimal context", () => {
-  it("defaults to claude-haiku-5-5 and honours ANTHROPIC_MODEL", () => {
-    expect(DEFAULT_COMPANION_MODEL).toBe("claude-haiku-5-5")
-    expect(companionModel({})).toBe("claude-haiku-5-5")
-    expect(companionModel({ ANTHROPIC_MODEL: " claude-sonnet-5-5 " })).toBe("claude-sonnet-5-5")
+  it("prefers free Cloudflare AI, falls back to Anthropic, and is off with neither", () => {
+    expect(aiProvider({ CLOUDFLARE_ACCOUNT_ID: "a", CLOUDFLARE_AI_TOKEN: "t", ANTHROPIC_API_KEY: "k" })).toBe("cloudflare")
+    expect(aiProvider({ CLOUDFLARE_ACCOUNT_ID: "a", ANTHROPIC_API_KEY: "k" })).toBe("anthropic")
+    expect(aiProvider({ CLOUDFLARE_ACCOUNT_ID: " ", CLOUDFLARE_AI_TOKEN: "t" })).toBeNull()
+    expect(aiProvider({})).toBeNull()
+  })
+
+  it("reads Cloudflare replies in both response shapes", () => {
+    expect(cloudflareText({ result: { response: "Hello" } })).toBe("Hello")
+    expect(cloudflareText({ result: { choices: [{ message: { content: "Hi" } }] } })).toBe("Hi")
+    expect(cloudflareText({ success: false, errors: [] })).toBeNull()
+  })
+
+  it("pulls JSON out of chatty or fenced model replies", () => {
+    expect(extractJson('Here you go:\n```json\n{"goals":[],"items":[]}\n```')).toEqual({ goals: [], items: [] })
+    expect(extractJson('Sure! {"goals":[1]} Hope that helps')).toEqual({ goals: [1] })
+    expect(extractJson("no json here")).toBeNull()
+  })
+
+  it("sends a chat request to the configured Cloudflare model", async () => {
+    const calls: { url: string; body: { messages: { role: string }[]; max_tokens: number } }[] = []
+    const realFetch = globalThis.fetch
+    globalThis.fetch = (async (url: string, init: { body: string }) => {
+      calls.push({ url, body: JSON.parse(init.body) })
+      return new Response(JSON.stringify({ success: true, result: { response: " Try a visual timetable. " } }), { status: 200 })
+    }) as unknown as typeof fetch
+    try {
+      const out = await generate({
+        system: "rules",
+        messages: [{ role: "user", content: "Mornings are hard" }],
+        maxTokens: 100,
+        env: { CLOUDFLARE_ACCOUNT_ID: "acc", CLOUDFLARE_AI_TOKEN: "tok" },
+      })
+      expect(out).toEqual({ ok: true, text: "Try a visual timetable." })
+      expect(calls[0].url).toBe(`https://api.cloudflare.com/client/v4/accounts/acc/ai/run/${DEFAULT_CLOUDFLARE_MODEL}`)
+      expect(calls[0].body.messages.map((m) => m.role)).toEqual(["system", "user"])
+      expect(calls[0].body.max_tokens).toBe(100)
+    } finally {
+      globalThis.fetch = realFetch
+    }
+  })
+
+  it("reports the free daily limit running out as busy", async () => {
+    const realFetch = globalThis.fetch
+    globalThis.fetch = (async () => new Response("{}", { status: 429 })) as unknown as typeof fetch
+    try {
+      const out = await generate({ system: "s", messages: [{ role: "user", content: "hi" }], maxTokens: 10, env: { CLOUDFLARE_ACCOUNT_ID: "a", CLOUDFLARE_AI_TOKEN: "t" } })
+      expect(out).toEqual({ ok: false, reason: "busy" })
+    } finally {
+      globalThis.fetch = realFetch
+    }
   })
 
   it("requires the latest consent event to be a grant of the current version", () => {

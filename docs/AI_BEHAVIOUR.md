@@ -1,5 +1,7 @@
 # AI behaviour
 
+> **Provider (Oct 2026):** AI runs through `lib/ai.ts`. Free Cloudflare Workers AI (`CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_AI_TOKEN`, default model Llama 3.3 70B) is used when configured; Anthropic (`ANTHROPIC_API_KEY`) only if Cloudflare is not set. The consent screen names whichever provider is active, and switching provider asks families to consent again.
+
 ANDA uses AI in two places only. Both run server-side through the official Anthropic SDK, use the model in `ANTHROPIC_MODEL` (default `claude-haiku-5-5`) with low effort, and are switched off entirely while `ANTHROPIC_API_KEY` is unset.
 
 ## 1. Companion chat (`/companion`, `app/api/companion`)

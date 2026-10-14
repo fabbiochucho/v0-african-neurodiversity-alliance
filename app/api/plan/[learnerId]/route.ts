@@ -1,10 +1,10 @@
-import Anthropic from "@anthropic-ai/sdk"
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { dbErrorResponse, upgradeRequiredResponse } from "@/lib/api-error"
 import { FEATURE_MIN_TIER, getEntitlement } from "@/lib/entitlements"
-import { companionModel, hasActiveConsent } from "@/lib/companion"
-import { AI_DRAFT_SCHEMA, aiDraftPrompt, draftGoalsFromTemplates, parseAiDraft } from "@/lib/iep-plan"
+import { hasActiveConsent } from "@/lib/companion"
+import { aiProvider, extractJson, generate } from "@/lib/ai"
+import { AI_DRAFT_JSON_INSTRUCTIONS, aiDraftPrompt, draftGoalsFromTemplates, parseAiDraft } from "@/lib/iep-plan"
 import { loadPlan } from "@/lib/plan-data"
 import { logAudit } from "@/lib/audit"
 
@@ -57,8 +57,7 @@ export async function POST(request: Request, { params }: { params: { learnerId: 
   }
 
   if (body.mode === "ai") {
-    const apiKey = process.env.ANTHROPIC_API_KEY
-    if (!apiKey) return NextResponse.json({ error: "AI drafting isn't switched on." }, { status: 503 })
+    if (!aiProvider()) return NextResponse.json({ error: "AI drafting isn't switched on." }, { status: 503 })
     if (!(await getEntitlement(supabase, user.id)).can("ai_companion")) {
       return upgradeRequiredResponse("AI-drafted plans are part of the Pro plan.", FEATURE_MIN_TIER.ai_companion)
     }
@@ -71,23 +70,22 @@ export async function POST(request: Request, { params }: { params: { learnerId: 
       return NextResponse.json({ error: "consent_required", consent_url: `/companion/consent/${plan.learner.id}` }, { status: 403 })
     }
 
-    let parsed
-    try {
-      const client = new Anthropic({ apiKey })
-      const response = await client.messages.create({
-        model: companionModel(),
-        max_tokens: 4096,
-        output_config: { effort: "low", format: { type: "json_schema", schema: AI_DRAFT_SCHEMA as unknown as Record<string, unknown> } },
-        system: AI_SYSTEM,
-        messages: [{ role: "user", content: aiDraftPrompt(plan.learner.name.trim().split(/\s+/)[0], plan.profile, existing) }],
-      })
-      if (response.stop_reason === "refusal") return NextResponse.json({ error: "AI couldn't draft this plan. Use templates instead." }, { status: 422 })
-      const text = response.content.find((b): b is Anthropic.TextBlock => b.type === "text")?.text ?? ""
-      parsed = parseAiDraft(JSON.parse(text))
-    } catch (err) {
-      console.error("plan AI draft failed", err instanceof Anthropic.APIError ? err.status : "parse/network")
+    const result = await generate({
+      system: AI_SYSTEM,
+      messages: [
+        {
+          role: "user",
+          content: `${aiDraftPrompt(plan.learner.name.trim().split(/\s+/)[0], plan.profile, existing)}\n\n${AI_DRAFT_JSON_INSTRUCTIONS}`,
+        },
+      ],
+      maxTokens: 2048,
+    })
+    if (!result.ok) {
+      if (result.reason === "refused") return NextResponse.json({ error: "AI couldn't draft this plan. Use templates instead." }, { status: 422 })
       return NextResponse.json({ error: "AI drafting is unavailable right now. Use templates instead." }, { status: 502 })
     }
+    // Never trust the model's shape: parseAiDraft validates every field.
+    const parsed = parseAiDraft(extractJson(result.text))
     if (!parsed) return NextResponse.json({ error: "AI drafting returned nothing usable. Use templates instead." }, { status: 502 })
 
     if (parsed.goals.length > 0) {
