@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { contrastWithWhite, type Branding } from "@/lib/branding"
+import { calmMessage } from "@/lib/calm"
 
 export function BrandingForm({ initial }: { initial: Branding | null }) {
   const router = useRouter()
@@ -26,7 +27,7 @@ export function BrandingForm({ initial }: { initial: Branding | null }) {
           setMessage({ ok: true, text: "Saved. New reports and report emails will use this branding." })
           router.refresh()
         } catch (err) {
-          setMessage({ ok: false, text: err instanceof Error ? err.message : "Couldn't save" })
+          setMessage({ ok: false, text: calmMessage(err) })
         } finally {
           setBusy(false)
         }

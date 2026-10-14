@@ -10,7 +10,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!user) return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
 
   const { data: record } = await supabase.from("learner_records").select("file_path").eq("id", params.id).maybeSingle()
   if (!record?.file_path) return NextResponse.json({ error: "Not found" }, { status: 404 })
@@ -26,7 +26,7 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!user) return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
 
   const { data, error } = await supabase.from("learner_records").delete().eq("id", params.id).select("file_path, learner_id")
   if (error) return dbErrorResponse(error)

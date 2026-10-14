@@ -15,6 +15,7 @@ import { UpgradePrompt } from "@/components/upgrade-prompt"
 import { FEATURE_MIN_TIER } from "@/lib/entitlements"
 import type { Branding } from "@/lib/branding"
 import type { LearnerProfile, Report } from "@/lib/types/iep"
+import { calmMessage } from "@/lib/calm"
 
 type ReportRow = Report & { learner_profiles: { name: string } | null }
 
@@ -89,7 +90,7 @@ export function ReportsClient({
       setReports((prev) => [{ ...data, learner_profiles: { name: learnerName || "" } }, ...prev])
       setReportPeriod("")
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate report")
+      setError(calmMessage(err))
     } finally {
       setGenerating(false)
     }
@@ -114,7 +115,7 @@ export function ReportsClient({
         prev.map((r) => (r.id === reportId ? { ...r, email_sent: true, email_sent_at: new Date().toISOString() } : r)),
       )
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to send email")
+      setError(calmMessage(err))
     } finally {
       setSendingReportId(null)
     }

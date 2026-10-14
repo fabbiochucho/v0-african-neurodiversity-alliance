@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import type { BulkReport } from "@/lib/bulk-enrollment"
+import { calmMessage } from "@/lib/calm"
 
 type Result = BulkReport & { inserted: number }
 
@@ -27,7 +28,7 @@ export function BulkImport({ remaining, limit }: { remaining: number; limit: num
       if (!res.ok) throw new Error(data.error || "Import failed")
       setResult(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Import failed")
+      setError(calmMessage(err))
     } finally {
       setBusy(false)
     }

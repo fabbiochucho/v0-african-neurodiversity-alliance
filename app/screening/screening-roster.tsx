@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { SCREENING_OPTIONS, SCREENING_QUESTIONS, screeningFlag } from "@/lib/screening"
 import { mapRemoteAssessmentResult } from "@/lib/federation/map-assessment-domains"
+import { calmMessage } from "@/lib/calm"
 
 interface Screening {
   id: string
@@ -47,7 +48,7 @@ export function ScreeningRoster({
       setAnswers({})
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't save")
+      setError(calmMessage(err))
     } finally {
       setBusy(false)
     }
@@ -77,7 +78,7 @@ export function ScreeningRoster({
         })),
       )
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't reach Neu Rafiki")
+      setError(calmMessage(err))
     } finally {
       setBusy(false)
     }

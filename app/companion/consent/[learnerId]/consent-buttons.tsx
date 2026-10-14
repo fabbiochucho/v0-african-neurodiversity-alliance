@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { calmMessage } from "@/lib/calm"
 
 export function ConsentButtons({ learnerId, active }: { learnerId: string; active: boolean }) {
   const router = useRouter()
@@ -21,7 +22,7 @@ export function ConsentButtons({ learnerId, active }: { learnerId: string; activ
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Couldn't save your choice")
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't save your choice")
+      setError(calmMessage(err))
     } finally {
       setBusy(false)
     }

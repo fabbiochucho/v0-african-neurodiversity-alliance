@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!user) return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
 
   const body = await request.json().catch(() => ({}))
   const ids = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [])

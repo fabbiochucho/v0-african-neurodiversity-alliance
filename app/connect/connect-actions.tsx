@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { calmMessage } from "@/lib/calm"
 
 export function ConnectActions({ token }: { token: string }) {
   const router = useRouter()
@@ -28,7 +29,7 @@ export function ConnectActions({ token }: { token: string }) {
 
       router.push("/settings/connections")
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.")
+      setError(calmMessage(err))
       setSubmitting(false)
     }
   }

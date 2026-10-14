@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!user) return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
 
   const body = await request.json().catch(() => ({}))
   if (typeof body.learner_id !== "string" || !["granted", "revoked"].includes(body.action)) {

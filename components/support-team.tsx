@@ -16,6 +16,7 @@ import {
   type Permission,
   type Preset,
 } from "@/lib/team-permissions"
+import { calmMessage } from "@/lib/calm"
 
 function useAction() {
   const router = useRouter()
@@ -32,7 +33,7 @@ function useAction() {
       router.refresh()
       return data
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something didn't save. Try again.")
+      setError(calmMessage(err))
       return null
     } finally {
       setBusy(false)

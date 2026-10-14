@@ -12,6 +12,12 @@ import { summarisePerson } from "@/lib/journey"
 import type { LearnerProfile } from "@/lib/types/iep"
 import { PendingInvites } from "@/components/support-team"
 import type { SupportTeamMember } from "@/lib/support-team"
+import { EmptyState } from "@/components/empty-state"
+import { NeuRafikiActions } from "@/components/neurafiki-actions"
+import { getSiblingAppUrl } from "@/lib/federation/config"
+import { getActiveLink } from "@/lib/federation/remote"
+import { neuRafikiLinks } from "@/lib/federation/contract"
+import { t } from "@/lib/i18n"
 
 // The unified, person-centred ANDA dashboard: one card per person being
 // supported, answering "how are they doing, what are we working on, what's
@@ -51,6 +57,9 @@ export default async function DashboardPage() {
     (m) => m.status === "active" && m.member_user_id === user.id && !(shared ?? []).some((l) => l.id === m.learner_id),
   )
 
+  const nrUrl = getSiblingAppUrl()
+  const linked = Boolean(nrUrl && (await getActiveLink(supabase, user.id)))
+
   const [people, sharedPeople] = await Promise.all([
     loadJourneys(supabase, (learners ?? []) as LearnerProfile[]),
     loadJourneys(supabase, (shared ?? []) as LearnerProfile[]),
@@ -79,30 +88,35 @@ export default async function DashboardPage() {
           <PendingInvites invites={invites} />
 
           {people.length === 0 && sharedPeople.length === 0 ? (
-            <Card>
-              <CardContent className="p-12 text-center space-y-4">
-                <h2 className="text-lg font-semibold">No one here yet</h2>
-                <p className="text-muted-foreground">
-                  Create a plan for the person you support. Their goals, check-ins and reports will build up into
-                  their journey here.
-                </p>
-                <Button asChild className="bg-primary hover:bg-primary/90">
-                  <Link href="/iep/generate">Create a first plan</Link>
-                </Button>
-              </CardContent>
-            </Card>
+            <EmptyState
+              title={t("dashboard.empty.title")}
+              description="Start with what you know about the person you support, add an assessment you already have, or take a NeuRafiki assessment first."
+              actions={[
+                { label: "Create Support Profile", href: "/people/new" },
+                { label: "Add existing assessment", href: "/people/new?then=assessment" },
+                { label: "Start NeuraFiki Assessment", href: nrUrl ? neuRafikiLinks(nrUrl).assessment() : "/self-test", external: true },
+              ]}
+            />
           ) : (
             people.length > 0 && (
             <section aria-label="People you support" className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {people.map(({ learner, input }) => (
-                <PersonCard
-                  key={learner.id}
-                  learner={learner}
-                  summary={summarisePerson(input, {
-                    canReports: entitlement.can("reports"),
-                    journeyHref: `/journey/${learner.id}#working-on`,
-                  })}
-                />
+                <div key={learner.id} className="space-y-3">
+                  <PersonCard
+                    learner={learner}
+                    summary={summarisePerson(input, {
+                      canReports: entitlement.can("reports"),
+                      journeyHref: `/journey/${learner.id}#working-on`,
+                    })}
+                  />
+                  <NeuRafikiActions
+                    learnerId={learner.id}
+                    goalTitle={input.ieps.flatMap((i) => i.iep_goals ?? []).find((g) => g.status === "in_progress")?.goal_text}
+                    nrUrl={nrUrl}
+                    linked={linked}
+                    canReports={entitlement.can("reports")}
+                  />
+                </div>
               ))}
             </section>
             )

@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { calmMessage } from "@/lib/calm"
 
 const RATING_LABELS = ["", "Not yet", "Emerging", "Developing", "Mostly", "Consistently"]
 
@@ -24,7 +25,7 @@ export function GoalCheckIn({ goalId, canMarkAchieved = true }: { goalId: string
       setNotes("")
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong")
+      setError(calmMessage(err))
     } finally {
       setBusy(false)
     }

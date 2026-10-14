@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { MAX_MESSAGE_CHARS, type ChatTurn } from "@/lib/companion"
+import { calmMessage } from "@/lib/calm"
 
 export function CompanionChat({ learners }: { learners: { id: string; name: string; consented: boolean }[] }) {
   const [learnerId, setLearnerId] = useState("")
@@ -41,7 +42,7 @@ export function CompanionChat({ learners }: { learners: { id: string; name: stri
     } catch (err) {
       setTurns(turns)
       setDraft(text)
-      setError(err instanceof Error ? err.message : "Something went wrong")
+      setError(calmMessage(err))
     } finally {
       setBusy(false)
     }

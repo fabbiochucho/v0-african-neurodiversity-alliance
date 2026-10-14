@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import type { SupportTeamMember } from "@/lib/support-team"
+import { calmMessage } from "@/lib/calm"
 
 /** Resend pending invites, or remove this person from every team they're on. */
 export function StaffActions({ memberships }: { memberships: SupportTeamMember[] }) {
@@ -26,7 +27,7 @@ export function StaffActions({ memberships }: { memberships: SupportTeamMember[]
       setMessage(await action())
       router.refresh()
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Something went wrong")
+      setMessage(calmMessage(err))
     } finally {
       setBusy(false)
     }

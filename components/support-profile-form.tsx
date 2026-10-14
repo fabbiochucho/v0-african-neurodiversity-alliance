@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ASSESSMENT_TYPES, SUPPORT_PROFILE_FIELDS, type SupportProfile } from "@/lib/learner-records"
+import { calmMessage } from "@/lib/calm"
 
 const field = "w-full px-3 py-2 border rounded-lg bg-background"
 
@@ -14,7 +15,15 @@ async function submit(form: HTMLFormElement): Promise<{ learner_id?: string }> {
 }
 
 /** Create a new person with a support profile, or save a new version of an existing one. */
-export function SupportProfileForm({ learnerId, initial }: { learnerId?: string; initial?: SupportProfile }) {
+export function SupportProfileForm({
+  learnerId,
+  initial,
+  addAssessmentNext = false,
+}: {
+  learnerId?: string
+  initial?: SupportProfile
+  addAssessmentNext?: boolean
+}) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -27,9 +36,9 @@ export function SupportProfileForm({ learnerId, initial }: { learnerId?: string;
         setError(null)
         try {
           const data = await submit(e.currentTarget)
-          window.location.href = `/journey/${data.learner_id ?? learnerId}/profile`
+          window.location.href = `/journey/${data.learner_id ?? learnerId}/profile${addAssessmentNext ? "?add=assessment#inputs-heading" : ""}`
         } catch (err) {
-          setError(err instanceof Error ? err.message : "Something didn't save.")
+          setError(calmMessage(err))
           setBusy(false)
         }
       }}
@@ -93,7 +102,7 @@ export function ExistingAssessmentForm({ learnerId }: { learnerId: string }) {
           await submit(e.currentTarget)
           window.location.reload()
         } catch (err) {
-          setError(err instanceof Error ? err.message : "Something didn't save.")
+          setError(calmMessage(err))
           setBusy(false)
         }
       }}

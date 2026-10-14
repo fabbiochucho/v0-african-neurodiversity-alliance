@@ -11,7 +11,7 @@ export async function GET(request: Request, { params }: { params: { goalId: stri
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
     }
 
     const { data, error } = await supabase
@@ -39,6 +39,6 @@ export async function GET(request: Request, { params }: { params: { goalId: stri
       },
     })
   } catch (err) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status: 500 })
   }
 }

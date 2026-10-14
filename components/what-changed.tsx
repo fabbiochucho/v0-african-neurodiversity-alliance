@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { compareSnapshots, SNAPSHOT_WINDOW_DAYS, type JourneySnapshot } from "@/lib/journey"
+import { calmMessage } from "@/lib/calm"
 
 const DIRECTION_LABEL = { better: "Better", worse: "Lower", same: "About the same", new: "New area", dropped: "No recent check-ins" }
 
@@ -30,7 +31,7 @@ export function WhatChanged({ learnerId, snapshots, canSave }: { learnerId: stri
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Couldn't save a snapshot")
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't save a snapshot")
+      setError(calmMessage(err))
     } finally {
       setSaving(false)
     }

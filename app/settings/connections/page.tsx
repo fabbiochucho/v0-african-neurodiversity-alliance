@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { isFederationEnabled, getSiblingAppUrl, describeScope } from "@/lib/federation/config"
+import { calmMessage } from "@/lib/calm"
 
 // Row shape returned from public.linked_accounts (see
 // scripts/010_create_linked_accounts.sql).
@@ -83,7 +84,7 @@ export default function ConnectionsSettingsPage() {
       const siblingUrl = getSiblingAppUrl()
       window.location.href = `${siblingUrl}/connect?token=${encodeURIComponent(data.token)}`
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to start connection")
+      setError(calmMessage(err))
       setConnecting(false)
     }
   }
@@ -102,7 +103,7 @@ export default function ConnectionsSettingsPage() {
 
       setAccounts((prev) => prev.map((a) => (a.id === id ? (data as LinkedAccount) : a)))
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to revoke connection")
+      setError(calmMessage(err))
     } finally {
       setRevokingId(null)
     }

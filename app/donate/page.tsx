@@ -6,6 +6,7 @@ import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Icons } from "@/lib/icons"
+import { calmMessage } from "@/lib/calm"
 
 function DonateStatusBanner() {
   const searchParams = useSearchParams()
@@ -55,7 +56,7 @@ export default function DonatePage() {
 
       window.location.href = data.paymentLink
     } catch (err) {
-      setDonateError(err instanceof Error ? err.message : "Failed to start donation checkout")
+      setDonateError(calmMessage(err))
       setDonatingTier(null)
     }
   }

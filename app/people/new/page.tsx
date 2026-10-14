@@ -4,7 +4,7 @@ import { Navigation } from "@/components/navigation"
 import { SupportProfileForm } from "@/components/support-profile-form"
 
 // Brief §7: start in ANDA without a NeuRafiki assessment.
-export default async function NewSupportProfilePage() {
+export default async function NewSupportProfilePage({ searchParams }: { searchParams: { then?: string } }) {
   const supabase = await createClient()
   const {
     data: { user },
@@ -22,7 +22,12 @@ export default async function NewSupportProfilePage() {
             an existing diagnosis or plan afterwards.
           </p>
         </header>
-        <SupportProfileForm />
+        {searchParams.then === "assessment" && (
+          <p role="note" className="rounded-lg border p-3 text-sm">
+            First, who is the assessment about? After you save, you&apos;ll add the assessment you already have.
+          </p>
+        )}
+        <SupportProfileForm addAssessmentNext={searchParams.then === "assessment"} />
       </main>
     </div>
   )

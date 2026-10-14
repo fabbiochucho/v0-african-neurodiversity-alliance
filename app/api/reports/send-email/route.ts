@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
     }
 
     if (!(await getEntitlement(supabase, user.id)).can("email_reports")) {
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Report sent successfully" })
   } catch (err) {
     console.error(err)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status: 500 })
   }
 }
 

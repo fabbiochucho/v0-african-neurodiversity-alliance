@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!user) return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
 
   if (!(await getEntitlement(supabase, user.id)).can("data_export")) {
     return upgradeRequiredResponse("Data export is part of the Institutional plan.", FEATURE_MIN_TIER.data_export)

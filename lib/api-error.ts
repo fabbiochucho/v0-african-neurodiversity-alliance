@@ -8,7 +8,7 @@ import type { SubscriptionTier } from "@/lib/types/iep"
 // forwarding error.message directly.
 export function dbErrorResponse(error: { message: string }, status = 400) {
   console.error(error)
-  return NextResponse.json({ error: "Request failed" }, { status })
+  return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status })
 }
 
 // 402 returned when a feature needs a higher tier (see lib/entitlements.ts).

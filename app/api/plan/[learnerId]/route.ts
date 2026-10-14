@@ -21,7 +21,7 @@ export async function POST(request: Request, { params }: { params: { learnerId: 
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!user) return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
 
   const plan = await loadPlan(supabase, params.learnerId, user.id)
   if (!plan) return NextResponse.json({ error: "Not found" }, { status: 404 })

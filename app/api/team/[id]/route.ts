@@ -14,7 +14,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!user) return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
 
   const body = await request.json().catch(() => ({}))
   if (!isPreset(body.preset)) return NextResponse.json({ error: "Choose a role." }, { status: 400 })
@@ -44,7 +44,7 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!user) return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
 
   const { data, error } = await supabase.from("support_team_members").delete().eq("id", params.id).select("id")
   if (error) return dbErrorResponse(error)
@@ -60,7 +60,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!user) return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
 
   const body = await request.json().catch(() => ({}))
 

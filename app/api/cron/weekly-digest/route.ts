@@ -11,7 +11,7 @@ const BATCH_SIZE = 100 // Resend batch API limit
 // Weekly (vercel.json). Skips the send entirely when nothing new came in.
 export async function GET(request: Request) {
   if (!isCronRequest(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
   }
   const resend = getResend()
   if (!resend) return NextResponse.json({ skipped: "RESEND_API_KEY not set" })

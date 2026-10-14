@@ -12,6 +12,7 @@ import { createClient } from "@/lib/supabase/client"
 import { SUBSCRIPTION_TIERS } from "@/lib/constants/iep"
 import { effectiveTier, type SubscriptionRow } from "@/lib/entitlements"
 import type { Subscription, SubscriptionTier } from "@/lib/types/iep"
+import { calmMessage } from "@/lib/calm"
 
 type SubscriptionWithPayments = Subscription & SubscriptionRow
 
@@ -98,7 +99,7 @@ export default function SubscriptionSettingsPage() {
 
       window.location.href = data.paymentLink
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to start checkout")
+      setError(calmMessage(err))
       setUpgradingTier(null)
     }
   }

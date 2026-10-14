@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!user) return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
 
   const form = await request.formData()
   const raw = Object.fromEntries(Array.from(form.entries()).filter(([, v]) => typeof v === "string")) as Record<string, string>

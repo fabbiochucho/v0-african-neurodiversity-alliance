@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
     }
 
     const { goal_id, rating, notes } = await request.json()
@@ -40,6 +40,6 @@ export async function POST(request: Request) {
     await logAudit({ actorId: user.id, action: "change", resource: "progress check-in added", learnerId: await learnerIdForGoal(goal_id) })
     return NextResponse.json(data, { status: 201 })
   } catch (err) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status: 500 })
   }
 }

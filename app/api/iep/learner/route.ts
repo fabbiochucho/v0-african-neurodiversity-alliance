@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
     }
 
     const { name, age, gender, country, diagnosis_domains } = await request.json()
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(data, { status: 201 })
   } catch (err) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status: 500 })
   }
 }
 
@@ -66,7 +66,7 @@ export async function GET() {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
     }
 
     const { data, error } = await supabase
@@ -81,6 +81,6 @@ export async function GET() {
 
     return NextResponse.json(data)
   } catch (err) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Something didn't save. Your information is still here. Try again." }, { status: 500 })
   }
 }

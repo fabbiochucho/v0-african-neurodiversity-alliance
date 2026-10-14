@@ -14,6 +14,7 @@ import { isFederationEnabled } from "@/lib/federation/config"
 import { mapRemoteAssessmentResult, goalDomainForDiagnosisDomain } from "@/lib/federation/map-assessment-domains"
 import { GOAL_DOMAINS } from "@/lib/constants/iep"
 import type { DiagnosisDomain, GeneratedGoal, GoalDomain, LearnerProfile, SubscriptionTier } from "@/lib/types/iep"
+import { calmMessage } from "@/lib/calm"
 
 type LearnerDraft = Pick<LearnerProfile, "name" | "age" | "gender" | "country" | "diagnosis_domains">
 type WizardGoal = GeneratedGoal & { fromSuggestion: boolean }
@@ -139,7 +140,7 @@ export function GenerateIEPForm({ learners, initialLearnerId, canAddLearner, lea
       ])
       setImportMessage({ ok: true, text: `Imported ${mapped.length} area${mapped.length === 1 ? "" : "s"} and draft goals. Check each goal's baseline.` })
     } catch (err) {
-      setImportMessage({ ok: false, text: err instanceof Error ? err.message : "Failed to import assessment results" })
+      setImportMessage({ ok: false, text: calmMessage(err) })
     } finally {
       setImporting(false)
     }
@@ -191,7 +192,7 @@ export function GenerateIEPForm({ learners, initialLearnerId, canAddLearner, lea
 
       window.location.href = `/journey/${id}`
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.")
+      setSubmitError(calmMessage(err))
       setIsSubmitting(false)
     }
   }

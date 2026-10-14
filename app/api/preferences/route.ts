@@ -25,7 +25,7 @@ export async function PUT(request: Request) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!user) return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
 
   const prefs = parsePreferences(await request.json().catch(() => null))
   const { error } = await supabase

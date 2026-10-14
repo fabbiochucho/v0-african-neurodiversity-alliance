@@ -10,7 +10,7 @@ export const maxDuration = 60
 // alone (ignoreDuplicates) so an admin's "hide" is never undone.
 export async function GET(request: Request) {
   if (!isCronRequest(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
   }
 
   // ?days=90 backfills research on the first run (same secret required).
