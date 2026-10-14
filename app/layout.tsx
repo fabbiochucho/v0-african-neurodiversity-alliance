@@ -4,6 +4,8 @@ import { Fraunces, Source_Sans_3 } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import { ThemeProvider } from "@/components/theme-provider"
+import { PreferencesSync } from "@/components/preferences-sync"
+import { PREFERENCES_BOOT_SCRIPT } from "@/lib/preferences"
 import "./globals.css"
 
 // Variable fonts, self-hosted by next/font (no third-party request at
@@ -42,7 +44,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${fraunces.variable} ${sourceSans.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Applies saved display preferences before first paint (no flash). */}
+        <script dangerouslySetInnerHTML={{ __html: PREFERENCES_BOOT_SCRIPT }} />
+      </head>
       <body className="font-sans antialiased">
+        <PreferencesSync />
         {/* System preference by default; the header toggle persists light/dark/system. */}
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Suspense fallback={null}>{children}</Suspense>

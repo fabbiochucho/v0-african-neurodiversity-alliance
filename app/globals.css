@@ -185,3 +185,85 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ---- Sensory / display preferences (brief §31, lib/preferences.ts) --------
+   Set as data-attributes on <html> by an inline script before first paint. */
+
+/* Motion: "reduced" behaves like the OS prefers-reduced-motion setting. */
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Text size scales every rem-based size. */
+html[data-text="large"] { font-size: 112.5%; }
+html[data-text="xl"] { font-size: 125%; }
+
+/* Density scales Tailwind's spacing unit (padding, margins, gaps). */
+html[data-density="spacious"] { --spacing: 0.3rem; }
+html[data-density="compact"] { --spacing: 0.2rem; }
+
+/* Visual mode. Calm: no decorative patterns or gradients, softer borders,
+   muted imagery. Vibrant: richer brand colours on decoration. Text colours
+   are unchanged, so contrast never drops. */
+html[data-visual="calm"] .anda-pattern { background-image: none; }
+html[data-visual="calm"] [class*="bg-gradient-to-"] { background-image: none; }
+html[data-visual="calm"] img { filter: saturate(0.8); }
+html[data-visual="calm"] { --border: #ece5db; --chart-2: #9a7a68; }
+html[data-visual="vibrant"] { --border: #d8c8b4; --chart-1: #1f9a82; --chart-2: #c8552f; }
+html[data-visual="vibrant"] .anda-pattern {
+  background-image: radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--brand-teal) 16%, transparent) 0%, transparent 55%),
+    radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--brand-terracotta) 14%, transparent) 0%, transparent 55%);
+}
+
+/* High contrast: body text meets WCAG AAA (7:1) in light and dark.
+   Light: #000000 on #ffffff = 21:1; muted #3a322c on #ffffff = 12.5:1;
+   primary #1d5a4d = 8.0:1; terracotta #7a3a20 = 8.6:1.
+   Dark: #ffffff on #000000 = 21:1; muted #e0d8cf = 14.8:1; primary #8fe0cc. */
+html[data-contrast="high"] {
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --muted: #f2f2f2;
+  --muted-foreground: #3a322c;
+  --primary: #1d5a4d;
+  --primary-foreground: #ffffff;
+  --terracotta: #7a3a20;
+  --terracotta-foreground: #ffffff;
+  --secondary: #ebebeb;
+  --secondary-foreground: #000000;
+  --accent: #e6e6e6;
+  --accent-foreground: #000000;
+  --border: #4a4038;
+  --input: #2b2420;
+  --ring: #000000;
+}
+html.dark[data-contrast="high"] {
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #0d0d0d;
+  --card-foreground: #ffffff;
+  --popover: #0d0d0d;
+  --popover-foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: #e0d8cf;
+  --primary: #8fe0cc;
+  --primary-foreground: #000000;
+  --terracotta: #f4b49a;
+  --terracotta-foreground: #000000;
+  --secondary: #1f1f1f;
+  --secondary-foreground: #ffffff;
+  --accent: #262626;
+  --accent-foreground: #ffffff;
+  --border: #bfb6ab;
+  --input: #e0d8cf;
+  --ring: #ffffff;
+}
+html[data-contrast="high"] a { text-decoration-thickness: 2px; }
