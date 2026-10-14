@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { countryFromHeadline, isNeuroHeadline, mapEuropePmc, parseGdeltDate, parseRss, topicsFor } from "@/lib/feeds"
+import { countryFromHeadline, isNeuroHeadline, keepRecentUnique, mapEuropePmc, parseRss, topicsFor } from "@/lib/feeds"
 import { digestHtml, escapeHtml, isDigestEmpty } from "@/lib/digest"
 
 describe("isNeuroHeadline", () => {
@@ -35,14 +35,6 @@ describe("parseRss", () => {
     expect(parseRss(xml)).toEqual([
       { title: "Ghana: Autism & Inclusion", link: "https://allafrica.com/stories/1.html", pubDate: "Fri, 09 Oct 2026 13:21:01 GMT" },
     ])
-  })
-})
-
-describe("parseGdeltDate", () => {
-  it("converts GDELT's compact timestamp", () => {
-    expect(parseGdeltDate("20261010T120501Z")).toBe("2026-10-10T12:05:01.000Z")
-    expect(parseGdeltDate("garbage")).toBeNull()
-    expect(parseGdeltDate(undefined)).toBeNull()
   })
 })
 
@@ -96,5 +88,18 @@ describe("topicsFor", () => {
   it("doesn't match words that only contain a keyword", () => {
     expect(topicsFor("Environmental risk factors for ADHD")).toEqual([])
     expect(topicsFor("Genetic architecture of autism")).toEqual([])
+  })
+})
+
+describe("keepRecentUnique", () => {
+  const now = new Date("2026-10-14T00:00:00Z")
+  const item = (url: string, published_at: string | null) => ({ title: "Autism", url, source: "x", country: null, published_at })
+  it("keeps items inside the window once each and drops undated or old ones", () => {
+    const out = keepRecentUnique(
+      [item("a", "2026-09-01T00:00:00Z"), item("a", "2026-09-01T00:00:00Z"), item("b", "2025-10-01T00:00:00Z"), item("c", null)],
+      365,
+      now,
+    )
+    expect(out.map((i) => i.url)).toEqual(["a"])
   })
 })

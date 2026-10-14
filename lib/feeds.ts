@@ -37,7 +37,7 @@ export function topicsFor(title: string): string[] {
 
 // Headline must mention a neurodivergent condition. Full-text matches are
 // too noisy (an article mentioning autism once in passing). Includes the
-// French terms because allAfrica and GDELT carry francophone outlets.
+// French terms because allAfrica carries francophone outlets.
 const NEURO_TITLE =
   /\b(autis\w*|adhd|attention[- ]deficit|dyslex\w*|dyspraxi\w*|dyscalcul\w*|dysgraph\w*|neurodiver\w*|tourette\w*|learning (disabilit|difficult)\w*|special (needs|education)|developmental (disabilit|delay)\w*|down syndrome|cerebral palsy|intellectual disabilit\w*|tdah|dyslexie)/i
 
@@ -95,68 +95,82 @@ function toIso(date: string | null): string | null {
   return isNaN(d.getTime()) ? null : d.toISOString()
 }
 
-// GDELT dates look like 20261010T120000Z.
-export function parseGdeltDate(s: string | undefined): string | null {
-  const m = s && /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/.exec(s)
-  return m ? `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}.000Z` : null
+interface FeedSource {
+  url: string
+  source: string
+  // null = read the country from an allAfrica-style "Country: ..." headline
+  country: string | null
 }
 
-const ALLAFRICA_FEEDS = ["health", "education", "children"].map(
-  (c) => `https://allafrica.com/tools/headlines/rdf/${c}/headlines.rdf`,
-)
+const SEARCH_TERMS = ["autism", "ADHD", "dyslexia", "neurodiversity", "special needs", "down syndrome", "cerebral palsy"]
 
-export async function fetchAllAfricaNews(): Promise<NewsItem[]> {
-  const out: NewsItem[] = []
-  for (const url of ALLAFRICA_FEEDS) {
-    try {
-      const res = await fetch(url, { headers: { "User-Agent": "ANDA-feed (anda.becomechange.institute)" }, cache: "no-store" })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      for (const item of parseRss(await res.text())) {
-        if (!isNeuroHeadline(item.title)) continue
-        out.push({
-          title: item.title,
-          url: item.link,
-          source: "allAfrica",
-          country: countryFromHeadline(item.title),
-          published_at: toIso(item.pubDate),
-        })
-      }
-    } catch (err) {
-      console.error(`allAfrica feed failed (${url}):`, err)
-    }
-  }
-  return out
-}
+// WordPress sites return search results as RSS (?s=term&feed=rss2), which
+// reaches past the latest-50 window of a general feed. Only these two allowed
+// it when tested (Oct 2026); others returned 403 or empty results.
+const searchFeeds = (base: string, source: string, country: string): FeedSource[] =>
+  SEARCH_TERMS.map((t) => ({ url: `${base}/?s=${encodeURIComponent(t)}&feed=rss2`, source, country }))
 
-// GDELT asks for at most one request every 5 seconds, so this is one query.
-// ponytail: GDELT country names are passed as GDELT spells them; verify the
-// multi-word ones (southafrica) against live results after the first run.
-const GDELT_COUNTRIES = ["nigeria", "kenya", "southafrica", "ghana", "uganda", "tanzania", "ethiopia", "rwanda", "zambia", "zimbabwe", "egypt", "morocco"]
+// One inner array per site. Search feeds return older matches too; only the
+// last NEWS_WINDOW_DAYS are kept.
+// GDELT was dropped: it rate-limited every request from shared hosting IPs.
+const NEWS_SITES: FeedSource[][] = [
+  ["health", "education", "children"].map((c) => ({
+    url: `https://allafrica.com/tools/headlines/rdf/${c}/headlines.rdf`,
+    source: "allAfrica",
+    country: null,
+  })),
+  searchFeeds("https://www.myjoyonline.com", "MyJoyOnline", "Ghana"),
+  searchFeeds("https://www.sabcnews.com/sabcnews", "SABC News", "South Africa"),
+  [{ url: "https://www.premiumtimesng.com/feed", source: "Premium Times", country: "Nigeria" }],
+  [{ url: "https://punchng.com/feed/", source: "Punch", country: "Nigeria" }],
+  [{ url: "https://nation.africa/kenya/rss.xml", source: "Nation", country: "Kenya" }],
+  [{ url: "https://www.dailymaverick.co.za/dmrss/", source: "Daily Maverick", country: "South Africa" }],
+]
 
-export async function fetchGdeltNews(): Promise<NewsItem[]> {
-  const terms = '(autism OR autistic OR ADHD OR dyslexia OR neurodiversity OR neurodivergent OR "down syndrome" OR "cerebral palsy")'
-  const countries = `(${GDELT_COUNTRIES.map((c) => `sourcecountry:${c}`).join(" OR ")})`
-  const url =
-    "https://api.gdeltproject.org/api/v2/doc/doc?" +
-    new URLSearchParams({ query: `${terms} ${countries}`, mode: "artlist", format: "json", timespan: "3days", maxrecords: "100", sort: "datedesc" })
+async function fetchFeed(feed: FeedSource): Promise<NewsItem[]> {
   try {
-    const res = await fetch(url, { cache: "no-store" })
-    const text = await res.text()
-    if (!res.ok || !text.startsWith("{")) throw new Error(text.slice(0, 120))
-    const data = JSON.parse(text) as { articles?: { url: string; title: string; seendate?: string; domain?: string; sourcecountry?: string }[] }
-    return (data.articles ?? [])
-      .filter((a) => a.title && a.url && isNeuroHeadline(a.title))
-      .map((a) => ({
-        title: a.title,
-        url: a.url,
-        source: a.domain ?? new URL(a.url).hostname,
-        country: a.sourcecountry || null,
-        published_at: parseGdeltDate(a.seendate),
+    const res = await fetch(feed.url, {
+      headers: { "User-Agent": "ANDA-feed (anda.becomechange.institute)" },
+      cache: "no-store",
+      signal: AbortSignal.timeout(8_000),
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return parseRss(await res.text())
+      .filter((item) => isNeuroHeadline(item.title))
+      .map((item) => ({
+        title: item.title,
+        url: item.link,
+        source: feed.source,
+        country: feed.country ?? countryFromHeadline(item.title),
+        published_at: toIso(item.pubDate),
       }))
   } catch (err) {
-    console.error("GDELT fetch failed:", err)
+    console.error(`News feed failed (${feed.url}):`, err)
     return []
   }
+}
+
+export const NEWS_WINDOW_DAYS = 365
+
+// Headlines that name a neurodivergent condition, from African outlets, from
+// the last year. Items without a date are dropped (they can't be placed in
+// the window). Returns one entry per URL.
+export async function fetchNews(): Promise<NewsItem[]> {
+  // All feeds at once (at most 7 per outlet, once a day) so the run fits the
+  // function time limit even when an outlet is slow.
+  const all = (await Promise.all(NEWS_SITES.flat().map(fetchFeed))).flat()
+  return keepRecentUnique(all, NEWS_WINDOW_DAYS)
+}
+
+export function keepRecentUnique(items: NewsItem[], windowDays: number, now = new Date()): NewsItem[] {
+  const cutoff = now.getTime() - windowDays * 86400000
+  const seen = new Set<string>()
+  return items.filter((n) => {
+    const t = n.published_at ? Date.parse(n.published_at) : NaN
+    if (!(t >= cutoff) || seen.has(n.url)) return false
+    seen.add(n.url)
+    return true
+  })
 }
 
 const CONDITION_TERMS =
@@ -194,19 +208,31 @@ export function mapEuropePmc(r: EuropePmcResult, scope: ResearchItem["scope"]): 
   }
 }
 
-async function europePmcSearch(query: string, scope: ResearchItem["scope"]): Promise<ResearchItem[]> {
-  const url =
-    "https://www.ebi.ac.uk/europepmc/webservices/rest/search?" +
-    new URLSearchParams({ query, format: "json", resultType: "lite", pageSize: "100", sort: "P_PDATE_D desc" })
+// Pages through every result with Europe PMC's cursor (1,000 per page), so a
+// multi-year backfill isn't cut off at the first page.
+async function europePmcSearch(query: string, scope: ResearchItem["scope"], maxPages = 10): Promise<ResearchItem[]> {
+  const out: ResearchItem[] = []
+  let cursor = "*"
   try {
-    const res = await fetch(url, { cache: "no-store" })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data = (await res.json()) as { resultList?: { result?: EuropePmcResult[] } }
-    return (data.resultList?.result ?? []).map((r) => mapEuropePmc(r, scope)).filter((r): r is ResearchItem => r !== null)
+    for (let page = 0; page < maxPages; page++) {
+      const url =
+        "https://www.ebi.ac.uk/europepmc/webservices/rest/search?" +
+        new URLSearchParams({ query, format: "json", resultType: "lite", pageSize: "1000", sort: "P_PDATE_D desc", cursorMark: cursor })
+      const res = await fetch(url, { cache: "no-store" })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = (await res.json()) as { nextCursorMark?: string; resultList?: { result?: EuropePmcResult[] } }
+      const results = data.resultList?.result ?? []
+      for (const r of results) {
+        const item = mapEuropePmc(r, scope)
+        if (item) out.push(item)
+      }
+      if (!data.nextCursorMark || data.nextCursorMark === cursor || results.length < 1000) break
+      cursor = data.nextCursorMark
+    }
   } catch (err) {
     console.error(`Europe PMC (${scope}) failed:`, err)
-    return []
   }
+  return out
 }
 
 // Open-access papers from the last `days` days: every paper with an
@@ -215,21 +241,31 @@ async function europePmcSearch(query: string, scope: ResearchItem["scope"]): Pro
 const TOPIC_TERMS =
   'school OR classroom OR teacher* OR education OR literacy OR reading OR exercise OR "physical activity" OR sport* OR sleep OR melatonin OR diet* OR nutrition OR supplement* OR vitamin* OR omega OR iron OR probiotic* OR microbio* OR gut OR music OR yoga OR mindfulness OR massage OR acupuncture'
 
-function dateRange(days: number): string {
-  const to = new Date()
-  const from = new Date(to.getTime() - days * 86400000)
-  return `FIRST_PDATE:[${from.toISOString().slice(0, 10)} TO ${to.toISOString().slice(0, 10)}]`
+const isoDay = (d: Date) => d.toISOString().slice(0, 10)
+const daysAgo = (days: number) => new Date(Date.now() - days * 86400000)
+
+// Research older than this isn't fetched (brief: the last 5 years).
+export const RESEARCH_WINDOW_DAYS = 5 * 365
+
+export interface DateRange {
+  from: Date
+  to: Date
 }
 
-// African-authored papers look back 30 days (they're scarce and Europe PMC
-// indexes some late); the upsert skips ones already stored.
-export async function fetchResearch(days = 7): Promise<ResearchItem[]> {
-  const africa = await europePmcSearch(`${RESEARCH_TERMS} AND AFF:(${AFRICAN_AFFILIATIONS}) AND OPEN_ACCESS:y AND ${dateRange(Math.max(days, 30))}`, "africa")
-  const reviews = await europePmcSearch(`${RESEARCH_TERMS} AND PUB_TYPE:"review" AND OPEN_ACCESS:y AND ${dateRange(days)}`, "global")
+// Daily runs use the last 7 days. Backfills pass an explicit range (the cron
+// route accepts ?from=&to=), one year at a time to stay inside the function
+// time limit. African-authored papers always look back at least 30 days:
+// they're scarce and Europe PMC indexes some late. The upsert skips ones
+// already stored.
+export async function fetchResearch(range: DateRange = { from: daysAgo(7), to: new Date() }): Promise<ResearchItem[]> {
+  const africaFrom = range.from < daysAgo(30) ? range.from : daysAgo(30)
+  const between = (from: Date) => `FIRST_PDATE:[${isoDay(from)} TO ${isoDay(range.to)}]`
+  const africa = await europePmcSearch(`${RESEARCH_TERMS} AND AFF:(${AFRICAN_AFFILIATIONS}) AND OPEN_ACCESS:y AND ${between(africaFrom)}`, "africa")
+  const reviews = await europePmcSearch(`${RESEARCH_TERMS} AND PUB_TYPE:"review" AND OPEN_ACCESS:y AND ${between(range.from)}`, "global")
   // Randomised trials too, but only on everyday topics families ask about
   // (education, exercise, sleep, diet, supplements, gut, natural therapies).
   const trials = await europePmcSearch(
-    `${RESEARCH_TERMS} AND TITLE_ABS:(${TOPIC_TERMS}) AND PUB_TYPE:"randomized controlled trial" AND OPEN_ACCESS:y AND ${dateRange(days)}`,
+    `${RESEARCH_TERMS} AND TITLE_ABS:(${TOPIC_TERMS}) AND PUB_TYPE:"randomized controlled trial" AND OPEN_ACCESS:y AND ${between(range.from)}`,
     "global",
   )
   const seen = new Set<string>()

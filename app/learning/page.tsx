@@ -1,5 +1,6 @@
 "use client"
 
+import { DiscoveredList } from "@/components/discovered-list"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
@@ -314,6 +315,8 @@ export default function LearningPage() {
           )}
         </div>
       </section>
+
+      <DiscoveredList kind="book" />
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-primary to-terracotta text-primary-foreground">

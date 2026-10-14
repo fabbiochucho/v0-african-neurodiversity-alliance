@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase/service"
 import { isCronRequest } from "@/lib/cron-auth"
-import { fetchAllAfricaNews, fetchGdeltNews, fetchResearch } from "@/lib/feeds"
+import { fetchNews, fetchResearch, RESEARCH_WINDOW_DAYS } from "@/lib/feeds"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -13,10 +13,20 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
   }
 
-  // ?days=90 backfills research on the first run (same secret required).
-  const days = Math.min(Math.max(Number(new URL(request.url).searchParams.get("days")) || 7, 1), 365)
-  const [allAfrica, gdelt, research] = await Promise.all([fetchAllAfricaNews(), fetchGdeltNews(), fetchResearch(days)])
-  const news = [...allAfrica, ...gdelt]
+  // Backfill research for a date range (same secret required):
+  //   ?from=2022-01-01&to=2022-12-31&job=research
+  // job=news or job=research runs just one half. Ranges are clamped to the
+  // last 5 years.
+  const params = new URL(request.url).searchParams
+  const job = params.get("job")
+  const range = parseRange(params.get("from"), params.get("to"))
+  if (range === "invalid") {
+    return NextResponse.json({ error: "Use from/to dates like 2022-01-01, within the last 5 years." }, { status: 400 })
+  }
+  const [news, research] = await Promise.all([
+    job === "research" ? [] : fetchNews(),
+    job === "news" ? [] : fetchResearch(range ?? undefined),
+  ])
 
   const supabase = createServiceClient()
   const [newsResult, researchResult] = await Promise.all([
@@ -33,5 +43,15 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Failed to save feed items" }, { status: 500 })
   }
 
-  return NextResponse.json({ news: { allAfrica: allAfrica.length, gdelt: gdelt.length }, research: research.length })
+  return NextResponse.json({ news: news.length, research: research.length })
+}
+
+function parseRange(from: string | null, to: string | null) {
+  if (!from && !to) return null
+  const day = /^\d{4}-\d{2}-\d{2}$/
+  const f = from && day.test(from) ? new Date(`${from}T00:00:00Z`) : null
+  const t = to && day.test(to) ? new Date(`${to}T23:59:59Z`) : new Date()
+  const earliest = new Date(Date.now() - RESEARCH_WINDOW_DAYS * 86400000)
+  if (!f || isNaN(f.getTime()) || isNaN(t.getTime()) || f > t) return "invalid" as const
+  return { from: f < earliest ? earliest : f, to: t }
 }
