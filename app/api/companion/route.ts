@@ -1,12 +1,11 @@
-import Anthropic from "@anthropic-ai/sdk"
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { aiProvider, generate } from "@/lib/ai"
 import { dbErrorResponse, upgradeRequiredResponse } from "@/lib/api-error"
 import { AI_DAILY_MESSAGES, FEATURE_MIN_TIER, getEntitlement } from "@/lib/entitlements"
 import {
   buildLearnerContext,
   checkRateLimit,
-  companionModel,
   CRISIS_RESPONSE,
   detectCrisis,
   hasActiveConsent,
@@ -21,8 +20,7 @@ import {
 // (user_id, created_at) is recorded, for rate limiting. Learner data is
 // added only when the owner has an active consent for that learner.
 export async function POST(request: Request) {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) {
+  if (!aiProvider()) {
     return NextResponse.json({ error: "AI chat isn't configured yet." }, { status: 503 })
   }
 
@@ -99,41 +97,30 @@ export async function POST(request: Request) {
   const { error: insertError } = await supabase.from("ai_companion_usage").insert({ user_id: user.id })
   if (insertError) return dbErrorResponse(insertError, 500)
 
-  try {
-    const client = new Anthropic({ apiKey })
-    const response = await client.messages.create({
-      model: companionModel(),
-      max_tokens: 2048, // short conversational replies; also a hard per-message cost cap
-      output_config: { effort: "low" },
-      system: learnerContext ? `${SYSTEM_PROMPT}\n\n${learnerContext}` : SYSTEM_PROMPT,
-      messages: history,
-    })
+  // lib/ai.ts logs only the provider status, never the conversation.
+  const result = await generate({
+    system: learnerContext ? `${SYSTEM_PROMPT}\n\n${learnerContext}` : SYSTEM_PROMPT,
+    messages: history,
+    maxTokens: 1024, // short conversational replies
+  })
 
-    if (response.stop_reason === "refusal") {
+  if (!result.ok) {
+    if (result.reason === "refused") {
       return NextResponse.json({
         reply:
           "I can't help with that one. If this is about someone's safety, please contact local emergency services or find a crisis line at https://findahelpline.com.",
       })
     }
-
-    const reply = response.content
-      .filter((b): b is Anthropic.TextBlock => b.type === "text")
-      .map((b) => b.text)
-      .join("\n")
-      .trim()
-
-    return NextResponse.json({
-      reply: reply || "Sorry, I don't have an answer for that.",
-      remainingToday: limit.remainingToday - 1,
-      usedLearnerData: Boolean(learnerContext),
-    })
-  } catch (err) {
-    // Log the error class/status only -- never the conversation.
-    if (err instanceof Anthropic.RateLimitError) {
-      console.error("companion: provider rate limited")
-      return NextResponse.json({ error: "AI chat is busy. Please try again shortly." }, { status: 503 })
+    if (result.reason === "busy") {
+      // Includes the free daily AI allowance running out; it resets at midnight UTC.
+      return NextResponse.json({ error: "AI chat is busy or has reached today's limit. Please try again later." }, { status: 503 })
     }
-    console.error("companion: provider error", err instanceof Anthropic.APIError ? err.status : "network")
     return NextResponse.json({ error: "AI chat is unavailable right now." }, { status: 502 })
   }
+
+  return NextResponse.json({
+    reply: result.text || "Sorry, I don't have an answer for that.",
+    remainingToday: limit.remainingToday - 1,
+    usedLearnerData: Boolean(learnerContext),
+  })
 }

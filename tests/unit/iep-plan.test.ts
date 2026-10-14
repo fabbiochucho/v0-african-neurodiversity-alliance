@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 import {
-  AI_DRAFT_SCHEMA,
+  AI_DRAFT_JSON_INSTRUCTIONS,
   aiDraftPrompt,
   draftGoalsFromTemplates,
   firstOpenStep,
@@ -89,7 +89,8 @@ describe("drafting", () => {
     expect(r?.goals[0]).toMatchObject({ goal_text: "Ask for help", baseline: null })
     expect(r?.items).toEqual([{ section: "sensory_strategies", content: "Quiet corner" }])
     expect(parseAiDraft({ goals: "nope" })).toBeNull()
-    expect(AI_DRAFT_SCHEMA.required).toEqual(["goals", "items"])
+    expect(AI_DRAFT_JSON_INSTRUCTIONS).toContain('"goals"')
+    expect(AI_DRAFT_JSON_INSTRUCTIONS).toContain('"items"')
   })
 
   it("the AI prompt uses only the first name and consented fields", () => {
@@ -98,7 +99,7 @@ describe("drafting", () => {
     expect(p).toContain("drawing")
     expect(p).not.toMatch(/age|date of birth/i)
     expect(CONSENT_FIELDS.join(" ")).toMatch(/support profile/)
-    expect(CONSENT_VERSION).toBe("2026-10-v2")
+    expect(CONSENT_VERSION).toMatch(/^2026-10-v3-(cloudflare|anthropic|off)$/)
   })
 })
 

@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation"
+import { aiProvider } from "@/lib/ai"
 import { createClient } from "@/lib/supabase/server"
 import { Navigation } from "@/components/navigation"
 import { getEntitlement } from "@/lib/entitlements"
@@ -38,7 +39,7 @@ export default async function PlanPage({ params }: { params: { learnerId: string
   }
 
   const ai = {
-    configured: Boolean(process.env.ANTHROPIC_API_KEY),
+    configured: aiProvider() !== null,
     entitled: entitlement.can("ai_companion"),
     consented: plan.isOwner && hasActiveConsent(consentEvents ?? []),
   }

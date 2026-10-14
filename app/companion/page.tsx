@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation"
+import { aiProvider } from "@/lib/ai"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { Navigation } from "@/components/navigation"
@@ -52,7 +53,7 @@ export default async function CompanionPage() {
   })
 
   const canChat = entitlement.can("ai_companion")
-  const configured = Boolean(process.env.ANTHROPIC_API_KEY)
+  const configured = aiProvider() !== null
 
   return (
     <div className="min-h-screen bg-background">

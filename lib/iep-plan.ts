@@ -124,38 +124,11 @@ export function draftGoalsFromTemplates(diagnosisDomains: string[], existingGoal
 
 const SECTION_KEYS = PLAN_SECTIONS.map((s) => s.key) as string[]
 
-export const AI_DRAFT_SCHEMA = {
-  type: "object",
-  additionalProperties: false,
-  required: ["goals", "items"],
-  properties: {
-    goals: {
-      type: "array",
-      items: {
-        type: "object",
-        additionalProperties: false,
-        required: ["goal_text", "domain", "target", "measurement", "frequency", "support_strategy"],
-        properties: {
-          goal_text: { type: "string" },
-          domain: { type: "string", enum: [...GOAL_DOMAINS] },
-          target: { type: "string" },
-          measurement: { type: "string" },
-          frequency: { type: "string" },
-          support_strategy: { type: "string" },
-        },
-      },
-    },
-    items: {
-      type: "array",
-      items: {
-        type: "object",
-        additionalProperties: false,
-        required: ["section", "content"],
-        properties: { section: { type: "string", enum: SECTION_KEYS }, content: { type: "string" } },
-      },
-    },
-  },
-} as const
+// Open models don't all support forced JSON output, so the shape is spelled
+// out in the prompt and parseAiDraft validates whatever comes back.
+export const AI_DRAFT_JSON_INSTRUCTIONS = `Reply with only a JSON object, no other text, in exactly this shape:
+{"goals":[{"goal_text":"...","domain":"one of: ${GOAL_DOMAINS.join(", ")}","target":"...","measurement":"...","frequency":"...","support_strategy":"..."}],
+ "items":[{"section":"one of: ${PLAN_SECTIONS.map((p) => p.key).join(", ")}","content":"..."}]}`
 
 /** Validates and trims an AI draft. Never trusts the model's shape. */
 export function parseAiDraft(raw: unknown): { goals: DraftGoal[]; items: { section: PlanSection; content: string }[] } | null {

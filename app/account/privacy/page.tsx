@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation"
+import { aiProvider } from "@/lib/ai"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { Navigation } from "@/components/navigation"
@@ -52,7 +53,7 @@ export default async function PrivacyPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Learner information shared with AI chat</CardTitle>
-            <CardDescription>Goals and a 30-day check-in summary sent to Anthropic when you choose that learner in chat.</CardDescription>
+            <CardDescription>Goals and a 30-day check-in summary sent to the AI provider ({aiProvider() === "anthropic" ? "Anthropic" : "Cloudflare"}) when you choose that learner in chat.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             {aiConsents.length === 0 ? (
