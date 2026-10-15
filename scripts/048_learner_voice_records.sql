@@ -51,3 +51,8 @@ create policy "learner_records_insert_team_observation" on public.learner_record
     and file_path is null
     and public.has_permission(learner_id, 'add_observation')
   );
+
+-- Export split (owner decision, Oct 2026): every plan downloads its own data
+-- as JSON (NDPA portability); Pro adds per-table CSV; Institutional adds the
+-- support-team export.
+-- gate:csv_export app-only: read-only, through the owner's own RLS.

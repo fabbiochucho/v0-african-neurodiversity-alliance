@@ -178,8 +178,9 @@ export default function PrivacyPage() {
                 </li>
                 <li>Unsubscribe from the weekly digest using the link in any digest email.</li>
                 <li>
-                  Download a copy of your data yourself, on any plan, from the <Link href="/export">export page</Link>{" "}
-                  (CSV or JSON).
+                  Download a copy of all your data yourself, on any plan, as one file (JSON) from the{" "}
+                  <Link href="/export">export page</Link>. Pro and Institutional plans can also download spreadsheets
+                  (CSV).
                 </li>
                 <li>Ask us anything else about your data or this policy by emailing {email}.</li>
               </ul>

@@ -116,8 +116,12 @@ describe("restored features are gated at their advertised tiers and advertised",
   it("pricing lists them under those tiers", () => {
     expect(tierFeatures("free").join(" ")).toMatch(/Basic screening/)
     expect(tierFeatures("free").join(" ")).not.toMatch(/Bulk|Organisation-wide export|Branded/i)
-    // Personal export is on every plan (NDPA data portability); org-wide is Institutional.
-    expect(tierFeatures("free").join(" ")).toMatch(/Download your own data/)
+    // Personal export (one JSON file) is on every plan (NDPA data portability);
+    // spreadsheets are Pro; org-wide is Institutional.
+    expect(tierFeatures("free").join(" ")).toMatch(/Download all your own data/)
+    expect(tierFeatures("free").join(" ")).not.toMatch(/Spreadsheet/)
+    expect(tierFeatures("pro").join(" ")).toMatch(/Spreadsheet \(CSV\) exports/)
+    expect(tierFeatures("pro").join(" ")).not.toMatch(/Organisation-wide export/)
     expect(tierFeatures("institutional").join(" ")).toMatch(/Bulk enrollment[\s\S]*Organisation-wide export/)
   })
 })

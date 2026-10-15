@@ -12,7 +12,9 @@ export default async function ExportPage() {
   } = await supabase.auth.getUser()
   if (!user) redirect("/auth/login?redirectTo=/export")
 
-  const orgWide = (await getEntitlement(supabase, user.id)).can("data_export")
+  const entitlement = await getEntitlement(supabase, user.id)
+  const orgWide = entitlement.can("data_export")
+  const csv = entitlement.can("csv_export")
 
   return (
     <div className="min-h-screen bg-background">
@@ -21,8 +23,8 @@ export default async function ExportPage() {
         <header>
           <h1 className="text-4xl font-bold mb-2">Export your data</h1>
           <p className="text-muted-foreground">
-            Download the learners you created, with their goals, check-ins, reports and records, on any plan. Learners
-            shared with you through a support team aren&apos;t included; their owner can export them.
+            Download the learners you created, with their goals, check-ins, reports and records, as one file, on any
+            plan. Learners shared with you through a support team aren&apos;t included; their owner can export them.
           </p>
         </header>
         <ul className="space-y-2 text-sm">
@@ -31,7 +33,7 @@ export default async function ExportPage() {
               Everything (JSON)
             </a>
           </li>
-          {PERSONAL_EXPORT_TABLES.map((t) => (
+          {csv && PERSONAL_EXPORT_TABLES.map((t) => (
             <li key={t}>
               <a href={`/api/export?format=csv&table=${t}`} className="text-primary hover:underline capitalize">
                 {t} (CSV)
@@ -46,7 +48,13 @@ export default async function ExportPage() {
             </li>
           )}
         </ul>
-        {!orgWide && (
+        {!csv && (
+          <UpgradePrompt
+            message="Get ready-made spreadsheets (CSV) of your learners, goals, progress, reports and records."
+            requiredTier={FEATURE_MIN_TIER.csv_export}
+          />
+        )}
+        {csv && !orgWide && (
           <UpgradePrompt
             message="Also export everyone on your support teams (staff, carers and professionals) and what they can access."
             requiredTier={FEATURE_MIN_TIER.data_export}

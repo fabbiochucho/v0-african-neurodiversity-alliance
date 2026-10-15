@@ -9,8 +9,9 @@ import { logAudit } from "@/lib/audit"
 // GET /api/export?format=csv&table=goals -- one table as CSV
 //
 // Every plan: the caller's own learners, goals, progress, reports and
-// records (NDPA data portability). Institutional adds "team": everyone on
-// those learners' support teams and their access.
+// records as one JSON file (NDPA data portability). Pro adds per-table CSV.
+// Institutional adds "team": everyone on those learners' support teams and
+// their access.
 // Owner only: everything is read through the caller's own RLS-scoped client
 // and filtered to learners whose user_id is the caller, so learners shared
 // with them through a support team are NOT included.
@@ -21,12 +22,19 @@ export async function GET(request: Request) {
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
 
-  const orgWide = (await getEntitlement(supabase, user.id)).can("data_export")
+  const entitlement = await getEntitlement(supabase, user.id)
+  const orgWide = entitlement.can("data_export")
   const tables: readonly ExportTable[] = orgWide ? EXPORT_TABLES : PERSONAL_EXPORT_TABLES
 
   const url = new URL(request.url)
   const format = url.searchParams.get("format") === "csv" ? "csv" : "json"
   const table = url.searchParams.get("table") as ExportTable | null
+  if (format === "csv" && !entitlement.can("csv_export")) {
+    return upgradeRequiredResponse(
+      "Spreadsheet exports are part of the Pro plan. You can download everything as one JSON file on any plan.",
+      FEATURE_MIN_TIER.csv_export,
+    )
+  }
   if (format === "csv" && table === "team" && !orgWide) {
     return upgradeRequiredResponse("Exporting your support teams is part of the Institutional plan.", FEATURE_MIN_TIER.data_export)
   }
