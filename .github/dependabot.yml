@@ -8,6 +8,17 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    # Framework majors (Next 15/16 need React 19 and async request APIs) are
+    # planned upgrades with code changes, not one-click bumps.
+    ignore:
+      - dependency-name: next
+        update-types: ["version-update:semver-major"]
+      - dependency-name: react
+        update-types: ["version-update:semver-major"]
+      - dependency-name: react-dom
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
