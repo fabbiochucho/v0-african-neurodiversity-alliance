@@ -30,6 +30,7 @@ export type Feature =
   | "team_dashboard"
   | "branding"
   | "bulk_enrollment"
+  | "csv_export"
   | "data_export"
 
 // Restored round 2 under the tiers they were originally advertised for:
@@ -47,6 +48,7 @@ export const FEATURE_MIN_TIER: Record<Feature, SubscriptionTier> = {
   team_dashboard: "pro",
   branding: "pro",
   bulk_enrollment: "institutional",
+  csv_export: "pro",
   data_export: "institutional",
 }
 
@@ -60,7 +62,8 @@ export const FEATURE_LABELS: Record<Feature, string> = {
   team_dashboard: "Multi-user dashboard of all your learners and staff",
   branding: "Branded reports and report emails with your logo and colour",
   bulk_enrollment: "Bulk enrollment of learners from a CSV file",
-  data_export: "Data export (CSV and JSON) of learners, goals, progress and reports",
+  csv_export: "Spreadsheet (CSV) exports of learners, goals, progress, reports and records",
+  data_export: "Organisation-wide export: everyone on your support teams and their access",
 }
 
 /** AI Companion messages per rolling 24h. Caps provider cost per subscriber. */
@@ -71,6 +74,7 @@ export const BASE_FEATURES = [
   "Personalised IEP with suggested goals",
   "Goal check-ins and My Journey timeline",
   "Companion prompts and next steps from your own check-ins (no AI)",
+  "Download all your own data any time, as one file (JSON)",
 ]
 
 export function isTier(value: unknown): value is SubscriptionTier {

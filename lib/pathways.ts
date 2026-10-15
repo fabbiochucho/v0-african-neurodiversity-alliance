@@ -38,7 +38,7 @@ export const PATHWAYS: Pathway[] = [
       { label: "Screen your learners", href: "/screening", detail: "A quick, non-diagnostic check-in for each learner." },
       { label: "Plan and track goals", href: "/iep/generate", detail: "Baseline, target and measurement for every goal." },
       { label: "See everyone at a glance", href: "/team-dashboard", detail: "All your learners and staff in one place (Pro)." },
-      { label: "Enroll a class from a CSV", href: "/learners/import", detail: "Bulk enrollment and data export (Institutional)." },
+      { label: "Enroll a class from a CSV", href: "/learners/import", detail: "Bulk enrollment and organisation-wide export (Institutional)." },
       { label: "Keep learning", href: "/learning", detail: "Courses and training from real providers." },
     ],
   },

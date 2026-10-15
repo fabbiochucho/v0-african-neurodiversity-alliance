@@ -68,3 +68,29 @@ export function parseExistingAssessment(raw: Record<string, unknown>): ExistingA
 
 export const ASSESSMENT_FILE_TYPES: Record<string, string> = { "application/pdf": "pdf", "image/png": "png", "image/jpeg": "jpg" }
 export const ASSESSMENT_FILE_MAX_BYTES = 10 * 1024 * 1024
+
+// "In their own words": what the person, or their family, says in their own
+// words. Stored as an observation with record_type "voice" and reported in
+// its own section, because the person decides what matters.
+export const VOICE_SPEAKERS = [
+  { value: "learner", label: "The person themselves" },
+  { value: "family", label: "Family or carer" },
+] as const
+
+export type VoiceSpeaker = (typeof VOICE_SPEAKERS)[number]["value"]
+
+export interface VoiceInput {
+  speaker: VoiceSpeaker
+  summary: string
+  record_date: string | null
+}
+
+export function parseVoice(raw: Record<string, unknown>): VoiceInput | { error: string } {
+  const speaker = VOICE_SPEAKERS.find((s) => s.value === raw.speaker)?.value
+  if (!speaker) return { error: "Choose who said it." }
+  const summary = typeof raw.summary === "string" ? raw.summary.trim() : ""
+  if (!summary) return { error: "Write what they said." }
+  if (summary.length > MAX_FIELD_CHARS) return { error: `Keep it under ${MAX_FIELD_CHARS} characters.` }
+  const date = typeof raw.record_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(raw.record_date) ? raw.record_date : null
+  return { speaker, summary, record_date: date }
+}

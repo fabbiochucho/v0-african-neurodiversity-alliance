@@ -61,7 +61,9 @@ describe("localisation (brief §40-41)", () => {
   })
 
   it("only changes terminology, with a no-legal-claims disclaimer", () => {
-    expect(termsFor("nigeria_inclusive").planShort).toBe("IEP")
+    expect(termsFor("nigeria_inclusive").planShort).toBe("Support Plan")
+    // Every name signals "helps you prepare", never "is the official plan".
+    for (const c of EDUCATION_CONTEXTS.filter((c) => c.value !== "other")) expect(termsFor(c.value).planName).toMatch(/^Support plan \(to help you prepare for /)
     expect(termsFor("south_africa_sias").planShort).toBe("Support Plan")
     expect(termsFor("uk_ehcp").planName).toContain("EHCP")
     expect(termsFor("garbage").planShort).toBe("Support Plan")

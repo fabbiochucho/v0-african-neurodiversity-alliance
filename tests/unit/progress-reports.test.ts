@@ -91,6 +91,22 @@ describe("reports (brief §22-23)", () => {
     expect(findings.map((f) => f.source)).toEqual(["professional_input", "assessment"])
   })
 
+  it("puts the person's and family's own words in their own section, not under observations", () => {
+    const r = buildReport(
+      "monthly",
+      "Ada",
+      input([goal({})], [
+        { id: "v1", kind: "observation", record_type: "voice", title: "In their own words", record_date: day(3), fields: { summary: "I like the counters", speaker: "learner" }, created_at: day(3) },
+        { id: "v2", kind: "observation", record_type: "voice", title: "In their own words", record_date: day(4), fields: { summary: "Calmer at bedtime", speaker: "family" }, created_at: day(4) },
+      ]),
+      { now },
+    )
+    const voice = r.sections.find((s) => s.heading === "In their own words")!.findings.map((f) => f.text)
+    expect(voice).toEqual(["Ada: “I like the counters”", "Family: “Calmer at bedtime”"])
+    const obs = r.sections.find((s) => s.heading === "Observations")!.findings.map((f) => f.text)
+    expect(obs.join(" ")).not.toMatch(/counters|bedtime/)
+  })
+
   it("quarterly review adds baseline, target and review dates", () => {
     const r = buildReport("quarterly", "Ada", input([goal({ baseline: "1 word", target: "3 words", review_date: "2026-08-01" })]), { now })
     expect(r.sections.map((s) => s.heading)).toContain("Baseline, target and review dates")

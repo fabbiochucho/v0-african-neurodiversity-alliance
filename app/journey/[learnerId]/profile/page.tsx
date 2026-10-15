@@ -3,11 +3,11 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { Navigation } from "@/components/navigation"
 import { DataKindBadge } from "@/components/data-kind-badge"
-import { ExistingAssessmentForm, SupportProfileForm } from "@/components/support-profile-form"
+import { ExistingAssessmentForm, SupportProfileForm, VoiceForm } from "@/components/support-profile-form"
 import { LocalisationForm } from "@/components/localisation-form"
 import { t } from "@/lib/i18n"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ASSESSMENT_TYPES, SUPPORT_PROFILE_FIELDS, type DataKind, type SupportProfile } from "@/lib/learner-records"
+import { ASSESSMENT_TYPES, SUPPORT_PROFILE_FIELDS, VOICE_SPEAKERS, type DataKind, type SupportProfile } from "@/lib/learner-records"
 
 interface RecordRow {
   id: string
@@ -47,7 +47,8 @@ export default async function LearnerProfilePage({
 
   const profiles = records.filter((r) => r.record_type === "support_profile")
   const current = profiles[0]?.fields as SupportProfile | undefined
-  const others = records.filter((r) => r.record_type !== "support_profile")
+  const voices = records.filter((r) => r.record_type === "voice")
+  const others = records.filter((r) => r.record_type !== "support_profile" && r.record_type !== "voice")
   const typeLabel = (t: string) =>
     ASSESSMENT_TYPES.find((a) => a.value === t)?.label ??
     (t === "neurafiki_assessment" ? "NeuRafiki assessment" : t === "neurafiki_check_in" ? "NeuRafiki check-in" : t)
@@ -92,6 +93,44 @@ export default async function LearnerProfilePage({
                 <summary className="cursor-pointer font-medium">{current ? "Update the support profile" : "Write the support profile"}</summary>
                 <div className="mt-4">
                   <SupportProfileForm learnerId={learner.id} initial={current} />
+                </div>
+              </details>
+            )}
+          </section>
+
+          <section aria-labelledby="voice-heading" className="space-y-4">
+            <div className="flex items-center gap-3">
+              <h2 id="voice-heading" className="text-2xl font-semibold">
+                In their own words
+              </h2>
+              <DataKindBadge kind="observation" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              What {learner.name}, or their family, says matters most. These appear in monthly and quarterly reports.
+            </p>
+            {voices.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nothing added yet.</p>
+            ) : (
+              <ul className="space-y-3">
+                {voices.map((r) => (
+                  <li key={r.id} className="rounded-lg border p-4 text-sm">
+                    <p className="whitespace-pre-line break-words">&ldquo;{String(r.fields.summary ?? "")}&rdquo;</p>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {r.fields.speaker === "learner"
+                        ? learner.name
+                        : VOICE_SPEAKERS.find((v) => v.value === r.fields.speaker)?.label ?? "Family or carer"}
+                      {" · "}
+                      {r.record_date ?? new Date(r.created_at).toLocaleDateString()}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {isOwner && (
+              <details className="rounded-lg border p-4" open={searchParams.add === "voice"}>
+                <summary className="cursor-pointer font-medium">Add their words</summary>
+                <div className="mt-4">
+                  <VoiceForm learnerId={learner.id} name={learner.name} />
                 </div>
               </details>
             )}

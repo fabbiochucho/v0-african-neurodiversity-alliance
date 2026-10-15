@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { ASSESSMENT_TYPES, SUPPORT_PROFILE_FIELDS, type SupportProfile } from "@/lib/learner-records"
+import { ASSESSMENT_TYPES, SUPPORT_PROFILE_FIELDS, VOICE_SPEAKERS, type SupportProfile } from "@/lib/learner-records"
 import { calmMessage } from "@/lib/calm"
 
 const field = "w-full px-3 py-2 border rounded-lg bg-background"
@@ -148,6 +148,67 @@ export function ExistingAssessmentForm({ learnerId }: { learnerId: string }) {
       )}
       <Button type="submit" disabled={busy}>
         {busy ? "Saving..." : "Add assessment"}
+      </Button>
+    </form>
+  )
+}
+
+export function VoiceForm({ learnerId, name }: { learnerId: string; name: string }) {
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  return (
+    <form
+      className="space-y-4"
+      onSubmit={async (e) => {
+        e.preventDefault()
+        setBusy(true)
+        setError(null)
+        try {
+          await submit(e.currentTarget)
+          window.location.reload()
+        } catch (err) {
+          setError(calmMessage(err))
+          setBusy(false)
+        }
+      }}
+    >
+      <input type="hidden" name="record" value="voice" />
+      <input type="hidden" name="learner_id" value={learnerId} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <label className="text-sm font-medium space-y-1">
+          <span>Who said it</span>
+          <select name="speaker" required className={field}>
+            {VOICE_SPEAKERS.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.value === "learner" ? name : s.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="text-sm font-medium space-y-1">
+          <span>Date</span>
+          <input name="record_date" type="date" className={field} />
+        </label>
+      </div>
+      <label className="block text-sm font-medium space-y-1">
+        <span>What they said, in their own words</span>
+        <textarea
+          name="summary"
+          required
+          rows={4}
+          maxLength={2000}
+          placeholder="e.g. I like maths more when I can use the counters."
+          className={field}
+        />
+      </label>
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
+      <Button type="submit" disabled={busy}>
+        {busy ? "Saving..." : "Add their words"}
       </Button>
     </form>
   )

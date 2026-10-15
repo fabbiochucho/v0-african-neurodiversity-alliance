@@ -33,13 +33,16 @@ export interface Terms {
   disclaimer: string
 }
 
+// Owner decision (Oct 2026): every name says the plan helps you prepare for
+// the official process, never that it is the official plan (the UK EHCP
+// wording is the pattern). Local educators should confirm each term.
 const PLAN_TERMS: Record<EducationContext, { planName: string; planShort: string }> = {
-  nigeria_inclusive: { planName: "Individualised Education Plan (IEP)", planShort: "IEP" },
-  kenya_cbc: { planName: "Individualised Education Plan (IEP)", planShort: "IEP" },
-  south_africa_sias: { planName: "Individual Support Plan", planShort: "Support Plan" },
+  nigeria_inclusive: { planName: "Support plan (to help you prepare for IEP conversations with your school)", planShort: "Support Plan" },
+  kenya_cbc: { planName: "Support plan (to help you prepare for IEP conversations under CBC)", planShort: "Support Plan" },
+  south_africa_sias: { planName: "Support plan (to help you prepare for SIAS support conversations)", planShort: "Support Plan" },
   uk_ehcp: { planName: "Support plan (to help you prepare for EHCP conversations)", planShort: "Support Plan" },
-  us_idea_504: { planName: "IEP / 504 plan notes", planShort: "IEP" },
-  other: { planName: "Support Plan", planShort: "Support Plan" },
+  us_idea_504: { planName: "Support plan (to help you prepare for IEP or 504 meetings)", planShort: "Support Plan" },
+  other: { planName: "Support plan", planShort: "Support Plan" },
 }
 
 export function isEducationContext(v: unknown): v is EducationContext {
