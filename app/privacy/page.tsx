@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { LegalPage } from "@/components/legal-page"
 import { LEGAL_CONTACT_EMAIL, LEGAL_OWNER } from "@/lib/legal"
+import { DPO_CLAUSE } from "@/lib/dpo"
 
 export const metadata = {
   title: "Privacy policy | ANDA",
@@ -190,6 +191,31 @@ export default function PrivacyPage() {
               profiles, plans, progress, reports, uploaded documents, consents and team memberships. Payment records
               are kept, anonymised, for as long as the law requires.
             </p>
+          ),
+        },
+        {
+          id: "dpo",
+          heading: DPO_CLAUSE.heading,
+          body: (
+            <>
+              <p>{DPO_CLAUSE.intro}</p>
+              <p>{DPO_CLAUSE.lead}</p>
+              <ul>
+                {DPO_CLAUSE.details.map(([label, value]) => (
+                  <li key={label}>
+                    {label}:{" "}
+                    {label === "Official Contact Email" ? (
+                      <a href={`mailto:${value}`}>{value}</a>
+                    ) : label === "Contact Phone Number" ? (
+                      <a href={`tel:${value}`}>{value}</a>
+                    ) : (
+                      value
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <p>{DPO_CLAUSE.closing}</p>
+            </>
           ),
         },
         {
