@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Fraunces, Source_Sans_3 } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
+import { headers } from "next/headers"
 import { ThemeProvider } from "@/components/theme-provider"
 import { SiteFooter } from "@/components/site-footer"
 import { PreferencesSync } from "@/components/preferences-sync"
@@ -43,16 +44,19 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // Per-request CSP nonce from middleware.ts. Reading headers() also makes
+  // every page render per request, which nonces require.
+  const nonce = headers().get("x-nonce") ?? undefined
   return (
     <html lang="en" className={`${fraunces.variable} ${sourceSans.variable}`} suppressHydrationWarning>
       <head>
         {/* Applies saved display preferences before first paint (no flash). */}
-        <script dangerouslySetInnerHTML={{ __html: PREFERENCES_BOOT_SCRIPT }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: PREFERENCES_BOOT_SCRIPT }} />
       </head>
       <body className="font-sans antialiased">
         <PreferencesSync />
         {/* System preference by default; the header toggle persists light/dark/system. */}
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider nonce={nonce} attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Suspense fallback={null}>{children}</Suspense>
           <SiteFooter />
         </ThemeProvider>
