@@ -22,8 +22,10 @@ jobs:
     # no live network calls), but treat this workflow file with the same
     # care as production config since real secrets flow through it.
     env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      # Dependabot PRs don't receive Actions secrets; fall back to the public
+      # (browser-shipped) Supabase URL and anon key so they can still build.
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://exhgecucrtbzjrpnqtht.supabase.co' }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4aGdlY3VjcnRiempycG5xdGh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzOTg1OTMsImV4cCI6MjA5ODk3NDU5M30.dr0tndfJsw_wD7aMl4Kxs6DXC_CBjh8kH3uA9A36M1E' }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       FLUTTERWAVE_SECRET_KEY: ${{ secrets.FLUTTERWAVE_SECRET_KEY }}
       FLUTTERWAVE_SECRET_HASH: ${{ secrets.FLUTTERWAVE_SECRET_HASH }}
