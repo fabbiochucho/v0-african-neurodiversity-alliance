@@ -1,0 +1,5 @@
+Contact: mailto:privacy@becomechange.institute
+Expires: 2027-10-15T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://anda.becomechange.institute/.well-known/security.txt
+Policy: https://anda.becomechange.institute/privacy

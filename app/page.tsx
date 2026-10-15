@@ -1,408 +1,294 @@
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Icons } from "@/lib/icons"
-import Link from "next/link"
 import { Partners } from "@/components/partners"
+import { KenteStrip } from "@/components/afro/kente-strip"
+import { ThreadMark } from "@/components/afro/thread-mark"
+import { JourneyLoop, type JourneyStep } from "@/components/afro/journey-loop"
 import { PATHWAYS } from "@/lib/pathways"
+import { getSiteStats } from "@/lib/site-stats"
 import { getSiblingAppUrl } from "@/lib/federation/config"
 import { neuRafikiLinks } from "@/lib/federation/contract"
 
-// Re-render hourly so a newly published partner appears without a redeploy.
+// Re-render hourly: partners and the live counts stay current without a redeploy.
 export const revalidate = 3600
 
-export default function HomePage() {
+// Each pathway gets its own thread colour and swatch.
+const PATHWAY_THREAD: Record<string, { ground: string; ink: string }> = {
+  individual: { ground: "var(--thread-indigo)", ink: "var(--indigo)" },
+  family: { ground: "var(--thread-terracotta)", ink: "var(--terracotta)" },
+  professional: { ground: "var(--thread-teal)", ink: "var(--primary)" },
+}
+
+const ECOSYSTEM = [
+  { href: "/self-test", name: "Self-check", text: "A quick, free check-in on neurodivergent traits, linked to NeuRafiki for the full screening.", thread: "var(--thread-indigo)" },
+  { href: "/directory", name: "Find support", text: "Schools, therapists, support groups and helplines across Africa, filterable by condition.", thread: "var(--thread-terracotta)" },
+  { href: "/iep", name: "Support plans", text: "Step-by-step plans with goals, strategies and reviews, shared with the people who help.", thread: "var(--thread-teal)" },
+  { href: "/learning", name: "Learning", text: "Courses, story books, cartoons and the What works? guide to the evidence.", thread: "var(--thread-gold)" },
+  { href: "/news", name: "News & research", text: "African news and open-access research on neurodivergence, updated every day.", thread: "var(--thread-green)" },
+  { href: "/apps-tools", name: "Apps & tools", text: "Assistive tech and apps, rated by the community.", thread: "var(--thread-indigo)" },
+  { href: "/community", name: "Community", text: "Share experiences and find peer support in moderated spaces.", thread: "var(--thread-terracotta)" },
+  { href: "/advocacy", name: "Advocacy", text: "Resources for pushing for inclusive schools and policy.", thread: "var(--thread-teal)" },
+]
+
+const COMMITMENTS = [
+  {
+    title: "No diagnosis needed",
+    text: "Start a support profile and a plan from what you already see at home or in class, then add assessments when you have them.",
+  },
+  {
+    title: "Your senses, your settings",
+    text: "Calm or vibrant colours, larger text, less motion and higher contrast, set once and kept on every page.",
+  },
+  {
+    title: "Free where it counts",
+    text: "The support directory, the research library, the What works? guide and the companion's prompts cost nothing.",
+  },
+]
+
+export default async function HomePage() {
   // NeuRafiki is the assessment entry point; without it configured, fall back
   // to ANDA's own quick self-check rather than a dead link.
   const nrUrl = getSiblingAppUrl()
   const startUrl = nrUrl ? neuRafikiLinks(nrUrl).assessment() : "/self-test"
+  const nrHome = nrUrl ?? "/self-test"
+  const stats = await getSiteStats()
+
+  const steps: JourneyStep[] = [
+    {
+      name: "Assess",
+      product: "NeuRafiki",
+      text: "A guided, high-depth screening across autism, ADHD, learning, motor, sensory and executive function. It's screening, not a diagnosis.",
+      href: nrHome,
+      action: "See what the screening covers",
+    },
+    {
+      name: "Understand",
+      product: "NeuRafiki",
+      text: "Plain-language results, area by area, with a companion that explains what they mean and what to ask professionals.",
+      href: nrHome,
+      action: "Open NeuRafiki",
+    },
+    {
+      name: "Plan",
+      product: "ANDA",
+      text: "Turn what you learned into a support plan: strengths, what helps, and goals with a starting point, a target and a review date.",
+      href: "/iep",
+      action: "Build a support plan",
+    },
+    {
+      name: "Support",
+      product: "ANDA",
+      text: "Bring parents, teachers and therapists into one team, and find schools, therapists and groups near you.",
+      href: "/directory",
+      action: "Find support",
+    },
+    {
+      name: "Measure",
+      product: "ANDA",
+      text: "Log progress in a tap and see it in calm words: doing better, stable, or needs attention.",
+      href: "/dashboard",
+      action: "Open your dashboard",
+    },
+    {
+      name: "Adapt",
+      product: "ANDA",
+      text: "See what changed, check in with NeuRafiki, and adjust the plan using what the evidence says works.",
+      href: "/learning/what-works",
+      action: "See what works",
+    },
+  ]
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      {/* Hero Section (brief §45) */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-terracotta/5 to-terracotta/5 anda-pattern">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
-          <div className="max-w-4xl mx-auto text-center">
-            <Badge variant="secondary" className="mb-6 text-sm font-medium">
-              African Neurodiversity Alliance
-            </Badge>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">
-              Understand every mind. <span className="text-primary">Support every journey.</span>
-            </h1>
-            <p className="text-xl text-muted-foreground text-pretty mb-8 max-w-3xl mx-auto leading-relaxed">
-              ANDA helps individuals, families, educators and professionals turn neurodiversity assessment into practical
-              support, meaningful goals and measurable progress.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button size="lg" asChild className="text-lg px-8 py-6">
-                <a href={startUrl}>
-                  Start with NeuraFiki <Icons.ArrowRight className="ml-2 h-5 w-5" />
-                </a>
-              </Button>
-              <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6 bg-transparent">
-                <Link href="#pathways">Explore ANDA</Link>
-              </Button>
+      <main>
+        {/* Hero: the promise on the left, the whole journey on the right (brief §45, §2) */}
+        <section aria-labelledby="hero-heading" className="relative overflow-hidden">
+          <div aria-hidden="true" className="afro-texture absolute inset-y-0 right-0 hidden lg:block lg:w-[52%]" />
+          <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-14 grid gap-10 lg:grid-cols-[1fr_minmax(0,26rem)] lg:items-center">
+            <div className="max-w-xl min-w-0">
+              <h1 id="hero-heading" className="text-5xl sm:text-6xl xl:text-[4.25rem] font-semibold leading-[1.02] text-balance">
+                Understand every mind. <span className="text-primary">Support every journey.</span>
+              </h1>
+              <p className="mt-6 text-xl text-muted-foreground text-pretty leading-relaxed">
+                ANDA helps individuals, families, educators and professionals turn neurodiversity assessment into
+                practical support, meaningful goals and measurable progress.
+              </p>
+              <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                <Button size="lg" asChild className="h-12 px-7 text-base">
+                  <a href={startUrl}>
+                    Start with NeuRafiki <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
+                  </a>
+                </Button>
+                <Button size="lg" variant="outline" asChild className="h-12 px-7 text-base bg-background">
+                  <Link href="#pathways">Explore ANDA</Link>
+                </Button>
+              </div>
+              <p className="mt-6 text-sm text-muted-foreground">
+                Tap a step on the loop to see what happens there.
+              </p>
             </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">15-25%</div>
-                <div className="text-sm text-muted-foreground">global estimate of neurodivergent individuals</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-terracotta">Pan-African</div>
-                <div className="text-sm text-muted-foreground">community, open to every country</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-terracotta">Growing</div>
-                <div className="text-sm text-muted-foreground">community of members and advocates</div>
-              </div>
-            </div>
+            <JourneyLoop steps={steps} />
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Pathways (brief §45) */}
-      <section id="pathways" aria-labelledby="pathways-heading" className="py-20 bg-background scroll-mt-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 id="pathways-heading" className="text-3xl lg:text-4xl font-bold text-balance text-center mb-12">
-            Where would you like to start?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {PATHWAYS.map((p) => (
-              <Card key={p.slug}>
-                <CardHeader>
-                  <CardTitle>{p.title}</CardTitle>
-                  <CardDescription>{p.intro}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="ghost" asChild className="w-full justify-between">
-                    <Link href={`/pathways/${p.slug}`}>
-                      See your path <Icons.ArrowRight className="h-4 w-4" />
+        <KenteStrip height={8} />
+
+        {/* What's already here, from the live database (no estimates) */}
+        {stats && (
+          <section aria-label="What you'll find" className="border-b bg-secondary/60">
+            <p className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-lg text-pretty">
+              Already gathered for you:{" "}
+              <Link href="/directory" className="font-semibold underline decoration-[var(--thread-terracotta)] decoration-2">
+                {stats.organisations} support organisations
+              </Link>
+              ,{" "}
+              <Link href="/news/research" className="font-semibold underline decoration-[var(--thread-green)] decoration-2">
+                {stats.papers.toLocaleString("en-GB")} open-access research papers
+              </Link>
+              ,{" "}
+              <Link href="/learning" className="font-semibold underline decoration-[var(--thread-gold)] decoration-2">
+                {stats.books.toLocaleString("en-GB")} books and story books
+              </Link>{" "}
+              and{" "}
+              <Link href="/apps-tools" className="font-semibold underline decoration-[var(--thread-indigo)] decoration-2">
+                {stats.apps} apps
+              </Link>
+              .
+            </p>
+          </section>
+        )}
+
+        {/* Pathways (brief §45): three woven swatches, not three identical cards */}
+        <section id="pathways" aria-labelledby="pathways-heading" className="scroll-mt-20 py-20">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 id="pathways-heading" className="text-4xl lg:text-5xl font-semibold text-balance max-w-2xl">
+              Where would you like to start?
+            </h2>
+            <ul className="mt-10 divide-y border-y">
+              {PATHWAYS.map((p) => {
+                const t = PATHWAY_THREAD[p.slug]
+                return (
+                  <li key={p.slug}>
+                    <Link
+                      href={`/pathways/${p.slug}`}
+                      className="group grid grid-cols-[3rem_1fr_auto] min-[400px]:grid-cols-[4.5rem_1fr_auto] sm:grid-cols-[7rem_1fr_auto] items-center gap-3 min-[400px]:gap-5 sm:gap-8 py-6 hover:bg-secondary/50 focus-visible:bg-secondary/50 transition-colors"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="relative block aspect-square overflow-hidden rounded-xl transition-transform duration-300 group-hover:-rotate-3"
+                        style={{ backgroundColor: t.ground }}
+                      >
+                        <span className="afro-texture absolute inset-0" style={{ ["--texture" as string]: "rgb(255 255 255 / 0.38)" }} />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block font-display text-2xl sm:text-3xl font-semibold break-words hyphens-auto" style={{ color: t.ink }}>
+                          {p.title}
+                        </span>
+                        <span className="mt-1 block text-muted-foreground text-pretty break-words hyphens-auto max-w-2xl">{p.intro}</span>
+                      </span>
+                      <ArrowRight
+                        aria-hidden="true"
+                        className="h-6 w-6 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-foreground"
+                      />
                     </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                  </li>
+                )
+              })}
+            </ul>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Features Grid */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">Comprehensive Support Ecosystem</h2>
-            <p className="text-xl text-muted-foreground text-pretty max-w-3xl mx-auto">
-              From self-assessment tools to community support, we provide everything needed to thrive in a neurodiverse
-              world.
-            </p>
-          </div>
+        <KenteStrip height={8} />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Self-Test Tool */}
-            <Card className="group transition-colors border-2 hover:border-primary/20">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <Icons.Brain className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle>Self-Test Application</CardTitle>
-                <CardDescription>
-                  A quick, free check-in to help identify neurodivergent traits. For a complete, in-depth
-                  assessment, this connects with Neu Rafiki, our dedicated self-assessment platform.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="ghost" asChild className="w-full justify-between">
-                  <Link href="/self-test">
-                    Start Assessment <Icons.ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Find Support Directory */}
-            <Card className="group transition-colors border-2 hover:border-terracotta/20">
-              <CardHeader>
-                <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-terracotta/20 transition-colors">
-                  <Icons.Search className="h-6 w-6 text-terracotta" />
-                </div>
-                <CardTitle>Find Support Directory</CardTitle>
-                <CardDescription>
-                  Comprehensive database of schools, therapists, support groups, and resources across Africa.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="ghost" asChild className="w-full justify-between">
-                  <Link href="/directory">
-                    Browse Directory <Icons.ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Learning Platform */}
-            <Card className="group transition-colors border-2 hover:border-terracotta/20">
-              <CardHeader>
-                <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-terracotta/20 transition-colors">
-                  <Icons.BookOpen className="h-6 w-6 text-terracotta" />
-                </div>
-                <CardTitle>Online Learning</CardTitle>
-                <CardDescription>
-                  Courses and certifications for caregivers, educators, and healthcare professionals.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="ghost" asChild className="w-full justify-between">
-                  <Link href="/learning">
-                    Explore Courses <Icons.ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Community Forum */}
-            <Card className="group transition-colors border-2 hover:border-primary/20">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <Icons.MessageCircle className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle>Community Forum</CardTitle>
-                <CardDescription>
-                  Connect with others, share experiences, and find peer support in moderated spaces.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="ghost" asChild className="w-full justify-between">
-                  <Link href="/community">
-                    Join Community <Icons.ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Apps & Tools */}
-            <Card className="group transition-colors border-2 hover:border-terracotta/20">
-              <CardHeader>
-                <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-terracotta/20 transition-colors">
-                  <Icons.Lightbulb className="h-6 w-6 text-terracotta" />
-                </div>
-                <CardTitle>Apps & Tools Repository</CardTitle>
-                <CardDescription>
-                  Curated collection of neurodivergent-focused apps and assistive technologies.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="ghost" asChild className="w-full justify-between">
-                  <Link href="/apps-tools">
-                    Browse Tools <Icons.ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Advocacy Center */}
-            <Card className="group transition-colors border-2 hover:border-terracotta/20">
-              <CardHeader>
-                <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-terracotta/20 transition-colors">
-                  <Icons.Megaphone className="h-6 w-6 text-terracotta" />
-                </div>
-                <CardTitle>Advocacy Center</CardTitle>
-                <CardDescription>
-                  Policy advocacy campaigns and tools to promote inclusive legislation across Africa.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="ghost" asChild className="w-full justify-between">
-                  <Link href="/advocacy">
-                    Get Involved <Icons.ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Impact Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">
-                Creating Lasting Impact Across Africa
+        {/* Everything ANDA offers: an index, each entry marked by its thread */}
+        <section aria-labelledby="ecosystem-heading" className="py-20">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 grid gap-10 lg:grid-cols-[minmax(0,22rem)_1fr]">
+            <div className="lg:sticky lg:top-28 lg:self-start">
+              <h2 id="ecosystem-heading" className="text-4xl font-semibold text-balance">
+                Everything in one place
               </h2>
-              <p className="text-xl text-muted-foreground text-pretty">
-                Our comprehensive approach addresses the unique challenges faced by neurodivergent individuals in
-                African communities.
+              <p className="mt-4 text-lg text-muted-foreground text-pretty">
+                From a first check-in to a plan a teacher can follow, and the people and evidence to back it up.
               </p>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              <div>
-                <h3 className="text-2xl font-bold mb-6">Why ANDA Matters</h3>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <Icons.CheckCircle className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold mb-1">Addressing the Gap</h4>
-                      <p className="text-muted-foreground">
-                        Limited awareness and resources for neurodivergent individuals across African communities.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Icons.CheckCircle className="h-6 w-6 text-terracotta mt-0.5 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold mb-1">Cultural Sensitivity</h4>
-                      <p className="text-muted-foreground">
-                        Culturally appropriate support that respects traditional beliefs while promoting acceptance.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Icons.CheckCircle className="h-6 w-6 text-terracotta mt-0.5 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold mb-1">Scalable Solutions</h4>
-                      <p className="text-muted-foreground">
-                        Digital-first approach that can reach communities across all 54 African countries.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                <div className="text-center p-6 bg-background rounded-lg border">
-                  <Icons.Globe className="h-8 w-8 text-primary mx-auto mb-3" />
-                  <div className="text-2xl font-bold text-primary">Pan-African</div>
-                  <div className="text-sm text-muted-foreground">Reach</div>
-                </div>
-                <div className="text-center p-6 bg-background rounded-lg border">
-                  <Icons.Shield className="h-8 w-8 text-terracotta mx-auto mb-3" />
-                  <div className="text-2xl font-bold text-terracotta">Safe Spaces</div>
-                  <div className="text-sm text-muted-foreground">Community</div>
-                </div>
-                <div className="text-center p-6 bg-background rounded-lg border">
-                  <Icons.Users className="h-8 w-8 text-terracotta mx-auto mb-3" />
-                  <div className="text-2xl font-bold text-terracotta">Inclusive</div>
-                  <div className="text-sm text-muted-foreground">Support</div>
-                </div>
-                <div className="text-center p-6 bg-background rounded-lg border">
-                  <Icons.BarChart3 className="h-8 w-8 text-primary mx-auto mb-3" />
-                  <div className="text-2xl font-bold text-primary">Evidence</div>
-                  <div className="text-sm text-muted-foreground">Based</div>
-                </div>
-              </div>
-            </div>
+            <ul className="grid sm:grid-cols-2 gap-x-10">
+              {ECOSYSTEM.map((e) => (
+                <li key={e.href} className="border-t">
+                  <Link href={e.href} className="group flex gap-4 py-5">
+                    <ThreadMark color={e.thread} className="mt-1" />
+                    <span>
+                      <span className="flex items-center gap-2 font-semibold text-lg group-hover:underline">
+                        {e.name}
+                        <ArrowRight aria-hidden="true" className="h-4 w-4 opacity-0 -translate-x-1 transition duration-300 group-hover:opacity-100 group-hover:translate-x-0" />
+                      </span>
+                      <span className="mt-1 block text-muted-foreground text-pretty">{e.text}</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <Partners />
+        <KenteStrip height={8} />
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary to-terracotta text-primary-foreground">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">
-            Join the Movement for Neurodiversity in Africa
-          </h2>
-          <p className="text-xl opacity-90 text-pretty mb-8 max-w-2xl mx-auto">
-            Whether you&apos;re neurodivergent, a caregiver, educator, or advocate, there&apos;s a place for you in our
-            community.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" asChild className="text-lg px-8 py-6">
-              <Link href="/self-test">Start Your Journey</Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              asChild
-              className="text-lg px-8 py-6 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary bg-transparent"
-            >
-              <Link href="/donate">Support Our Mission</Link>
-            </Button>
+        {/* Why ANDA: the one committed colour field, mudcloth marks light on dark */}
+        <section aria-labelledby="why-heading" className="relative overflow-hidden bg-loom text-loom-foreground">
+          <div aria-hidden="true" className="afro-texture absolute inset-0" style={{ ["--texture" as string]: "rgb(243 237 228 / 0.14)" }} />
+          <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
+            <h2 id="why-heading" className="text-4xl lg:text-5xl font-semibold text-balance max-w-3xl">
+              Made for how support really works in Africa
+            </h2>
+            <p className="mt-4 text-xl text-loom-muted text-pretty max-w-2xl">
+              Often there&apos;s no specialist nearby, no diagnosis yet, and a slow connection. ANDA is built for that.
+            </p>
+            <ul className="mt-12 grid gap-10 md:grid-cols-3">
+              {COMMITMENTS.map((c, i) => (
+                <li key={c.title} className="border-t-2 pt-5" style={{ borderColor: ["var(--thread-gold)", "var(--thread-terracotta)", "var(--thread-green)"][i] }}>
+                  <h3 className="text-2xl font-semibold">{c.title}</h3>
+                  <p className="mt-2 text-loom-muted text-pretty">{c.text}</p>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Footer */}
-      <footer className="bg-background border-t py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="col-span-1 md:col-span-2">
-              <div className="mb-4">
-                <Link href="/" className="inline-block">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                      <Icons.Brain className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <div className="font-bold text-lg">ANDA</div>
-                      <div className="text-xs text-muted-foreground">African Neurodiversity Alliance</div>
-                    </div>
-                  </div>
-                </Link>
-              </div>
-              <p className="text-muted-foreground mb-4 max-w-md">
-                Empowering neurodivergent individuals across Africa through awareness, education, and inclusive support
-                systems.
+        <Partners />
+
+        <KenteStrip height={8} />
+
+        {/* Close: a solid terracotta field between two strips */}
+        <section aria-labelledby="join-heading" className="bg-terracotta text-terracotta-foreground">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div className="max-w-2xl">
+              <h2 id="join-heading" className="text-4xl lg:text-5xl font-semibold text-balance">
+                Join the movement for neurodiversity in Africa
+              </h2>
+              <p className="mt-4 text-xl text-pretty opacity-95">
+                Whether you&apos;re neurodivergent, a caregiver, educator, or advocate, there&apos;s a place for you in our
+                community.
               </p>
             </div>
-
-            <div>
-              <h3 className="font-semibold mb-4">Resources</h3>
-              <div className="space-y-2">
-                <Link href="/self-test" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  Self-Test
-                </Link>
-                <Link href="/iep" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  IEP Generator
-                </Link>
-                <Link href="/directory" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  Find Support
-                </Link>
-                <Link
-                  href="/apps-tools"
-                  className="block text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Apps & Tools
-                </Link>
-                <Link href="/learning" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  Learning
-                </Link>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-4">Community</h3>
-              <div className="space-y-2">
-                <Link href="/community" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  Forum
-                </Link>
-                <Link href="/advocacy" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  Advocacy
-                </Link>
-                <Link href="/research" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  Research
-                </Link>
-                <Link href="/about" className="block text-muted-foreground hover:text-foreground transition-colors">
-                  About Us
-                </Link>
-              </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button size="lg" asChild className="h-12 px-7 text-base bg-background text-foreground hover:bg-background/90">
+                <Link href="/self-test">Start your journey</Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                asChild
+                className="h-12 px-7 text-base bg-transparent border-terracotta-foreground text-terracotta-foreground hover:bg-terracotta-foreground hover:text-terracotta"
+              >
+                <Link href="/donate">Support our mission</Link>
+              </Button>
             </div>
           </div>
-
-          <div className="border-t mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} African Neurodiversity Alliance. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+        </section>
+      </main>
     </div>
   )
 }

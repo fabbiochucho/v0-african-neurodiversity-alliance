@@ -10,9 +10,9 @@
 - [ ] Start dev server: `npm run dev`
 - [ ] Visit http://localhost:3000 and verify landing page loads
 - [ ] Execute all 7 SQL migration scripts in Supabase console
-- [ ] Test authentication flow at `/test/auth-test`
-- [ ] Test IEP workflow at `/test/iep-test`
-- [ ] Test payment integration at `/test/payment-test`
+- [ ] Test sign-up and sign-in at `/auth/sign-up` and `/auth/login`
+- [ ] Test the support-plan workflow at `/iep`
+- [ ] Test payments at `/iep/settings/subscription`
 - [ ] Check browser console for errors
 - [ ] Test on mobile device/responsive design
 

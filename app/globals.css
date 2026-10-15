@@ -14,6 +14,21 @@
   --brand-teal: #2f8674;
   --brand-terracotta: #b85f41;
 
+  /* Woven-strip world (brief §25/§34): thread colours for kente-style strips
+     and mudcloth texture. Decorative only; *-ink variants carry text. */
+  --thread-teal: #2f8674;
+  --thread-gold: #d4a23c;
+  --thread-terracotta: #b85f41;
+  --thread-indigo: #3b4a8c;
+  --thread-charcoal: #2b2420;
+  --thread-green: #5e8a4a;
+  --indigo: #3b4a8c; /* assessment / NeuRafiki ink: 8.3:1 on background */
+  --gold: #7d5a12; /* attention ink: 6.1:1 on background */
+  --loom: #133c35; /* the committed deep-teal band */
+  --loom-foreground: #f3ede4; /* 11.9:1 on loom */
+  --loom-muted: #b9d3cb; /* 8.4:1 on loom */
+  --texture: color-mix(in srgb, var(--thread-charcoal) 9%, transparent);
+
   --background: #faf7f2; /* warm off-white */
   --foreground: #2b2420; /* warm charcoal, 14:1 on background */
   --card: #fffdf9;
@@ -86,6 +101,10 @@
   --sidebar-accent-foreground: #f3ede4;
   --sidebar-border: #3a322c;
   --sidebar-ring: #6cc2ae;
+  --indigo: #a9b4f0;
+  --gold: #e0b35c;
+  --loom: #0e2c27;
+  --texture: color-mix(in srgb, #f3ede4 7%, transparent);
 }
 
 @theme inline {
@@ -95,6 +114,11 @@
   --color-terracotta-foreground: var(--terracotta-foreground);
   --color-brand-teal: var(--brand-teal);
   --color-brand-terracotta: var(--brand-terracotta);
+  --color-indigo: var(--indigo);
+  --color-gold: var(--gold);
+  --color-loom: var(--loom);
+  --color-loom-foreground: var(--loom-foreground);
+  --color-loom-muted: var(--loom-muted);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -147,6 +171,9 @@
     font-family: var(--font-display);
     font-optical-sizing: auto;
     letter-spacing: -0.01em;
+    /* Long words wrap on narrow phones with large text instead of overflowing. */
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
 
   /* Legacy ANDA utilities, re-pointed at the calm palette. */
@@ -157,6 +184,16 @@
   .anda-pattern {
     background-image: radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--brand-teal) 7%, transparent) 0%, transparent 55%),
       radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--brand-terracotta) 6%, transparent) 0%, transparent 55%);
+  }
+
+  /* Bògòlanfini linework, tinted by --texture (or any colour via currentColor
+     on .afro-texture-current). Decorative: always aria-hidden. */
+  .afro-texture {
+    background-color: var(--texture);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2296%22%20height%3D%2296%22%20viewBox%3D%220%200%2096%2096%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%3E%20%3Cpath%20d%3D%22M6%2010h6M22%2010h6M38%2010h6M54%2010h6M70%2010h6M86%2010h4%22%2F%3E%20%3Cpath%20d%3D%22M2%2030l8-8%208%208%208-8%208%208%208-8%208%208%208-8%208%208%208-8%208%208%208-8%206%206%22%2F%3E%20%3Cg%20fill%3D%22%23000%22%20stroke%3D%22none%22%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%2242%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%2254%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%2266%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%2278%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%2290%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3C%2Fg%3E%20%3Cpath%20d%3D%22M5%2060h14v14H5zM29%2060h14v14H29zM53%2060h14v14H53zM77%2060h14v14H77z%22%2F%3E%20%3Cpath%20d%3D%22M10%2065h4v4h-4zM34%2065h4v4h-4zM58%2065h4v4h-4zM82%2065h4v4h-4z%22%2F%3E%20%3Cpath%20d%3D%22M0%2086h96M0%2092h96%22%20stroke-dasharray%3D%222%204%22%2F%3E%20%3C%2Fsvg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2296%22%20height%3D%2296%22%20viewBox%3D%220%200%2096%2096%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%3E%20%3Cpath%20d%3D%22M6%2010h6M22%2010h6M38%2010h6M54%2010h6M70%2010h6M86%2010h4%22%2F%3E%20%3Cpath%20d%3D%22M2%2030l8-8%208%208%208-8%208%208%208-8%208%208%208-8%208%208%208-8%208%208%208-8%206%206%22%2F%3E%20%3Cg%20fill%3D%22%23000%22%20stroke%3D%22none%22%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%2242%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%2254%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%2266%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%2278%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%2290%22%20cy%3D%2246%22%20r%3D%222%22%2F%3E%3C%2Fg%3E%20%3Cpath%20d%3D%22M5%2060h14v14H5zM29%2060h14v14H29zM53%2060h14v14H53zM77%2060h14v14H77z%22%2F%3E%20%3Cpath%20d%3D%22M10%2065h4v4h-4zM34%2065h4v4h-4zM58%2065h4v4h-4zM82%2065h4v4h-4z%22%2F%3E%20%3Cpath%20d%3D%22M0%2086h96M0%2092h96%22%20stroke-dasharray%3D%222%204%22%2F%3E%20%3C%2Fsvg%3E");
+    -webkit-mask-size: 96px 96px;
+    mask-size: 96px 96px;
   }
 
   .text-balance {
@@ -267,3 +304,18 @@ html.dark[data-contrast="high"] {
   --ring: #ffffff;
 }
 html[data-contrast="high"] a { text-decoration-thickness: 2px; }
+
+/* ---- Woven world: browser surfaces and sensory modes ---------------------- */
+::selection { background: color-mix(in srgb, var(--thread-gold) 45%, transparent); color: var(--foreground); }
+:focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; }
+html { scrollbar-color: color-mix(in srgb, var(--thread-teal) 55%, transparent) transparent; }
+a { text-underline-offset: 0.2em; }
+
+/* Calm: no texture, strips quietened to a single soft line of colour. */
+html[data-visual="calm"] .afro-texture { display: none; }
+html[data-visual="calm"] .kente-strip { filter: saturate(0.25) opacity(0.55); }
+/* Vibrant: stronger texture. */
+html[data-visual="vibrant"] { --texture: color-mix(in srgb, var(--thread-charcoal) 16%, transparent); }
+html.dark[data-visual="vibrant"] { --texture: color-mix(in srgb, #f3ede4 12%, transparent); }
+/* High contrast: decoration steps back so text stays the strongest signal. */
+html[data-contrast="high"] .afro-texture { display: none; }

@@ -51,7 +51,7 @@ export function AndaLogo({ className = "", showText = true }: AndaLogoProps) {
   ]
 
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
+    <div className={`flex min-w-0 items-center gap-3 ${className}`}>
       {/* Africa Network Map Icon */}
       <div className="relative w-10 h-10">
         <svg viewBox="0 0 40 40" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -96,9 +96,9 @@ export function AndaLogo({ className = "", showText = true }: AndaLogoProps) {
       </div>
 
       {showText && (
-        <div className="flex flex-col">
+        <div className="flex min-w-0 flex-col">
           <span className="text-xl font-bold text-foreground">ANDA</span>
-          <span className="text-xs text-muted-foreground leading-tight">African Neurodiversity Alliance</span>
+          <span className="text-xs text-muted-foreground leading-tight truncate">African Neurodiversity Alliance</span>
         </div>
       )}
     </div>

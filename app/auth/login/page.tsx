@@ -7,12 +7,15 @@ import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { Icons } from "@/lib/icons"
+import { Turnstile, TURNSTILE_SITE_KEY } from "@/components/turnstile"
 
 function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const [captchaKey, setCaptchaKey] = useState(0)
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
@@ -26,9 +29,12 @@ function LoginForm() {
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
+        options: { captchaToken: captchaToken ?? undefined },
       })
 
       if (signInError) {
+        setCaptchaToken(null)
+        setCaptchaKey((k) => k + 1)
         setError(signInError.message)
         setLoading(false)
         return
@@ -97,9 +103,11 @@ function LoginForm() {
             />
           </div>
 
+          <Turnstile key={captchaKey} onToken={setCaptchaToken} />
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || (!!TURNSTILE_SITE_KEY && !captchaToken)}
             className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 transition"
           >
             {loading ? "Signing in..." : "Sign In"}
