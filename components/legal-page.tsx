@@ -23,7 +23,7 @@ export function LegalPage({
 
           <nav aria-label="On this page" className="mt-8 rounded-2xl border bg-card p-5">
             <h2 className="font-sans text-sm font-semibold">On this page</h2>
-            <ol className="mt-3 grid gap-1.5 sm:grid-cols-2 text-sm list-decimal list-inside">
+            <ol className="mt-3 grid gap-1.5 sm:grid-cols-2 text-sm list-decimal list-inside break-words">
               {sections.map((s) => (
                 <li key={s.id}>
                   <a href={`#${s.id}`} className="underline hover:text-primary">
@@ -40,7 +40,7 @@ export function LegalPage({
                 <h2 id={`${s.id}-h`} className="text-2xl font-semibold">
                   {s.heading}
                 </h2>
-                <div className="mt-3 space-y-3 leading-relaxed text-pretty [&_a]:text-primary [&_a]:underline [&_a]:[overflow-wrap:anywhere] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5">
+                <div className="mt-3 space-y-3 leading-relaxed text-pretty break-words [&_a]:text-primary [&_a]:underline [&_a]:[overflow-wrap:anywhere] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5">
                   {s.body}
                 </div>
               </section>
