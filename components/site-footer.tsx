@@ -2,7 +2,7 @@ import Link from "next/link"
 import { AndaLogo } from "@/components/anda-logo"
 import { KenteStrip } from "@/components/afro/kente-strip"
 import { getSiblingAppUrl } from "@/lib/federation/config"
-import { BECOMECHANGE_URL, LEGAL_CONTACT_EMAIL, LEGAL_OWNER } from "@/lib/legal"
+import { BECOMECHANGE_URL, LEGAL_BRAND, LEGAL_CONTACT_EMAIL, LEGAL_OWNER } from "@/lib/legal"
 
 const COLUMNS = [
   {
@@ -89,7 +89,7 @@ export function SiteFooter() {
             )}{" "}
             are products of{" "}
             <a href={BECOMECHANGE_URL} className="underline hover:text-foreground">
-              {LEGAL_OWNER}
+              {LEGAL_BRAND}
             </a>
             .
           </p>

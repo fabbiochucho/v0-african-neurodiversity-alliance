@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { LegalPage } from "@/components/legal-page"
-import { LEGAL_CONTACT_EMAIL, LEGAL_OWNER } from "@/lib/legal"
+import { LEGAL_CONTACT_EMAIL, LEGAL_ENTITY, LEGAL_OWNER } from "@/lib/legal"
 
 export const metadata = {
   title: "Terms of use | ANDA",
@@ -105,7 +105,7 @@ export default function TermsPage() {
           body: (
             <p>
               We work to keep ANDA available and accurate, but we can&apos;t promise it will always be uninterrupted or
-              error-free. To the extent the law allows, {LEGAL_OWNER} isn&apos;t responsible for losses that come from
+              error-free. To the extent the law allows, {LEGAL_ENTITY} isn&apos;t responsible for losses that come from
               relying on general information on the site instead of professional advice. Nothing in these terms limits
               rights you have under the law that can&apos;t be limited.
             </p>
