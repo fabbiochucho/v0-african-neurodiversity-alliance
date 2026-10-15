@@ -60,7 +60,7 @@ export const FEATURE_LABELS: Record<Feature, string> = {
   team_dashboard: "Multi-user dashboard of all your learners and staff",
   branding: "Branded reports and report emails with your logo and colour",
   bulk_enrollment: "Bulk enrollment of learners from a CSV file",
-  data_export: "Data export (CSV and JSON) of learners, goals, progress and reports",
+  data_export: "Organisation-wide export: everyone on your support teams and their access",
 }
 
 /** AI Companion messages per rolling 24h. Caps provider cost per subscriber. */
@@ -71,6 +71,7 @@ export const BASE_FEATURES = [
   "Personalised IEP with suggested goals",
   "Goal check-ins and My Journey timeline",
   "Companion prompts and next steps from your own check-ins (no AI)",
+  "Download your own data any time (CSV and JSON)",
 ]
 
 export function isTier(value: unknown): value is SubscriptionTier {

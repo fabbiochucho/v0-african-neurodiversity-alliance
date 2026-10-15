@@ -177,7 +177,11 @@ export default function PrivacyPage() {
                   and legal reasons, but with your name removed.
                 </li>
                 <li>Unsubscribe from the weekly digest using the link in any digest email.</li>
-                <li>Ask us for a copy of your data, or anything else about this policy, by emailing {email}.</li>
+                <li>
+                  Download a copy of your data yourself, on any plan, from the <Link href="/export">export page</Link>{" "}
+                  (CSV or JSON).
+                </li>
+                <li>Ask us anything else about your data or this policy by emailing {email}.</li>
               </ul>
             </>
           ),

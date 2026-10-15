@@ -1,9 +1,11 @@
 // AI Companion: safety rules and request shaping. Pure functions only (no
 // SDK, no Supabase) so every safety rule is unit tested.
 //
-// OWNER REVIEW REQUIRED before launch: daily limits (AI_DAILY_MESSAGES in
-// lib/entitlements.ts) and all user-facing safety copy below (SYSTEM_PROMPT,
-// CRISIS_RESPONSE, DISCLAIMER, CONSENT_TEXT). The AI provider and model are
+// Owner decision (Oct 2026): keep the daily limits (AI_DAILY_MESSAGES in
+// lib/entitlements.ts); review Cloudflare usage after the first month and
+// raise them only if the free allowance isn't being used up.
+// CLINICIAN REVIEW REQUIRED before launch: all user-facing safety copy below
+// (SYSTEM_PROMPT, CRISIS_RESPONSE, DISCLAIMER, CONSENT_TEXT). The AI provider and model are
 // configured in lib/ai.ts (owner decision: free Cloudflare Workers AI).
 
 import { aiProvider, PROVIDERS } from "@/lib/ai"

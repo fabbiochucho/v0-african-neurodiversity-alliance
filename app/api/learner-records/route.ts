@@ -8,6 +8,7 @@ import {
   ASSESSMENT_FILE_TYPES,
   parseExistingAssessment,
   parseSupportProfile,
+  parseVoice,
 } from "@/lib/learner-records"
 
 // POST /api/learner-records (multipart/form-data)
@@ -15,6 +16,7 @@ import {
 //                           plus the support profile fields
 //   record=assessment:      learner_id, record_type, record_date, author,
 //                           title, summary, file (optional PDF/PNG/JPEG <= 10 MB)
+//   record=voice:           learner_id, speaker (learner|family), summary, record_date
 // RLS (scripts/042) limits inserts to the caller's own learners, the
 // 'observation'/'professional_input' kinds, and their own Storage folder.
 export async function POST(request: Request) {
@@ -106,6 +108,24 @@ export async function POST(request: Request) {
       return dbErrorResponse(error)
     }
     await logAudit({ actorId: user.id, action: "change", resource: "assessment added", learnerId })
+    return NextResponse.json({ ok: true, learner_id: learnerId }, { status: 201 })
+  }
+
+  if (raw.record === "voice") {
+    if (!learnerId) return NextResponse.json({ error: "learner_id is required" }, { status: 400 })
+    const parsed = parseVoice(raw)
+    if ("error" in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 })
+    const { error } = await supabase.from("learner_records").insert({
+      learner_id: learnerId,
+      created_by: user.id,
+      kind: "observation",
+      record_type: "voice",
+      title: "In their own words",
+      record_date: parsed.record_date,
+      fields: { summary: parsed.summary, speaker: parsed.speaker },
+    })
+    if (error) return dbErrorResponse(error)
+    await logAudit({ actorId: user.id, action: "change", resource: "own words added", learnerId })
     return NextResponse.json({ ok: true, learner_id: learnerId }, { status: 201 })
   }
 

@@ -37,6 +37,7 @@ export const REPORT_TITLES: Record<ReportKind, string> = {
 /** Section order used by the monthly report. */
 export const MONTHLY_SECTIONS = [
   "Summary",
+  "In their own words",
   "Goals and progress",
   "What changed",
   "Observations",
@@ -73,15 +74,24 @@ function goalLine(g: JourneyGoal, asOf: Date): Finding {
   return { text: `${g.goal_text}: ${PROGRESS_STATUS_LABELS[s.status]}${numbers}`, source: "observation" }
 }
 
-function recordFindings(input: JourneyInput, from: string, to: string) {
+function recordFindings(input: JourneyInput, from: string, to: string, name: string) {
   const inRange = (input.records ?? []).filter((r) => {
     const d = (r.record_date ?? r.created_at).slice(0, 10)
     return d > from && d <= to
   })
   const text = (r: (typeof inRange)[number]) =>
     `${r.title ?? r.record_type.replace(/_/g, " ")}${typeof r.fields?.summary === "string" ? `: ${r.fields.summary}` : ""}`
+  const isVoice = (r: (typeof inRange)[number]) => r.record_type === "voice"
   return {
-    observations: inRange.filter((r) => r.kind === "observation" || r.kind === "check_in").map((r): Finding => ({ text: text(r), source: "observation" })),
+    voice: inRange.filter(isVoice).map(
+      (r): Finding => ({
+        text: `${r.fields?.speaker === "learner" ? name : "Family"}: “${String(r.fields?.summary ?? "")}”`,
+        source: "observation",
+      }),
+    ),
+    observations: inRange
+      .filter((r) => (r.kind === "observation" || r.kind === "check_in") && !isVoice(r))
+      .map((r): Finding => ({ text: text(r), source: "observation" })),
     professional: inRange
       .filter((r) => r.kind === "professional_input" || r.kind === "assessment")
       .map((r): Finding => ({ text: text(r), source: r.kind === "assessment" ? "assessment" : "professional_input" })),
@@ -120,7 +130,7 @@ export function buildReport(
   const start = iso(startDate)
   const stop = iso(end)
   const checkIns = goals.reduce((n, g) => n + logsBetween(g, start, stop).length, 0)
-  const { observations, professional } = recordFindings(input, start, stop)
+  const { voice, observations, professional } = recordFindings(input, start, stop, name)
   const period = `${start} to ${stop}`
   const empty = (f: Finding[], text: string) => (f.length ? f : [{ text, source: "observation" as const }])
 
@@ -131,7 +141,7 @@ export function buildReport(
       period,
       sections: [
         { heading: `${name}: ${start} compared with ${stop}`, findings: empty(changeLines(goals, startDate, end), "No goals to compare yet.") },
-        { heading: "Observations in between", findings: empty(observations, "None recorded.") },
+        { heading: "Observations in between", findings: empty([...voice, ...observations], "None recorded.") },
         { heading: "Professional input and assessments in between", findings: empty(professional, "None recorded.") },
       ],
     }
@@ -153,8 +163,14 @@ export function buildReport(
   }
 
   const nextSteps = summary.nextSteps.map((s): Finding => ({ text: s.label, source: "observation" }))
+  const [summarySection, ...restOfBase] = base
   const sections = [
-    ...base,
+    summarySection,
+    {
+      heading: "In their own words",
+      findings: empty(voice, `Nothing recorded in this period. Add what ${name} or their family says on the profile page.`),
+    },
+    ...restOfBase,
     { heading: "What changed", findings: empty(changeLines(goals.filter((g) => g.status === "in_progress"), startDate, end), "Not enough check-ins to compare yet.") },
     { heading: "Observations", findings: empty(observations, "None recorded in this period.") },
     { heading: "Professional input and assessments", findings: empty(professional, "None added in this period.") },
@@ -167,7 +183,7 @@ export function buildReport(
         text: `${g.goal_text}: started from "${g.baseline ?? "not recorded"}", aiming for "${g.target ?? "not recorded"}"${g.review_date ? `, review by ${g.review_date}` : ""}.`,
         source: "observation",
       }))
-    sections.splice(2, 0, { heading: "Baseline, target and review dates", findings: empty(reviews, "No goals yet.") })
+    sections.splice(3, 0, { heading: "Baseline, target and review dates", findings: empty(reviews, "No goals yet.") })
   }
 
   sections.push({ heading: "Next steps", findings: empty(nextSteps, "Keep going with regular check-ins.") })
