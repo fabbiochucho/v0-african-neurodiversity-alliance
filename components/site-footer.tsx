@@ -2,7 +2,7 @@ import Link from "next/link"
 import { AndaLogo } from "@/components/anda-logo"
 import { KenteStrip } from "@/components/afro/kente-strip"
 import { getSiblingAppUrl } from "@/lib/federation/config"
-import { BECOMECHANGE_URL, LEGAL_BRAND, LEGAL_CONTACT_EMAIL, LEGAL_OWNER } from "@/lib/legal"
+import { BECOMECHANGE_URL, COPYRIGHT_HOLDER, LEGAL_BRAND, LEGAL_CONTACT_EMAIL } from "@/lib/legal"
 
 const COLUMNS = [
   {
@@ -112,7 +112,7 @@ export function SiteFooter() {
           </nav>
         </div>
         <p className="mt-4 text-sm text-muted-foreground">
-          &copy; {year} {LEGAL_OWNER}. All rights reserved. ANDA: African Neurodiversity Alliance.
+          &copy; {year} {COPYRIGHT_HOLDER}. All rights reserved. ANDA: African Neurodiversity Alliance.
         </p>
       </div>
     </footer>
