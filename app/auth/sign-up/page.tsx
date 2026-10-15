@@ -31,8 +31,8 @@ export default function SignUpPage() {
       return
     }
 
-    if (password.length < 12 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password)) {
-      setError("Password must be at least 12 characters, with an uppercase letter, a lowercase letter and a number")
+    if (password.length < 12 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password) || !/[!@#$%^&*()_+\-=[\]{};'\:"|<>?,./`~]/.test(password)) {
+      setError("Password must be at least 12 characters, with an uppercase letter, a lowercase letter, a number and a symbol")
       return
     }
 
@@ -152,7 +152,7 @@ export default function SignUpPage() {
               className="w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
             <p id="password-hint" className="text-xs text-muted-foreground">
-              At least 12 characters, with an uppercase letter, a lowercase letter and a number
+              At least 12 characters, with an uppercase letter, a lowercase letter, a number and a symbol such as ! or #
             </p>
           </div>
 
