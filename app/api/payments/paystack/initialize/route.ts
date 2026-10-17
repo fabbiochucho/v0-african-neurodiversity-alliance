@@ -4,6 +4,7 @@ import { createServiceClient } from "@/lib/supabase/service"
 import { initializePaystackPayment } from "@/lib/payments/paystack"
 import { SUBSCRIPTION_TIERS } from "@/lib/constants/iep"
 import { NextResponse } from "next/server"
+import { appUrl as siteUrl } from "@/lib/app-url"
 
 export async function POST(request: Request) {
   try {
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
       .single()
 
     const transactionRef = `ANDA-PSTK-SUB-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin
+    const appUrl = siteUrl(new URL(request.url).origin)
 
     const { data: subscription, error: subError } = await supabase
       .from("subscriptions")

@@ -5,6 +5,7 @@ import { inviteEmail, inviteLink, newInviteToken, sendInviteEmail, hashInviteTok
 import { roleLabel } from "@/lib/support-team"
 import { isPreset, validatePermissions } from "@/lib/team-permissions"
 import { logAudit } from "@/lib/audit"
+import { appUrl } from "@/lib/app-url"
 
 // PATCH /api/team/[id] { preset, permissions } -- the learner's owner changes
 // a member's role preset and permissions (security-definer RPC; the DB
@@ -85,7 +86,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
     })
     if (error) return dbErrorResponse(error)
 
-    const link = inviteLink(process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin, invite.id, token)
+    const link = inviteLink(appUrl(new URL(request.url).origin), invite.id, token)
     const { data: profile } = await supabase.from("profiles").select("first_name, last_name").eq("id", user.id).maybeSingle()
     const inviterName = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || user.email || "Someone"
     const emailSent = await sendInviteEmail(
