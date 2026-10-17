@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
@@ -40,7 +40,7 @@ export default function ConnectionsSettingsPage() {
 
   const federationEnabled = isFederationEnabled()
 
-  async function loadAccounts() {
+  const loadAccounts = useCallback(async () => {
     const supabase = createClient()
     const {
       data: { user },
@@ -58,11 +58,11 @@ export default function ConnectionsSettingsPage() {
 
     setAccounts((data as LinkedAccount[]) || [])
     setLoading(false)
-  }
+  }, [router])
 
   useEffect(() => {
     loadAccounts()
-  }, [])
+  }, [loadAccounts])
 
   async function handleConnect() {
     setConnecting(true)
