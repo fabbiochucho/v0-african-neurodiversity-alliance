@@ -73,7 +73,7 @@ export default function SubscriptionSettingsPage() {
       setLoading(false)
     }
     load()
-  }, [])
+  }, [router])
 
   // Same rule the server enforces: only a paid, unexpired, active row counts.
   const currentTier: SubscriptionTier = effectiveTier(subscriptions)
