@@ -3,8 +3,18 @@ import { COPYRIGHT_HOLDER, LEGAL_POSTAL_ADDRESS } from "@/lib/legal"
 
 export const DIGEST_FROM = process.env.RESEND_FROM_EMAIL || "ANDA <noreply@anda.becomechange.institute>"
 
+const DEFAULT_APP_URL = "https://anda.becomechange.institute"
+
+// Base URL for links in emails. Falls back to the real domain when
+// NEXT_PUBLIC_APP_URL is unset or isn't a full http(s) URL, so a bad setting
+// can't break every link in the digest.
 export function appUrl(): string {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://anda.becomechange.institute").replace(/\/$/, "")
+  const raw = (process.env.NEXT_PUBLIC_APP_URL ?? "").trim()
+  try {
+    const u = new URL(raw)
+    if (u.protocol === "https:" || u.protocol === "http:") return u.origin
+  } catch {}
+  return DEFAULT_APP_URL
 }
 
 export function getResend(): Resend | null {
