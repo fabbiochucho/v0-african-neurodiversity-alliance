@@ -4,6 +4,7 @@ import { createServiceClient } from "@/lib/supabase/service"
 import { initializeFlutterwavePayment } from "@/lib/payments/flutterwave"
 import { SUBSCRIPTION_TIERS } from "@/lib/constants/iep"
 import { NextResponse } from "next/server"
+import { appUrl as siteUrl } from "@/lib/app-url"
 
 export async function POST(request: Request) {
   try {
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
       .single()
 
     const transactionRef = `ANDA-SUB-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin
+    const appUrl = siteUrl(new URL(request.url).origin)
 
     // Create subscription record (RLS: subscriptions_insert_own allows this)
     const { data: subscription, error: subError } = await supabase

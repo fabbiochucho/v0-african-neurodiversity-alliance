@@ -3,9 +3,8 @@ import { COPYRIGHT_HOLDER, LEGAL_POSTAL_ADDRESS } from "@/lib/legal"
 
 export const DIGEST_FROM = process.env.RESEND_FROM_EMAIL || "ANDA <noreply@anda.becomechange.institute>"
 
-export function appUrl(): string {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://anda.becomechange.institute").replace(/\/$/, "")
-}
+import { appUrl } from "@/lib/app-url"
+export { appUrl }
 
 export function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY

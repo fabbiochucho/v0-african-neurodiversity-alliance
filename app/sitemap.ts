@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next"
+import { appUrl } from "@/lib/app-url"
 
-const SITE = (process.env.NEXT_PUBLIC_APP_URL || "https://anda.becomechange.institute").replace(/\/$/, "")
+const SITE = appUrl()
 
 const PUBLIC_PAGES = [
   "",
