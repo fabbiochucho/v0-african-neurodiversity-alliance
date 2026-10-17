@@ -178,7 +178,7 @@ export default function SignUpPage() {
           <Turnstile key={captchaKey} onToken={setCaptchaToken} />
 
           <p className="text-xs text-muted-foreground">
-            By selecting Create Account, you agree to our{" "}
+            By selecting Create Account, you confirm you&apos;re 18 or older and agree to our{" "}
             <Link href="/terms" className="underline">
               Terms of Service
             </Link>{" "}

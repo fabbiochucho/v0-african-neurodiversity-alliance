@@ -33,6 +33,11 @@ export default function TermsPage() {
           heading: "Your account",
           body: (
             <ul>
+<li>
+                You must be 18 or older to create an account. Children and teenagers don&apos;t have their own accounts:
+                a parent or guardian adds them as a profile. If we learn that someone under 18 has made an account, we
+                close it and delete its data, unless their parent or guardian takes it over.
+              </li>
               <li>Give accurate information and keep your password safe. You&apos;re responsible for activity on your account.</li>
               <li>
                 Only create a profile for someone you support with their permission, or, for a child, as their parent or
@@ -53,7 +58,12 @@ export default function TermsPage() {
               </li>
               <li>ANDA and NeuRafiki are billed separately. A plan for one doesn&apos;t include the other.</li>
               <li>If a plan ends, paid features stop, but your existing information stays in your account.</li>
-              <li>For billing questions or refund requests, email {email}.</li>
+              <li>
+                Refunds: if you&apos;re not happy with a plan, email {email} within 14 days of paying and we&apos;ll refund
+                that payment in full. After 14 days payments aren&apos;t refunded, but the plan keeps working until the end
+                of the period you paid for. A payment taken by mistake, such as a double charge, is always refunded. Donations are refunded only if made by mistake and reported within 14 days.
+              </li>
+              <li>For other billing questions, email {email}.</li>
             </ul>
           ),
         },
