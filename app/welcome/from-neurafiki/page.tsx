@@ -9,7 +9,8 @@ import { ImportChooser } from "./import-chooser"
 
 // "Continue to ANDA" handoff from NeuRafiki (brief §14, §47):
 // /welcome/from-neurafiki?assessment=<assessment id>
-export default async function FromNeuRafikiPage({ searchParams }: { searchParams: { assessment?: string } }) {
+export default async function FromNeuRafikiPage(props: { searchParams: Promise<{ assessment?: string }> }) {
+  const searchParams = await props.searchParams;
   const assessment = typeof searchParams.assessment === "string" ? searchParams.assessment.slice(0, 100) : ""
   const back = `/welcome/from-neurafiki${assessment ? `?assessment=${encodeURIComponent(assessment)}` : ""}`
 

@@ -9,7 +9,8 @@ import { logAudit } from "@/lib/audit"
 // PATCH /api/team/[id] { preset, permissions } -- the learner's owner changes
 // a member's role preset and permissions (security-definer RPC; the DB
 // trigger re-checks the under-18 rule).
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const {
     data: { user },
@@ -39,7 +40,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
 // DELETE /api/team/[id] -- owner revokes an invite / removes a member, or a
 // member leaves. RLS (support_team_delete) decides which rows the caller may delete.
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const {
     data: { user },
@@ -55,7 +57,8 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
 
 // POST /api/team/[id]                      -- accept (invitee, from the dashboard)
 // POST /api/team/[id]  { action: "resend" } -- owner re-sends with a fresh link
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const {
     data: { user },

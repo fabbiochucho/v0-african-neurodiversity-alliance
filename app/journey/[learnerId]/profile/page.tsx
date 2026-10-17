@@ -21,13 +21,14 @@ interface RecordRow {
   created_at: string
 }
 
-export default async function LearnerProfilePage({
-  params,
-  searchParams,
-}: {
-  params: { learnerId: string }
-  searchParams: { add?: string }
-}) {
+export default async function LearnerProfilePage(
+  props: {
+    params: Promise<{ learnerId: string }>
+    searchParams: Promise<{ add?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const supabase = await createClient()
   const {
     data: { user },

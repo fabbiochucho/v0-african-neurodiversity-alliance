@@ -4,7 +4,8 @@ import { getEntitlement, nextTier } from "@/lib/entitlements"
 import type { LearnerProfile } from "@/lib/types/iep"
 import { GenerateIEPForm } from "./generate-iep-form"
 
-export default async function GenerateIEPPage({ searchParams }: { searchParams: { learner?: string } }) {
+export default async function GenerateIEPPage(props: { searchParams: Promise<{ learner?: string }> }) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
 
   const {

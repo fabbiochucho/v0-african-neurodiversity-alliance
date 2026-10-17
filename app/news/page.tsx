@@ -26,7 +26,8 @@ function formatDate(d: string | null) {
   return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
 }
 
-export default async function NewsPage({ searchParams }: { searchParams: { digest?: string; topic?: string } }) {
+export default async function NewsPage(props: { searchParams: Promise<{ digest?: string; topic?: string }> }) {
+  const searchParams = await props.searchParams;
   // Plain anon client (no cookies) so the page can be cached; RLS hides
   // anything an admin has hidden.
   const supabase = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)

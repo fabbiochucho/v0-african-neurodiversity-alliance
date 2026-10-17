@@ -6,7 +6,8 @@ import { dbErrorResponse } from "@/lib/api-error"
 // there's an audit trail of past connections; RLS (linked_accounts_update_own)
 // ensures a user can only revoke their own rows regardless of what id is
 // passed in.
-export async function PATCH(_request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient()
     const {

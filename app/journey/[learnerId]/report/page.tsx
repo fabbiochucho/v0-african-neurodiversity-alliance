@@ -15,13 +15,14 @@ import type { LearnerProfile } from "@/lib/types/iep"
 const KINDS: ReportKind[] = ["weekly", "monthly", "quarterly", "changes"]
 const isDate = (v?: string) => Boolean(v && /^\d{4}-\d{2}-\d{2}$/.test(v))
 
-export default async function ReportPage({
-  params,
-  searchParams,
-}: {
-  params: { learnerId: string }
-  searchParams: { kind?: string; from?: string; to?: string }
-}) {
+export default async function ReportPage(
+  props: {
+    params: Promise<{ learnerId: string }>
+    searchParams: Promise<{ kind?: string; from?: string; to?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const supabase = await createClient()
   const {
     data: { user },

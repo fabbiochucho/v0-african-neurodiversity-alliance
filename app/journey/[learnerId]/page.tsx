@@ -42,7 +42,8 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })
 }
 
-export default async function JourneyPage({ params }: { params: { learnerId: string } }) {
+export default async function JourneyPage(props: { params: Promise<{ learnerId: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
 
   const {

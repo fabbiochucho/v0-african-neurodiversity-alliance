@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CONSENT_FIELDS, CONSENT_TEXT, CONSENT_VERSION, hasActiveConsent, NOT_SHARED } from "@/lib/companion"
 import { ConsentButtons } from "./consent-buttons"
 
-export default async function CompanionConsentPage({ params }: { params: { learnerId: string } }) {
+export default async function CompanionConsentPage(props: { params: Promise<{ learnerId: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const {
     data: { user },

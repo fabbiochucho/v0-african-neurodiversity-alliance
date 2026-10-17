@@ -8,7 +8,8 @@ import { AcceptInviteButton } from "./accept-invite-button"
 // Landing page for emailed invite links. Accepting is a deliberate POST
 // (button), never a side effect of opening the link, so email link
 // scanners can't accept on someone's behalf.
-export default async function AcceptInvitePage({ searchParams }: { searchParams: { invite?: string; token?: string } }) {
+export default async function AcceptInvitePage(props: { searchParams: Promise<{ invite?: string; token?: string }> }) {
+  const searchParams = await props.searchParams;
   const { invite, token } = searchParams
   const supabase = await createClient()
   const {

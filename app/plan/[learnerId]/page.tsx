@@ -11,7 +11,8 @@ import { termsFor } from "@/lib/i18n"
 
 // The full IEP (brief §18-19): a 12-step conversational flow that starts
 // at the first thing we don't already know.
-export default async function PlanPage({ params }: { params: { learnerId: string } }) {
+export default async function PlanPage(props: { params: Promise<{ learnerId: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const {
     data: { user },

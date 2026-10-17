@@ -5,7 +5,8 @@ import { logAudit } from "@/lib/audit"
 
 // GET /api/learner-records/[id] -- redirects to a 60-second signed URL for
 // the record's uploaded file (private bucket; RLS decides who may read).
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const {
     data: { user },
@@ -21,7 +22,8 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 }
 
 // DELETE /api/learner-records/[id] -- owner removes a record and its file.
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const {
     data: { user },

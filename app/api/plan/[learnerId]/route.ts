@@ -16,7 +16,8 @@ const AI_SYSTEM = `You help families and educators in Africa draft a practical s
 //   ai       -> add AI-drafted goals and plan items (Pro+, consent, key)
 // Drafts never join the official plan until someone with 'approve'
 // approves them (scripts/045).
-export async function POST(request: Request, { params }: { params: { learnerId: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ learnerId: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const {
     data: { user },
