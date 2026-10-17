@@ -59,8 +59,8 @@ export default function TermsPage() {
               <li>ANDA and NeuRafiki are billed separately. A plan for one doesn&apos;t include the other.</li>
               <li>If a plan ends, paid features stop, but your existing information stays in your account.</li>
               <li>
-                Refunds: if you&apos;re not happy with a plan, email {email} within 14 days of paying and we&apos;ll refund
-                that payment in full. After 14 days payments aren&apos;t refunded, but the plan keeps working until the end
+                Refunds: if you&apos;re not happy with a plan, email {email} within 14 days of paying (30 days for the yearly Institutional plan) and we&apos;ll refund
+                that payment in full. After that, payments aren&apos;t refunded, but the plan keeps working until the end
                 of the period you paid for. A payment taken by mistake, such as a double charge, is always refunded. Donations are refunded only if made by mistake and reported within 14 days.
               </li>
               <li>For other billing questions, email {email}.</li>
