@@ -129,7 +129,7 @@ export default async function CompanionPage() {
               Ask the AI companion
             </h2>
             <p role="note" className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
-              {DISCLAIMER} Conversations aren&apos;t saved: closing or refreshing this page clears them.
+              {DISCLAIMER} Conversations aren&apos;t saved: closing or refreshing this page clears them. Built with Llama.
             </p>
             {!canChat ? (
               <UpgradePrompt

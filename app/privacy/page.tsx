@@ -99,7 +99,7 @@ export default function PrivacyPage() {
               <p>
                 With consent, we send only their first name, their current goals, a short summary of recent check-ins
                 and, when you ask for an AI-drafted plan, the support profile you wrote. Never a surname, date of birth,
-                uploaded documents or reports. The AI runs on Cloudflare Workers AI, using an open AI model. We don&apos;t
+                uploaded documents or reports. The AI runs on Cloudflare Workers AI, using Meta&apos;s open Llama model (Built with Llama). We don&apos;t
                 save chat conversations; we only count messages to apply daily limits. AI drafts stay marked as drafts
                 until a person approves them. You can withdraw consent at any time on your{" "}
                 <Link href="/account/privacy">privacy page</Link>, and it takes effect from the next message.
