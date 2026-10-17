@@ -5,6 +5,7 @@ import { FEATURE_MIN_TIER, getEntitlement } from "@/lib/entitlements"
 import { normaliseInviteEmail, roleLabel } from "@/lib/support-team"
 import { isPreset, PRESET_PERMISSIONS, validatePermissions, type Preset } from "@/lib/team-permissions"
 import { inviteEmail, inviteLink, newInviteToken, sendInviteEmail } from "@/lib/support-team-invite"
+import { appUrl } from "@/lib/app-url"
 
 // POST /api/team { learner_id, email, preset, permissions? } -- invite
 // someone to a learner's support team with per-member permissions
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
     return dbErrorResponse(error)
   }
 
-  const link = inviteLink(process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin, data.id, token)
+  const link = inviteLink(appUrl(new URL(request.url).origin), data.id, token)
   const inviterName = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || user.email || "Someone"
   const emailSent = await sendInviteEmail(
     email,

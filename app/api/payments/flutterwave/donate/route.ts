@@ -2,6 +2,7 @@ import { createServiceClient } from "@/lib/supabase/service"
 import { dbErrorResponse } from "@/lib/api-error"
 import { initializeFlutterwavePayment } from "@/lib/payments/flutterwave"
 import { NextResponse } from "next/server"
+import { appUrl as siteUrl } from "@/lib/app-url"
 
 // POST /api/payments/flutterwave/donate
 // Anonymous, one-off donation checkout — intentionally does NOT require
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
     }
 
     const transactionRef = `ANDA-DON-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin
+    const appUrl = siteUrl(new URL(request.url).origin)
 
     const service = createServiceClient()
 
