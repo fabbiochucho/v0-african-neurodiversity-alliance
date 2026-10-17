@@ -17,7 +17,7 @@ export default function NotFound() {
         />
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Looking for support near you?{" "}
-          <Link href="/directory" className="text-primary hover:underline">
+          <Link href="/directory" className="text-primary underline underline-offset-2">
             Find Support
           </Link>
         </p>

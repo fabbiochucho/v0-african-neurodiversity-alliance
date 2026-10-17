@@ -72,3 +72,10 @@ jobs:
 
       - name: Unit tests
         run: pnpm exec vitest run
+
+      - name: Accessibility checks (axe on public pages)
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          pnpm start -p 3000 &
+          for i in $(seq 1 30); do curl -sf http://localhost:3000/ >/dev/null && break; sleep 2; done
+          PLAYWRIGHT_BASE_URL=http://localhost:3000 pnpm exec playwright test tests/e2e/a11y.spec.ts

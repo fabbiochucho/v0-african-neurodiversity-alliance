@@ -283,7 +283,7 @@ export default function DirectoryPage() {
 
               {/* Country Filter */}
               <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Country">
                   <SelectValue placeholder="Select Country" />
                 </SelectTrigger>
                 <SelectContent>
@@ -297,7 +297,7 @@ export default function DirectoryPage() {
 
               {/* Type Filter */}
               <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Resource type">
                   <SelectValue placeholder="Resource Type" />
                 </SelectTrigger>
                 <SelectContent>
