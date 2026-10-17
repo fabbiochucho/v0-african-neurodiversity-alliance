@@ -5,3 +5,9 @@ allowBuilds:
   # linting. Well-known package from the same maintainers as
   # eslint-import-resolver-typescript; devDependency-only, build-time only.
   unrs-resolver: true
+# Patched versions of transitive packages flagged by `pnpm audit` (Oct 2026).
+overrides:
+  lodash@<4.17.24: ^4.17.24
+  nanoid@<3.3.16: ^3.3.16
+  source-map-js@<1.2.2: ^1.2.2
+  postcss@<8.5.12: ^8.5.12

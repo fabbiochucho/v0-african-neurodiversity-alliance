@@ -2,7 +2,7 @@
 
 > **Provider (Oct 2026):** AI runs through `lib/ai.ts`. Free Cloudflare Workers AI (`CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_AI_TOKEN`, default model Llama 3.1 8B) is used when configured; Anthropic (`ANTHROPIC_API_KEY`) only if Cloudflare is not set. The consent screen names whichever provider is active, and switching provider asks families to consent again.
 
-ANDA uses AI in two places only. Both run server-side through the official Anthropic SDK, use the model in `ANTHROPIC_MODEL` (default `claude-haiku-5-5`) with low effort, and are switched off entirely while `ANTHROPIC_API_KEY` is unset.
+ANDA uses AI in two places only. Both run server-side through `lib/ai.ts` (provider above) and are switched off entirely while no provider is configured.
 
 ## 1. Companion chat (`/companion`, `app/api/companion`)
 
@@ -26,6 +26,10 @@ ANDA uses AI in two places only. Both run server-side through the official Anthr
 - It is asked for practical, strengths-based drafts with no diagnoses, medication or clinical content. Baselines are never drafted by AI.
 - **Drafts are not the plan.** AI text is stored with `source='ai'`, shown with an "AI draft" label, and stays editable. It joins the official plan only when a person with `approve` rights approves it. Database triggers stop AI text being inserted as approved, and only `approve_plan_items()` can record an approval. Every approval saves a version.
 - Without AI, the same flow drafts goals from ANDA's existing goal-suggestion templates.
+
+## Not a companion chatbot
+
+The chat is a support tool for planning and finding help, not a companion chatbot in the sense of laws such as California SB 243: it has no persona or relationship features, it keeps no memory between sessions, it isn't offered to children (accounts are for parents, carers and professionals), and it starts every session with an "AI, not a person" notice. It still has a crisis protocol (above). If any of that changes, re-check those laws first.
 
 ## Consent for learner data
 

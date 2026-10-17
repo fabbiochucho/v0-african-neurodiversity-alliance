@@ -137,7 +137,7 @@ export default function SubscriptionSettingsPage() {
                   </Badge>
                   {subscription?.renewal_date && (
                     <span className="text-sm text-muted-foreground">
-                      Renews {new Date(subscription.renewal_date).toLocaleDateString()}
+                      Paid until {new Date(subscription.renewal_date).toLocaleDateString()}. It doesn&apos;t renew automatically.
                     </span>
                   )}
                 </div>
@@ -207,6 +207,15 @@ export default function SubscriptionSettingsPage() {
               )
             })}
           </div>
+
+          <p className="mt-6 text-sm text-muted-foreground">
+            Each payment covers one month (Institutional: one year). Nothing renews automatically and your card or
+            mobile-money details are never stored, so to continue you pay again. Refunds: see our{" "}
+            <Link href="/terms" className="underline">
+              terms
+            </Link>
+            .
+          </p>
         </div>
       </div>
     </div>
