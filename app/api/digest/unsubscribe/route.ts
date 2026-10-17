@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase/service"
-import { appUrl } from "@/lib/digest"
 
 // Token lookups must never come from Next's fetch cache.
 export const dynamic = "force-dynamic"
@@ -17,7 +16,7 @@ async function unsubscribe(request: Request): Promise<boolean> {
 // Link in the email footer.
 export async function GET(request: Request) {
   const done = await unsubscribe(request)
-  return NextResponse.redirect(`${appUrl()}/news?digest=${done ? "unsubscribed" : "invalid"}`)
+  return NextResponse.redirect(new URL(`/news?digest=${done ? "unsubscribed" : "invalid"}`, request.url))
 }
 
 // One-click unsubscribe from mail clients (List-Unsubscribe-Post, RFC 8058).
