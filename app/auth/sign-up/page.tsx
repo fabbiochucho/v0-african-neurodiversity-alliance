@@ -8,6 +8,7 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { Icons } from "@/lib/icons"
 import { Turnstile, TURNSTILE_SITE_KEY } from "@/components/turnstile"
+import { LEGAL_UPDATED } from "@/lib/legal"
 
 export default function SignUpPage() {
   const [firstName, setFirstName] = useState("")
@@ -47,6 +48,9 @@ export default function SignUpPage() {
           data: {
             first_name: firstName,
             last_name: lastName,
+            // Which version of the terms and privacy policy this person agreed to.
+            terms_version: LEGAL_UPDATED,
+            terms_accepted_at: new Date().toISOString(),
           },
           emailRedirectTo:
             process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/auth/sign-up-success`,
@@ -173,6 +177,18 @@ export default function SignUpPage() {
 
           <Turnstile key={captchaKey} onToken={setCaptchaToken} />
 
+          <p className="text-xs text-muted-foreground">
+            By selecting Create Account, you agree to our{" "}
+            <Link href="/terms" className="underline">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" className="underline">
+              Privacy Policy
+            </Link>
+            .
+          </p>
+
           <button
             type="submit"
             disabled={loading || (!!TURNSTILE_SITE_KEY && !captchaToken)}
@@ -197,10 +213,6 @@ export default function SignUpPage() {
         >
           Sign In
         </Link>
-
-        <p className="text-xs text-center text-muted-foreground">
-          By creating an account, you agree to our Terms of Service and Privacy Policy
-        </p>
       </div>
     </div>
   )

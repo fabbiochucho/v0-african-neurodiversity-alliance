@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
+import { LEGAL_CONTACT_EMAIL } from "@/lib/legal"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -36,6 +37,7 @@ import {
   ThumbsUp,
   Flag,
   Star,
+  Trash2,
 } from "lucide-react"
 
 const forumCategories = [
@@ -84,6 +86,7 @@ interface Post {
   isPinned: boolean
   createdAt: string
   authorName: string
+  mine: boolean
   likeCount: number
   likedByMe: boolean
 }
@@ -95,6 +98,7 @@ interface PostRow {
   body: string
   is_pinned: boolean
   created_at: string
+  user_id: string
   profiles: { first_name: string | null; last_name: string | null } | null
 }
 
@@ -132,7 +136,7 @@ export default function CommunityPage() {
 
     const { data } = await supabase
       .from("community_posts")
-      .select("id, category, title, body, is_pinned, created_at, profiles(first_name, last_name)")
+      .select("id, category, title, body, is_pinned, created_at, user_id, profiles(first_name, last_name)")
       .order("created_at", { ascending: false })
 
     const { data: likeRows } = await supabase.from("community_post_likes").select("post_id, user_id")
@@ -153,6 +157,7 @@ export default function CommunityPage() {
         isPinned: row.is_pinned,
         createdAt: row.created_at,
         authorName: [row.profiles?.first_name, row.profiles?.last_name].filter(Boolean).join(" ") || "Community member",
+        mine: Boolean(user && row.user_id === user.id),
         likeCount: likeCounts.get(row.id) || 0,
         likedByMe: likedByMe.has(row.id),
       })),
@@ -175,6 +180,11 @@ export default function CommunityPage() {
     } else {
       await supabase.from("community_post_likes").insert({ post_id: post.id, user_id: userId })
     }
+    load()
+  }
+
+  async function handleDeletePost(post: Post) {
+    await createClient().from("community_posts").delete().eq("id", post.id)
     load()
   }
 
@@ -428,8 +438,25 @@ export default function CommunityPage() {
                                     >
                                       <ThumbsUp className="h-4 w-4" aria-hidden="true" />
                                     </Button>
-                                    <Button size="sm" variant="ghost" aria-label="Report this post" disabled title="Coming soon">
-                                      <Flag className="h-4 w-4" aria-hidden="true" />
+                                    {post.mine && (
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        aria-label="Delete your post"
+                                        onClick={() => handleDeletePost(post)}
+                                      >
+                                        <Trash2 className="h-4 w-4" aria-hidden="true" />
+                                      </Button>
+                                    )}
+                                    <Button size="sm" variant="ghost" asChild>
+                                      <a
+                                        aria-label="Report this post"
+                                        href={`mailto:${LEGAL_CONTACT_EMAIL}?subject=${encodeURIComponent(`Report community post ${post.id}`)}&body=${encodeURIComponent(`Post: "${post.title}"
+What's wrong:
+`)}`}
+                                      >
+                                        <Flag className="h-4 w-4" aria-hidden="true" />
+                                      </a>
                                     </Button>
                                   </div>
                                 </div>

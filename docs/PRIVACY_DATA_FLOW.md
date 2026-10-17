@@ -18,10 +18,12 @@ ANDA is designed to support applicable data-protection requirements. This docume
 
 | To | What | When |
 |---|---|---|
-| Anthropic | Chat messages; with consent, a learner's first name, active goals, 30-day summary and support profile text (plan drafting) | Only when a Pro user uses AI chat or AI drafting (see `AI_BEHAVIOUR.md`) |
+| Cloudflare Workers AI (or Anthropic, only if Cloudflare isn't configured) | Chat messages; with consent, a learner's first name, active goals, 30-day summary and support profile text (plan drafting) | Only when a Pro user uses AI chat or AI drafting (see `AI_BEHAVIOUR.md`) |
 | NeuRafiki | A signed request naming the linked user; ANDA's plan description (`GET /api/federation/entitlements`) | Only for linked accounts |
 | Resend | Recipient email, report text, invite links | When someone emails a report or invites a team member |
 | Flutterwave / Paystack | Email and payment details for checkout | When someone subscribes or donates |
+| Cloudflare Turnstile | Browser signals for the bot check | On sign-up and sign-in |
+| Vercel Analytics | Page path only (query strings and record ids are removed in `components/analytics.tsx`), no cookies | Every page view |
 
 ## What comes into ANDA from NeuRafiki
 
@@ -42,7 +44,7 @@ ANDA is designed to support applicable data-protection requirements. This docume
   - support-team access (both granted and received)
   - the NeuRafiki link
 - See the audit log of who viewed, exported or changed a learner's records. Entries are written only by the server and can't be edited by users.
-- Export data as CSV or JSON (Institutional plan; owner's own learners only).
+- Export data: JSON on every plan, CSV from Pro, team export on Institutional.
 - **Delete the account:**
   - A confirm step: retype your email.
   - The server deletes Storage files, learners and everything under them, consents, team memberships, and then the login.

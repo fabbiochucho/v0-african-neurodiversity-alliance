@@ -1,4 +1,5 @@
 import { Resend } from "resend"
+import { COPYRIGHT_HOLDER, LEGAL_POSTAL_ADDRESS } from "@/lib/legal"
 
 export const DIGEST_FROM = process.env.RESEND_FROM_EMAIL || "ANDA <noreply@anda.becomechange.institute>"
 
@@ -56,6 +57,7 @@ ${section(
 )}
 <p style="margin:32px 0 0;font-size:14px"><a href="${base}/news" style="color:#2A7A69">See all news and research on ANDA</a></p>
 <p style="margin:24px 0 0;font-size:12px;color:#5b6b67">News headlines link to the original publishers, including allAfrica.com. You're getting this because you subscribed on ${escapeHtml(base.replace(/^https?:\/\//, ""))}. <a href="${escapeHtml(unsubscribeUrl)}" style="color:#5b6b67">Unsubscribe</a>.</p>
+<p style="margin:8px 0 0;font-size:12px;color:#5b6b67">${COPYRIGHT_HOLDER}, ${LEGAL_POSTAL_ADDRESS}</p>
 </div></body></html>`
 }
 

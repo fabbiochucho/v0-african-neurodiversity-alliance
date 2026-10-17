@@ -103,6 +103,9 @@ export function SiteFooter() {
             <Link href="/guidelines" className="text-muted-foreground hover:text-foreground hover:underline">
               Community guidelines
             </Link>
+            <Link href="/accessibility" className="text-muted-foreground hover:text-foreground hover:underline">
+              Accessibility statement
+            </Link>
             <Link href="/settings/accessibility" className="text-muted-foreground hover:text-foreground hover:underline">
               Accessibility settings
             </Link>
