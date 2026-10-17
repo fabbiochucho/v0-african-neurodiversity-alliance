@@ -214,7 +214,7 @@ export default function LearningPage() {
               />
             </div>
             <Select value={selectedFormat} onValueChange={setSelectedFormat}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[180px]" aria-label="Format">
                 <SelectValue placeholder="Format" />
               </SelectTrigger>
               <SelectContent>

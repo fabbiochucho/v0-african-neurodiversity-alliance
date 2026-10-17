@@ -274,7 +274,7 @@ export default function AppsToolsPage() {
             </div>
             <div className="flex gap-2">
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-[160px]">
+                <SelectTrigger className="w-[160px]" aria-label="Category">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -287,7 +287,7 @@ export default function AppsToolsPage() {
                 </SelectContent>
               </Select>
               <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
-                <SelectTrigger className="w-[120px]">
+                <SelectTrigger className="w-[120px]" aria-label="Platform">
                   <SelectValue placeholder="Platform" />
                 </SelectTrigger>
                 <SelectContent>
