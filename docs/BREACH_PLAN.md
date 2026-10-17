@@ -6,7 +6,7 @@ One page for the day something goes wrong. It covers ANDA and NeuRafiki.
 
 - **Lead:** Abiola Oshunniyi, Data Protection Officer (dpo@becomechange.institute, +2348188466444). Decides whether it's a breach and who must be told.
 - **Technical:** whoever holds the Supabase and Vercel access contains it, keeps evidence, and writes the timeline.
-- **Lawyer:** _name and number to be filled in by the owner._
+- **Legal contact:** Abiola Oshunniyi, anda@becomechange.institute. Call on day one to confirm deadlines and who must be told.
 
 ## First hour
 
