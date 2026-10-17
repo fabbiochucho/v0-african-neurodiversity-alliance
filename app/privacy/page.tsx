@@ -139,6 +139,9 @@ export default function PrivacyPage() {
                   <strong>Resend:</strong> sending emails.
                 </li>
                 <li>
+                  <strong>WhoGoHost (Go54):</strong> our email mailboxes, which receive the messages and requests you send us.
+                </li>
+                <li>
                   <strong>Cloudflare:</strong> AI features, only as described above, and the Turnstile security
                   check on sign-up and sign-in.
                 </li>
