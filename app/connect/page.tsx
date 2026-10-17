@@ -27,7 +27,8 @@ function ConnectErrorCard({ message }: { message: string }) {
 // Receives a /connect?token=... redirect from Neu Rafiki when a user there
 // clicks "Connect to Alliance". Verifies the token was really signed by Neu
 // Rafiki, then shows a consent screen before creating the linked_accounts row.
-export default async function ConnectPage({ searchParams }: { searchParams: { token?: string } }) {
+export default async function ConnectPage(props: { searchParams: Promise<{ token?: string }> }) {
+  const searchParams = await props.searchParams;
   const token = searchParams.token
 
   if (!token) {

@@ -7,7 +7,8 @@ export function generateStaticParams() {
   return PATHWAYS.map((p) => ({ who: p.slug }))
 }
 
-export default function PathwayPage({ params }: { params: { who: string } }) {
+export default async function PathwayPage(props: { params: Promise<{ who: string }> }) {
+  const params = await props.params;
   const pathway = findPathway(params.who)
   if (!pathway) notFound()
 

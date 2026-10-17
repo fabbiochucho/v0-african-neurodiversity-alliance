@@ -2,7 +2,8 @@ import { createClient } from "@/lib/supabase/server"
 import { dbErrorResponse } from "@/lib/api-error"
 import { NextResponse } from "next/server"
 
-export async function GET(request: Request, { params }: { params: { goalId: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ goalId: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient()
 

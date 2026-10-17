@@ -39,14 +39,16 @@ export const metadata: Metadata = {
   generator: "v0.app",
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default async function RootLayout(
+  {
+    children,
+  }: Readonly<{
+    children: React.ReactNode
+  }>
+) {
   // Per-request CSP nonce from middleware.ts. Reading headers() also makes
   // every page render per request, which nonces require.
-  const nonce = headers().get("x-nonce") ?? undefined
+  const nonce = (await headers()).get("x-nonce") ?? undefined
   return (
     <html lang="en" className={`${fraunces.variable} ${sourceSans.variable}`} suppressHydrationWarning>
       <head>

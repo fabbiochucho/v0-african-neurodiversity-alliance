@@ -15,7 +15,8 @@ import type { LearnerProfile } from "@/lib/types/iep"
 // "Prepare for review" (brief §14): one printable pack of the person's
 // profile, current goals with progress, recent records and what's next,
 // to take into a school or professional review meeting.
-export default async function ReviewPackPage({ params }: { params: { learnerId: string } }) {
+export default async function ReviewPackPage(props: { params: Promise<{ learnerId: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const {
     data: { user },

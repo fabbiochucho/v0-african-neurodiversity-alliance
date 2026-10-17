@@ -6,7 +6,8 @@ import { logAudit } from "@/lib/audit"
 
 // PATCH /api/learners/[id]/settings { country, region, language, education_context }
 // Owner only (learner_profiles_update_own). Terminology only; no legal meaning.
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const {
     data: { user },

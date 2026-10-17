@@ -3,7 +3,8 @@ import { dbErrorResponse } from "@/lib/api-error"
 import { NextResponse } from "next/server"
 import { snapshotFromGoals } from "@/lib/journey"
 
-export async function POST(request: Request, { params }: { params: { learnerId: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ learnerId: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient()
 
@@ -74,7 +75,8 @@ export async function POST(request: Request, { params }: { params: { learnerId: 
   }
 }
 
-export async function GET(request: Request, { params }: { params: { learnerId: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ learnerId: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient()
 

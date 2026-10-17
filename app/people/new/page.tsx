@@ -4,7 +4,8 @@ import { Navigation } from "@/components/navigation"
 import { SupportProfileForm } from "@/components/support-profile-form"
 
 // Brief §7: start in ANDA without a NeuRafiki assessment.
-export default async function NewSupportProfilePage({ searchParams }: { searchParams: { then?: string } }) {
+export default async function NewSupportProfilePage(props: { searchParams: Promise<{ then?: string }> }) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const {
     data: { user },

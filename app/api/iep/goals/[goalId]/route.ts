@@ -3,7 +3,8 @@ import { dbErrorResponse } from "@/lib/api-error"
 import { NextResponse } from "next/server"
 import { logAudit, learnerIdForGoal } from "@/lib/audit"
 
-export async function PUT(request: Request, { params }: { params: { goalId: string } }) {
+export async function PUT(request: Request, props: { params: Promise<{ goalId: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient()
 
@@ -57,7 +58,8 @@ export async function PUT(request: Request, { params }: { params: { goalId: stri
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { goalId: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ goalId: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient()
 

@@ -23,7 +23,8 @@ function formatDate(d: string | null) {
   return d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : ""
 }
 
-export default async function ResearchLibraryPage({ searchParams }: { searchParams: Params }) {
+export default async function ResearchLibraryPage(props: { searchParams: Promise<Params> }) {
+  const searchParams = await props.searchParams;
   const supabase = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
 
   const thisYear = new Date().getUTCFullYear()
