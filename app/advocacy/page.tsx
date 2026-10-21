@@ -1,4 +1,5 @@
 import { Navigation } from "@/components/navigation"
+import { ANDA_CONTACT_EMAIL, contactHref } from "@/lib/legal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -117,6 +118,13 @@ const advocacyResources: Array<{
   category: string
 }> = []
 
+const CAMPAIGN_TEMPLATE = `Campaign idea:
+Country or region:
+Who it would help:
+What change you want (policy, school, service):
+How ANDA could help:
+`
+
 export default function AdvocacyPage() {
   return (
     <div className="min-h-screen bg-background">
@@ -137,8 +145,8 @@ export default function AdvocacyPage() {
               neurodivergent individuals across all 54 African countries.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent" disabled title="Coming soon">
-                Start Your Own Campaign
+              <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent" asChild>
+                <a href={contactHref("Campaign proposal", CAMPAIGN_TEMPLATE)}>Start Your Own Campaign</a>
               </Button>
             </div>
           </div>
@@ -506,10 +514,13 @@ export default function AdvocacyPage() {
             fight for neurodiversity rights.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-6" disabled title="Coming soon">
-              Start Advocating Today
+            <Button size="lg" variant="secondary" className="text-lg px-8 py-6" asChild>
+              <a href={contactHref("I want to advocate with ANDA", `Where I am:
+How I'd like to help:
+`)}>Start Advocating Today</a>
             </Button>
           </div>
+          <p className="mt-4 text-sm opacity-90">These buttons open an email to {ANDA_CONTACT_EMAIL}.</p>
         </div>
       </section>
     </div>

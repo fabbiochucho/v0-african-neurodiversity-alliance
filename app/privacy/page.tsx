@@ -49,7 +49,7 @@ export default function PrivacyPage() {
                   details are handled by our payment providers and never reach us.
                 </li>
                 <li>
-                  <strong>Things you share publicly:</strong> community posts, resource suggestions and ratings.
+                  <strong>Things you share publicly:</strong> community posts and replies (shown with your name), resource suggestions and ratings. Posts you save are visible only to you.
                 </li>
                 <li>
                   <strong>Activity records:</strong> a log of who viewed, changed or exported a person&apos;s records,
@@ -82,7 +82,7 @@ export default function PrivacyPage() {
             <ul>
               <li>To run your account, plans, progress tracking, reports and support team.</li>
               <li>To take payments and manage your plan.</li>
-              <li>To send the emails you ask for: reports, team invitations and, if you subscribe, the weekly digest.</li>
+              <li>To send the emails you ask for: reports, team invitations and, if you subscribe, the weekly digest. We also send one welcome email when you join, and a check-in reminder at most once a week if you support someone and haven&apos;t logged a check-in for 7 days. Every reminder has a link to stop them, and you can turn them off or back on in your account under Privacy and your data.</li>
               <li>To keep the service secure and fix problems.</li>
             </ul>
           ),

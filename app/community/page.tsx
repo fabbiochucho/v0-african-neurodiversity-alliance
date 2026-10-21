@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
+import { CommunityReplies } from "@/components/community-replies"
 import { LEGAL_CONTACT_EMAIL } from "@/lib/legal"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
@@ -38,6 +39,7 @@ import {
   Flag,
   Star,
   Trash2,
+  Bookmark,
 } from "lucide-react"
 
 const forumCategories = [
@@ -89,6 +91,8 @@ interface Post {
   mine: boolean
   likeCount: number
   likedByMe: boolean
+  replyCount: number
+  savedByMe: boolean
 }
 
 interface PostRow {
@@ -119,6 +123,9 @@ export default function CommunityPage() {
   const [userId, setUserId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("categories")
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [search, setSearch] = useState("")
+  const [savedOnly, setSavedOnly] = useState(false)
+  const [openReplies, setOpenReplies] = useState<string | null>(null)
 
   const [postOpen, setPostOpen] = useState(false)
   const [postCategory, setPostCategory] = useState(forumCategories[0].id)
@@ -141,6 +148,15 @@ export default function CommunityPage() {
       .order("created_at", { ascending: false })
 
     const { data: likeRows } = await supabase.from("community_post_likes").select("post_id, user_id")
+    // ponytail: counts are tallied in the browser from every row; move to a count view once posts number in the thousands.
+    const { data: replyRows } = await supabase.from("community_replies").select("post_id")
+    const { data: savedRows } = user
+      ? await supabase.from("community_saved_posts").select("post_id")
+      : { data: [] as { post_id: string }[] }
+
+    const replyCounts = new Map<string, number>()
+    for (const row of replyRows || []) replyCounts.set(row.post_id, (replyCounts.get(row.post_id) || 0) + 1)
+    const saved = new Set((savedRows || []).map((r) => r.post_id))
 
     const likeCounts = new Map<string, number>()
     const likedByMe = new Set<string>()
@@ -161,6 +177,8 @@ export default function CommunityPage() {
         mine: Boolean(user && row.user_id === user.id),
         likeCount: likeCounts.get(row.id) || 0,
         likedByMe: likedByMe.has(row.id),
+        replyCount: replyCounts.get(row.id) || 0,
+        savedByMe: saved.has(row.id),
       })),
     )
     setLoading(false)
@@ -180,6 +198,20 @@ export default function CommunityPage() {
       await supabase.from("community_post_likes").delete().eq("post_id", post.id).eq("user_id", userId)
     } else {
       await supabase.from("community_post_likes").insert({ post_id: post.id, user_id: userId })
+    }
+    load()
+  }
+
+  async function handleToggleSave(post: Post) {
+    if (!userId) {
+      window.location.href = "/auth/login"
+      return
+    }
+    const supabase = createClient()
+    if (post.savedByMe) {
+      await supabase.from("community_saved_posts").delete().eq("post_id", post.id).eq("user_id", userId)
+    } else {
+      await supabase.from("community_saved_posts").insert({ post_id: post.id, user_id: userId })
     }
     load()
   }
@@ -242,7 +274,20 @@ export default function CommunityPage() {
       posts: count,
     }))
 
-  const visiblePosts = activeCategory ? posts.filter((p) => p.category === activeCategory) : posts
+  const query = search.trim().toLowerCase()
+  const visiblePosts = posts.filter(
+    (p) =>
+      (!activeCategory || p.category === activeCategory) &&
+      (!savedOnly || p.savedByMe) &&
+      (!query || p.title.toLowerCase().includes(query) || p.body.toLowerCase().includes(query)),
+  )
+  const filterLabel = [
+    activeCategory && forumCategories.find((c) => c.id === activeCategory)?.name,
+    savedOnly && "your saved posts",
+    query && `posts matching "${search.trim()}"`,
+  ]
+    .filter(Boolean)
+    .join(", ")
 
   return (
     <div className="min-h-screen bg-background">
@@ -310,7 +355,17 @@ export default function CommunityPage() {
                   <div className="flex gap-2 w-full sm:w-auto">
                     <div className="relative flex-1 sm:flex-none">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="Search discussions..." className="pl-10 sm:w-64" disabled title="Coming soon" />
+                      <Input
+                        type="search"
+                        aria-label="Search discussions"
+                        placeholder="Search discussions..."
+                        className="pl-10 sm:w-64"
+                        value={search}
+                        onChange={(e) => {
+                          setSearch(e.target.value)
+                          if (e.target.value) setActiveTab("recent")
+                        }}
+                      />
                     </div>
                     <Button onClick={() => openNewPost()}>
                       <Plus className="h-4 w-4 mr-2" />
@@ -363,12 +418,20 @@ export default function CommunityPage() {
 
                 {/* Recent Posts Tab */}
                 <TabsContent value="recent" className="space-y-4">
-                  {activeCategory && (
+                  {filterLabel && (
                     <div className="flex items-center justify-between">
-                      <p className="text-sm text-muted-foreground">
-                        Showing <span className="font-medium text-foreground">{forumCategories.find((c) => c.id === activeCategory)?.name}</span>
+                      <p className="text-sm text-muted-foreground" aria-live="polite">
+                        Showing <span className="font-medium text-foreground">{filterLabel}</span> ({visiblePosts.length})
                       </p>
-                      <Button variant="ghost" size="sm" onClick={() => setActiveCategory(null)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setActiveCategory(null)
+                          setSavedOnly(false)
+                          setSearch("")
+                        }}
+                      >
                         Clear filter
                       </Button>
                     </div>
@@ -378,8 +441,14 @@ export default function CommunityPage() {
                   ) : visiblePosts.length === 0 ? (
                     <div className="text-center py-12 text-muted-foreground">
                       <MessageCircle className="h-10 w-10 mx-auto mb-4 opacity-50" />
-                      <p className="font-medium mb-1">No discussions yet</p>
-                      <p className="text-sm">Be the first to start a conversation in this community.</p>
+                      {filterLabel ? (
+                        <p className="font-medium mb-1">No posts match.</p>
+                      ) : (
+                        <>
+                          <p className="font-medium mb-1">No discussions yet</p>
+                          <p className="text-sm">Be the first to start a conversation in this community.</p>
+                        </>
+                      )}
                     </div>
                   ) : (
                     visiblePosts.map((post) => {
@@ -417,14 +486,25 @@ export default function CommunityPage() {
                                   <span className="text-sm font-medium">{post.authorName}</span>
                                 </div>
 
-                                <p className="text-sm text-muted-foreground mb-3 line-clamp-3">{post.body}</p>
+                                <p
+                                  className={`text-sm text-muted-foreground mb-3 whitespace-pre-wrap ${openReplies === post.id ? "" : "line-clamp-3"}`}
+                                >
+                                  {post.body}
+                                </p>
 
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                    <div className="flex items-center gap-1" title="Threaded replies coming soon">
-                                      <MessageSquare className="h-4 w-4" />
-                                      0
-                                    </div>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="gap-1 px-2"
+                                      aria-expanded={openReplies === post.id}
+                                      aria-label={`${post.replyCount} ${post.replyCount === 1 ? "reply" : "replies"}. ${openReplies === post.id ? "Hide" : "Show"} replies`}
+                                      onClick={() => setOpenReplies(openReplies === post.id ? null : post.id)}
+                                    >
+                                      <MessageSquare className="h-4 w-4" aria-hidden="true" />
+                                      {post.replyCount}
+                                    </Button>
                                     <div className="flex items-center gap-1">
                                       <ThumbsUp className="h-4 w-4" />
                                       {post.likeCount}
@@ -438,6 +518,15 @@ export default function CommunityPage() {
                                       onClick={() => handleToggleLike(post)}
                                     >
                                       <ThumbsUp className="h-4 w-4" aria-hidden="true" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant={post.savedByMe ? "default" : "ghost"}
+                                      aria-label={post.savedByMe ? "Remove from saved posts" : "Save this post"}
+                                      aria-pressed={post.savedByMe}
+                                      onClick={() => handleToggleSave(post)}
+                                    >
+                                      <Bookmark className="h-4 w-4" aria-hidden="true" />
                                     </Button>
                                     {post.mine && (
                                       <Button
@@ -461,6 +550,9 @@ What's wrong:
                                     </Button>
                                   </div>
                                 </div>
+                                {openReplies === post.id && (
+                                  <CommunityReplies postId={post.id} userId={userId} onChange={load} />
+                                )}
                               </div>
                             </div>
                           </CardContent>
@@ -542,20 +634,16 @@ What's wrong:
                     variant="outline"
                     size="sm"
                     className="w-full justify-start bg-transparent"
-                    disabled
-                    title="Coming soon"
+                    onClick={() => {
+                      if (!userId) {
+                        window.location.href = "/auth/login"
+                        return
+                      }
+                      setSavedOnly(true)
+                      setActiveTab("recent")
+                    }}
                   >
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Private Messages
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start bg-transparent"
-                    disabled
-                    title="Coming soon"
-                  >
-                    <Heart className="h-4 w-4 mr-2" />
+                    <Bookmark className="h-4 w-4 mr-2" aria-hidden="true" />
                     My Saved Posts
                   </Button>
                 </CardContent>
