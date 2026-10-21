@@ -8,6 +8,7 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { Icons } from "@/lib/icons"
 import { Turnstile, TURNSTILE_SITE_KEY } from "@/components/turnstile"
+import { useT } from "@/components/language-provider"
 import { LEGAL_UPDATED } from "@/lib/legal"
 
 export default function SignUpPage() {
@@ -22,18 +23,19 @@ export default function SignUpPage() {
   const [captchaKey, setCaptchaKey] = useState(0)
   const router = useRouter()
   const supabase = createClient()
+  const tr = useT()
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match")
+      setError(tr("auth.passwordsDontMatch"))
       return
     }
 
     if (password.length < 12 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password) || !/[!@#$%^&*()_+\-=[\]{};'\:"|<>?,./`~]/.test(password)) {
-      setError("Password must be at least 12 characters, with an uppercase letter, a lowercase letter, a number and a symbol")
+      setError(tr("auth.passwordTooWeak"))
       return
     }
 
@@ -67,7 +69,7 @@ export default function SignUpPage() {
 
       router.push("/auth/sign-up-success")
     } catch (err) {
-      setError("An error occurred. Please try again.")
+      setError(tr("auth.genericError"))
       setLoading(false)
     }
   }
@@ -81,8 +83,8 @@ export default function SignUpPage() {
               ANDA
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Join ANDA</h1>
-          <p className="text-muted-foreground">Create your account to get started</p>
+          <h1 className="text-3xl font-bold text-foreground">{tr("auth.join")}</h1>
+          <p className="text-muted-foreground">{tr("auth.joinIntro")}</p>
         </div>
 
         <form onSubmit={handleSignUp} className="space-y-4">
@@ -96,7 +98,7 @@ export default function SignUpPage() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label htmlFor="firstName" className="text-sm font-medium text-foreground">
-                First Name
+                {tr("auth.firstName")}
               </label>
               <input
                 id="firstName"
@@ -110,7 +112,7 @@ export default function SignUpPage() {
             </div>
             <div className="space-y-2">
               <label htmlFor="lastName" className="text-sm font-medium text-foreground">
-                Last Name
+                {tr("auth.lastName")}
               </label>
               <input
                 id="lastName"
@@ -126,7 +128,7 @@ export default function SignUpPage() {
 
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium text-foreground">
-              Email Address
+              {tr("auth.email")}
             </label>
             <input
               id="email"
@@ -141,7 +143,7 @@ export default function SignUpPage() {
 
           <div className="space-y-2">
             <label htmlFor="password" className="text-sm font-medium text-foreground">
-              Password
+              {tr("auth.password")}
             </label>
             <input
               id="password"
@@ -156,13 +158,13 @@ export default function SignUpPage() {
               className="w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
             <p id="password-hint" className="text-xs text-muted-foreground">
-              At least 12 characters, with an uppercase letter, a lowercase letter, a number and a symbol such as ! or #
+              {tr("auth.passwordHint")}
             </p>
           </div>
 
           <div className="space-y-2">
             <label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">
-              Confirm Password
+              {tr("auth.confirmPassword")}
             </label>
             <input
               id="confirmPassword"
@@ -178,13 +180,13 @@ export default function SignUpPage() {
           <Turnstile key={captchaKey} onToken={setCaptchaToken} />
 
           <p className="text-xs text-muted-foreground">
-            By selecting Create Account, you confirm you&apos;re 18 or older and agree to our{" "}
+            {tr("auth.agreeStart")}{" "}
             <Link href="/terms" className="underline">
-              Terms of Service
+              {tr("auth.agreeTerms")}
             </Link>{" "}
-            and{" "}
+            {tr("auth.agreeAnd")}{" "}
             <Link href="/privacy" className="underline">
-              Privacy Policy
+              {tr("auth.agreePrivacy")}
             </Link>
             .
           </p>
@@ -194,7 +196,7 @@ export default function SignUpPage() {
             disabled={loading || (!!TURNSTILE_SITE_KEY && !captchaToken)}
             className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 transition"
           >
-            {loading ? "Creating Account..." : "Create Account"}
+            {loading ? tr("auth.creatingAccount") : tr("auth.createAccount")}
           </button>
         </form>
 
@@ -203,7 +205,7 @@ export default function SignUpPage() {
             <div className="w-full border-t border-input"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-background text-muted-foreground">Already have an account?</span>
+            <span className="px-2 bg-background text-muted-foreground">{tr("auth.haveAccount")}</span>
           </div>
         </div>
 
@@ -211,7 +213,7 @@ export default function SignUpPage() {
           href="/auth/login"
           className="block w-full text-center py-2 px-4 border border-primary text-primary rounded-lg font-medium hover:bg-primary/5 transition"
         >
-          Sign In
+          {tr("auth.signIn")}
         </Link>
       </div>
     </div>
