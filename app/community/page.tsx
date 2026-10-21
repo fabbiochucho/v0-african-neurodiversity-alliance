@@ -150,7 +150,8 @@ export default function CommunityPage() {
 
     const { data } = await supabase
       .from("community_posts")
-      .select("id, category, title, body, is_pinned, created_at, user_id, profiles(first_name, last_name)")
+      // The !user_id hint picks the author FK: likes also link posts to profiles, which makes a bare profiles(...) ambiguous.
+      .select("id, category, title, body, is_pinned, created_at, user_id, profiles!user_id(first_name, last_name)")
       .order("created_at", { ascending: false })
 
     const { data: likeRows } = await supabase.from("community_post_likes").select("post_id, user_id")
