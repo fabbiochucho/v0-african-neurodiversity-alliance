@@ -16,13 +16,15 @@ export default async function PrivacyPage() {
   } = await supabase.auth.getUser()
   if (!user) redirect("/auth/login?redirectTo=/account/privacy")
 
-  const [{ data: learners }, { data: consents }, { data: team }, { data: links }, { data: audit }] = await Promise.all([
+  const [{ data: learners }, { data: consents }, { data: team }, { data: links }, { data: audit }, { data: emailRow }] = await Promise.all([
     supabase.from("learner_profiles").select("id, name").eq("user_id", user.id),
     supabase.from("ai_learner_consent_events").select("learner_id, action, consent_version, created_at").eq("user_id", user.id),
     supabase.from("support_team_members").select("id, learner_id, learner_name, invited_email, role, status, owner_id, member_user_id"),
     supabase.from("linked_accounts").select("id, remote_app, remote_email, scopes, created_at").eq("status", "active"),
     supabase.from("audit_log").select("id, actor_id, learner_id, action, resource, created_at").order("created_at", { ascending: false }).limit(50),
+    supabase.from("email_lifecycle").select("reminders_off_at").eq("user_id", user.id).maybeSingle(),
   ])
+  const remindersOn = !emailRow?.reminders_off_at
 
   const names = new Map((learners ?? []).map((l) => [l.id, l.name]))
   const aiConsents = (learners ?? [])
@@ -121,6 +123,25 @@ export default async function PrivacyPage() {
                 </div>
               ))
             )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Emails</CardTitle>
+            <CardDescription>
+              A check-in reminder, at most once a week, when you support someone and haven&apos;t logged a check-in for 7
+              days.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap items-center justify-between gap-2 text-sm">
+            <span>Check-in reminders are {remindersOn ? "on" : "off"}.</span>
+            <WithdrawButton
+              label={remindersOn ? "Turn off" : "Turn on"}
+              url="/api/email/reminders"
+              method="PUT"
+              body={{ on: !remindersOn }}
+            />
           </CardContent>
         </Card>
 
