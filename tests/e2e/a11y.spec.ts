@@ -16,15 +16,20 @@ for (const path of PAGES) {
   })
 }
 
-// The home page in French and Portuguese: right <html lang>, translated text,
-// and still no serious violations.
-for (const [lang, heading] of [
-  ["fr", "Comprendre chaque esprit."],
-  ["pt", "Compreender cada mente."],
+// Translated pages: right <html lang>, translated heading, and still no serious violations.
+for (const [lang, path, heading] of [
+  ["fr", "/", "Comprendre chaque esprit."],
+  ["pt", "/", "Compreender cada mente."],
+  ["fr", "/directory", "Annuaire de soutien"],
+  ["pt", "/community", "Ligar, partilhar e"],
+  ["fr", "/about", "À propos de l'Alliance africaine pour la neurodiversité"],
+  ["pt", "/donate", "Apoie a nossa missão"],
+  ["fr", "/auth/sign-up", "Rejoindre ANDA"],
+  ["pt", "/pathways/family", "Sou pai, mãe ou cuidador"],
 ] as const) {
-  test(`accessibility and language: / in ${lang}`, async ({ page, context, baseURL }) => {
+  test(`accessibility and language: ${path} in ${lang}`, async ({ page, context, baseURL }) => {
     await context.addCookies([{ name: "anda-lang", value: lang, url: baseURL ?? "http://localhost:3000" }])
-    await page.goto("/", { waitUntil: "networkidle" })
+    await page.goto(path, { waitUntil: "networkidle" })
     await expect(page.locator("html")).toHaveAttribute("lang", lang)
     await expect(page.getByRole("heading", { level: 1 })).toContainText(heading)
     const { violations } = await new AxeBuilder({ page })
