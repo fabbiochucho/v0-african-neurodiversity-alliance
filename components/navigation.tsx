@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button"
 import { AndaLogo } from "@/components/anda-logo"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Icons } from "@/lib/icons"
+import { DraftTranslationNotice, LanguagePicker, useT } from "@/components/language-provider"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
+  const tr = useT()
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-background">
@@ -24,66 +26,67 @@ export function Navigation() {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex flex-wrap items-center justify-center gap-x-6 gap-y-1">
             <Link href="/about" className="text-foreground hover:text-primary transition-colors">
-              About
+              {tr("nav.about")}
             </Link>
 
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center text-foreground hover:text-primary transition-colors">
-                Resources <Icons.ChevronDown className="ml-1 h-4 w-4" aria-hidden="true" />
+                {tr("nav.resources")} <Icons.ChevronDown className="ml-1 h-4 w-4" aria-hidden="true" />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem asChild>
-                  <Link href="/self-test">Self-Test Tool</Link>
+                  <Link href="/self-test">{tr("nav.selfTest")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/iep">IEP Generator</Link>
+                  <Link href="/iep">{tr("nav.iep")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/directory">Find Support</Link>
+                  <Link href="/directory">{tr("nav.findSupport")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/apps-tools">Apps & Tools</Link>
+                  <Link href="/apps-tools">{tr("nav.appsTools")}</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
             <Link href="/learning" className="text-foreground hover:text-primary transition-colors">
-              Learning
+              {tr("nav.learning")}
             </Link>
 
             <Link href="/community" className="text-foreground hover:text-primary transition-colors">
-              Community
+              {tr("nav.community")}
             </Link>
 
             <Link href="/advocacy" className="text-foreground hover:text-primary transition-colors">
-              Advocacy
+              {tr("nav.advocacy")}
             </Link>
 
             <Link href="/research" className="text-foreground hover:text-primary transition-colors">
-              Research
+              {tr("nav.research")}
             </Link>
 
             <Link href="/news" className="text-foreground hover:text-primary transition-colors">
-              News
+              {tr("nav.news")}
             </Link>
           </div>
 
           {/* Desktop CTA Buttons */}
           <div className="hidden lg:flex shrink-0 items-center gap-3">
+            <LanguagePicker id="site-language" />
             <ThemeToggle />
             <Link
               href="/settings/accessibility"
-              aria-label="Display and sensory settings"
-              title="Display and sensory settings"
+              aria-label={tr("nav.displaySettings")}
+              title={tr("nav.displaySettings")}
               className="rounded-md border px-2 py-1 text-sm font-semibold hover:bg-accent"
             >
               Aa
             </Link>
             <Button variant="outline" asChild>
-              <Link href="/auth/login">Sign In</Link>
+              <Link href="/auth/login">{tr("nav.signIn")}</Link>
             </Button>
             <Button asChild className="bg-terracotta text-terracotta-foreground hover:bg-terracotta/90">
-              <Link href="/donate">Donate</Link>
+              <Link href="/donate">{tr("nav.donate")}</Link>
             </Button>
           </div>
 
@@ -93,7 +96,7 @@ export function Navigation() {
               variant="ghost"
               size="sm"
               onClick={() => setIsOpen(!isOpen)}
-              aria-label={isOpen ? "Close menu" : "Open menu"}
+              aria-label={isOpen ? tr("nav.closeMenu") : tr("nav.openMenu")}
               aria-expanded={isOpen}
               aria-controls="mobile-nav-menu"
             >
@@ -115,74 +118,75 @@ export function Navigation() {
                 className="block px-3 py-2 text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                About
+                {tr("nav.about")}
               </Link>
               <Link
                 href="/self-test"
                 className="block px-3 py-2 text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Self-Test Tool
+                {tr("nav.selfTest")}
               </Link>
               <Link
                 href="/iep"
                 className="block px-3 py-2 text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                IEP Generator
+                {tr("nav.iep")}
               </Link>
               <Link
                 href="/directory"
                 className="block px-3 py-2 text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Find Support
+                {tr("nav.findSupport")}
               </Link>
               <Link
                 href="/learning"
                 className="block px-3 py-2 text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Learning
+                {tr("nav.learning")}
               </Link>
               <Link
                 href="/community"
                 className="block px-3 py-2 text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Community
+                {tr("nav.community")}
               </Link>
               <Link
                 href="/advocacy"
                 className="block px-3 py-2 text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Advocacy
+                {tr("nav.advocacy")}
               </Link>
               <Link
                 href="/research"
                 className="block px-3 py-2 text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Research
+                {tr("nav.research")}
               </Link>
               <Link
                 href="/news"
                 className="block px-3 py-2 text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                News
+                {tr("nav.news")}
               </Link>
               <div className="flex flex-col space-y-2 px-3 py-2">
+                <LanguagePicker id="site-language-mobile" />
                 <ThemeToggle />
                 <Link href="/settings/accessibility" className="text-sm hover:underline" onClick={() => setIsOpen(false)}>
-                  Display settings
+                  {tr("nav.displaySettingsShort")}
                 </Link>
                 <Button variant="outline" asChild>
-                  <Link href="/auth/login">Sign In</Link>
+                  <Link href="/auth/login">{tr("nav.signIn")}</Link>
                 </Button>
                 <Button asChild className="bg-terracotta text-terracotta-foreground hover:bg-terracotta/90">
-                  <Link href="/donate">Donate</Link>
+                  <Link href="/donate">{tr("nav.donate")}</Link>
                 </Button>
               </div>
             </div>
@@ -190,6 +194,7 @@ export function Navigation() {
         )}
       </div>
       <KenteStrip height={6} />
+      <DraftTranslationNotice />
     </nav>
   )
 }

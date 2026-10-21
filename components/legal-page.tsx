@@ -1,4 +1,5 @@
 import { Navigation } from "@/components/navigation"
+import { EnglishOnlyNote } from "@/components/language-provider"
 import { LEGAL_UPDATED } from "@/lib/legal"
 
 // Reading layout for the privacy policy and terms: one column at a
@@ -15,7 +16,8 @@ export function LegalPage({
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+      <EnglishOnlyNote />
+      <main lang="en" className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <article className="mx-auto max-w-3xl">
           <h1 className="text-4xl sm:text-5xl font-semibold text-balance">{title}</h1>
           <p className="mt-3 text-sm text-muted-foreground">Last updated {LEGAL_UPDATED}</p>

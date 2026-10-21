@@ -1,4 +1,6 @@
 import { Navigation } from "@/components/navigation"
+import { t, type MessageKey } from "@/lib/i18n"
+import { getSiteLanguage } from "@/lib/i18n/server"
 import { ANDA_CONTACT_EMAIL, contactHref } from "@/lib/legal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -125,7 +127,9 @@ What change you want (policy, school, service):
 How ANDA could help:
 `
 
-export default function AdvocacyPage() {
+export default async function AdvocacyPage() {
+  const lang = await getSiteLanguage()
+  const tr = (key: MessageKey, vars?: Record<string, string | number>) => t(key, vars, lang)
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -135,18 +139,17 @@ export default function AdvocacyPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="secondary" className="mb-6">
-              Policy & Advocacy
+              {tr("adv.badge")}
             </Badge>
             <h1 className="text-4xl sm:text-5xl font-bold text-balance mb-6">
-              Driving <span className="text-primary">Policy Change</span> Across Africa
+              {tr("adv.heroA")} <span className="text-primary">{tr("adv.heroB")}</span> {tr("adv.heroC")}
             </h1>
             <p className="text-xl text-muted-foreground text-pretty mb-8 max-w-3xl mx-auto">
-              Join our advocacy efforts to create inclusive policies and legislation that protect and empower
-              neurodivergent individuals across all 54 African countries.
+              {tr("adv.heroText")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent" asChild>
-                <a href={contactHref("Campaign proposal", CAMPAIGN_TEMPLATE)}>Start Your Own Campaign</a>
+                <a href={contactHref("Campaign proposal", CAMPAIGN_TEMPLATE)}>{tr("adv.startCampaign")}</a>
               </Button>
             </div>
           </div>
@@ -159,21 +162,21 @@ export default function AdvocacyPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-primary">{activeCampaigns.length}</div>
-              <div className="text-sm text-muted-foreground">Active Campaigns</div>
+              <div className="text-sm text-muted-foreground">{tr("adv.activeCampaigns")}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-terracotta">54</div>
-              <div className="text-sm text-muted-foreground">Countries Covered</div>
+              <div className="text-sm text-muted-foreground">{tr("adv.countries")}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-terracotta">
                 {activeCampaigns.reduce((sum, c) => sum + c.supporters, 0).toLocaleString()}
               </div>
-              <div className="text-sm text-muted-foreground">Supporters</div>
+              <div className="text-sm text-muted-foreground">{tr("adv.supporters")}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-primary">{successStories.length}</div>
-              <div className="text-sm text-muted-foreground">Policy Wins</div>
+              <div className="text-sm text-muted-foreground">{tr("adv.policyWins")}</div>
             </div>
           </div>
         </div>
@@ -184,26 +187,26 @@ export default function AdvocacyPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <Tabs defaultValue="campaigns" className="w-full">
             <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto mb-8">
-              <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-              <TabsTrigger value="policy-areas">Policy Areas</TabsTrigger>
-              <TabsTrigger value="success">Success Stories</TabsTrigger>
-              <TabsTrigger value="resources">Resources</TabsTrigger>
+              <TabsTrigger value="campaigns">{tr("adv.tabCampaigns")}</TabsTrigger>
+              <TabsTrigger value="policy-areas">{tr("adv.tabPolicyAreas")}</TabsTrigger>
+              <TabsTrigger value="success">{tr("adv.tabSuccess")}</TabsTrigger>
+              <TabsTrigger value="resources">{tr("adv.tabResources")}</TabsTrigger>
             </TabsList>
 
             {/* Active Campaigns Tab */}
             <TabsContent value="campaigns" className="space-y-8">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4">Active Campaigns</h2>
+                <h2 className="text-3xl font-bold mb-4">{tr("adv.activeCampaigns")}</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Join ongoing advocacy efforts across Africa to create meaningful policy change
+                  {tr("adv.campaignsText")}
                 </p>
               </div>
 
               {activeCampaigns.length === 0 && (
                 <div className="text-center py-12 text-muted-foreground">
                   <Megaphone className="h-10 w-10 mx-auto mb-4 opacity-50" />
-                  <p className="font-medium mb-1">No active campaigns yet</p>
-                  <p className="text-sm">Start the first advocacy campaign for your community.</p>
+                  <p className="font-medium mb-1">{tr("adv.noCampaigns")}</p>
+                  <p className="text-sm">{tr("adv.noCampaignsText")}</p>
                 </div>
               )}
 
@@ -286,9 +289,9 @@ export default function AdvocacyPage() {
             {/* Policy Areas Tab */}
             <TabsContent value="policy-areas" className="space-y-8">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4">Policy Focus Areas</h2>
+                <h2 className="text-3xl font-bold mb-4">{tr("adv.policyFocus")}</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Key areas where we&apos;re working to create systemic change
+                  {tr("adv.policyText")}
                 </p>
               </div>
 
@@ -299,8 +302,8 @@ export default function AdvocacyPage() {
                       <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 ${area.color}`}>
                         <area.icon className="h-6 w-6" />
                       </div>
-                      <CardTitle className="group-hover:text-primary transition-colors">{area.name}</CardTitle>
-                      <CardDescription>{area.description}</CardDescription>
+                      <CardTitle className="group-hover:text-primary transition-colors">{tr(`adv.area.${area.id}` as MessageKey)}</CardTitle>
+                      <CardDescription>{tr(`adv.area.${area.id}.text` as MessageKey)}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
@@ -308,15 +311,15 @@ export default function AdvocacyPage() {
                           <div className="font-medium">
                             {activeCampaigns.filter((c) => c.category === area.name).length}
                           </div>
-                          <div className="text-muted-foreground">Active Campaigns</div>
+                          <div className="text-muted-foreground">{tr("adv.activeCampaigns")}</div>
                         </div>
 
                         <div>
-                          <h4 className="font-medium mb-2">Key Issues:</h4>
+                          <h4 className="font-medium mb-2">{tr("adv.keyIssues")}</h4>
                           <div className="flex flex-wrap gap-1">
-                            {area.keyIssues.map((issue) => (
+                            {area.keyIssues.map((issue, i) => (
                               <Badge key={issue} variant="secondary" className="text-xs">
-                                {issue}
+                                {tr(`adv.area.${area.id}.issue${i}` as MessageKey)}
                               </Badge>
                             ))}
                           </div>
@@ -325,9 +328,9 @@ export default function AdvocacyPage() {
                         <Button
                           className="w-full group-hover:bg-primary group-hover:text-primary-foreground"
                           disabled
-                          title="No campaigns in this area yet"
+                          title={tr("adv.noAreaCampaigns")}
                         >
-                          View Campaigns
+                          {tr("adv.viewCampaigns")}
                         </Button>
                       </div>
                     </CardContent>
@@ -339,17 +342,17 @@ export default function AdvocacyPage() {
             {/* Success Stories Tab */}
             <TabsContent value="success" className="space-y-8">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4">Policy Victories</h2>
+                <h2 className="text-3xl font-bold mb-4">{tr("adv.victories")}</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Celebrating successful advocacy efforts that have created real change
+                  {tr("adv.victoriesText")}
                 </p>
               </div>
 
               {successStories.length === 0 && (
                 <div className="text-center py-12 text-muted-foreground">
                   <CheckCircle className="h-10 w-10 mx-auto mb-4 opacity-50" />
-                  <p className="font-medium mb-1">No policy wins recorded yet</p>
-                  <p className="text-sm">Verified advocacy victories will be celebrated here.</p>
+                  <p className="font-medium mb-1">{tr("adv.noWins")}</p>
+                  <p className="text-sm">{tr("adv.noWinsText")}</p>
                 </div>
               )}
 
@@ -399,17 +402,17 @@ export default function AdvocacyPage() {
             {/* Resources Tab */}
             <TabsContent value="resources" className="space-y-8">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4">Advocacy Resources</h2>
+                <h2 className="text-3xl font-bold mb-4">{tr("adv.resourcesTitle")}</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Tools, templates, and guides to help you become an effective advocate
+                  {tr("adv.resourcesText")}
                 </p>
               </div>
 
               {advocacyResources.length === 0 && (
                 <div className="text-center py-12 text-muted-foreground">
                   <Download className="h-10 w-10 mx-auto mb-4 opacity-50" />
-                  <p className="font-medium mb-1">No resources published yet</p>
-                  <p className="text-sm">Advocacy toolkits and templates will be available here soon.</p>
+                  <p className="font-medium mb-1">{tr("adv.noResources")}</p>
+                  <p className="text-sm">{tr("adv.noResourcesText")}</p>
                 </div>
               )}
 
@@ -456,17 +459,17 @@ export default function AdvocacyPage() {
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Upcoming Events</h2>
+            <h2 className="text-3xl font-bold mb-4">{tr("adv.events")}</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Join us at conferences, workshops, and advocacy events across Africa
+              {tr("adv.eventsText")}
             </p>
           </div>
 
           {upcomingEvents.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">
               <Calendar className="h-10 w-10 mx-auto mb-4 opacity-50" />
-              <p className="font-medium mb-1">No events scheduled yet</p>
-              <p className="text-sm">Conferences, workshops, and advocacy events will be announced here.</p>
+              <p className="font-medium mb-1">{tr("adv.noEvents")}</p>
+              <p className="text-sm">{tr("adv.noEventsText")}</p>
             </div>
           )}
 
@@ -508,19 +511,18 @@ export default function AdvocacyPage() {
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-primary to-terracotta text-primary-foreground">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">Your Voice Can Change Policy</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">{tr("adv.ctaTitle")}</h2>
           <p className="text-xl opacity-90 text-pretty mb-8 max-w-2xl mx-auto">
-            Join advocates working to create inclusive policies across Africa. Every voice matters in the
-            fight for neurodiversity rights.
+            {tr("adv.ctaText")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" className="text-lg px-8 py-6" asChild>
               <a href={contactHref("I want to advocate with ANDA", `Where I am:
 How I'd like to help:
-`)}>Start Advocating Today</a>
+`)}>{tr("adv.ctaButton")}</a>
             </Button>
           </div>
-          <p className="mt-4 text-sm opacity-90">These buttons open an email to {ANDA_CONTACT_EMAIL}.</p>
+          <p className="mt-4 text-sm opacity-90">{tr("adv.emailNote", { email: ANDA_CONTACT_EMAIL })}</p>
         </div>
       </section>
     </div>

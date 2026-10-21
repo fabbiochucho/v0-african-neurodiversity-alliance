@@ -3,40 +3,42 @@ import { AndaLogo } from "@/components/anda-logo"
 import { KenteStrip } from "@/components/afro/kente-strip"
 import { getSiblingAppUrl } from "@/lib/federation/config"
 import { BECOMECHANGE_URL, COPYRIGHT_HOLDER, LEGAL_BRAND, LEGAL_CONTACT_EMAIL } from "@/lib/legal"
+import { t, type MessageKey, type SiteLanguage } from "@/lib/i18n"
 
-const COLUMNS = [
+const COLUMNS: { title: MessageKey; links: { href: string; label: MessageKey }[] }[] = [
   {
-    title: "Get support",
+    title: "footer.getSupport",
     links: [
-      { href: "/self-test", label: "Self-check" },
-      { href: "/iep", label: "Support plans" },
-      { href: "/directory", label: "Find support" },
-      { href: "/apps-tools", label: "Apps & tools" },
+      { href: "/self-test", label: "footer.selfCheck" },
+      { href: "/iep", label: "footer.supportPlans" },
+      { href: "/directory", label: "footer.findSupport" },
+      { href: "/apps-tools", label: "footer.appsTools" },
     ],
   },
   {
-    title: "Learn",
+    title: "footer.learn",
     links: [
-      { href: "/learning", label: "Learning" },
-      { href: "/learning/what-works", label: "What works?" },
-      { href: "/news", label: "News & research" },
-      { href: "/research", label: "Research" },
+      { href: "/learning", label: "footer.learning" },
+      { href: "/learning/what-works", label: "footer.whatWorks" },
+      { href: "/news", label: "footer.newsResearch" },
+      { href: "/research", label: "footer.research" },
     ],
   },
   {
-    title: "Community",
+    title: "footer.community",
     links: [
-      { href: "/community", label: "Forum" },
-      { href: "/advocacy", label: "Advocacy" },
-      { href: "/about", label: "About ANDA" },
-      { href: "/donate", label: "Donate" },
+      { href: "/community", label: "footer.forum" },
+      { href: "/advocacy", label: "footer.advocacy" },
+      { href: "/about", label: "footer.about" },
+      { href: "/donate", label: "footer.donate" },
     ],
   },
 ]
 
 // Site-wide footer (rendered once in app/layout.tsx). Hidden when printing
 // so printed reports stay clean.
-export function SiteFooter() {
+export function SiteFooter({ lang = "en" }: { lang?: SiteLanguage }) {
+  const tr = (key: MessageKey) => t(key, {}, lang)
   const neurafikiUrl = getSiblingAppUrl()
   const year = new Date().getFullYear()
 
@@ -50,24 +52,23 @@ export function SiteFooter() {
               <AndaLogo />
             </Link>
             <p className="text-muted-foreground text-pretty">
-              Empowering neurodivergent individuals across Africa through awareness, education, and inclusive support
-              systems.
+              {tr("footer.tagline")}
             </p>
             <p className="text-sm text-muted-foreground">
-              Questions or data requests:{" "}
+              {tr("footer.contact")}{" "}
               <a href={`mailto:${LEGAL_CONTACT_EMAIL}`} className="underline hover:text-foreground break-all">
                 {LEGAL_CONTACT_EMAIL}
               </a>
             </p>
           </div>
           {COLUMNS.map((col) => (
-            <nav key={col.title} aria-label={col.title}>
-              <h2 className="font-sans text-sm font-semibold mb-3">{col.title}</h2>
+            <nav key={col.title} aria-label={tr(col.title)}>
+              <h2 className="font-sans text-sm font-semibold mb-3">{tr(col.title)}</h2>
               <ul className="space-y-2">
                 {col.links.map((l) => (
                   <li key={l.href}>
                     <Link href={l.href} className="text-muted-foreground hover:text-foreground hover:underline">
-                      {l.label}
+                      {tr(l.label)}
                     </Link>
                   </li>
                 ))}
@@ -79,7 +80,7 @@ export function SiteFooter() {
         {/* Family of sites */}
         <div className="mt-12 border-t pt-6 grid gap-4 md:grid-cols-2 md:items-center">
           <p className="text-sm text-muted-foreground text-pretty">
-            ANDA and{" "}
+            {tr("footer.familyStart")}{" "}
             {neurafikiUrl ? (
               <a href={neurafikiUrl} className="underline hover:text-foreground">
                 NeuRafiki
@@ -87,7 +88,7 @@ export function SiteFooter() {
             ) : (
               "NeuRafiki"
             )}{" "}
-            are products of{" "}
+            {tr("footer.familyMiddle")}{" "}
             <a href={BECOMECHANGE_URL} className="underline hover:text-foreground">
               {LEGAL_BRAND}
             </a>
@@ -95,27 +96,27 @@ export function SiteFooter() {
           </p>
           <nav aria-label="Legal" className="flex flex-wrap gap-x-5 gap-y-2 text-sm md:justify-end">
             <Link href="/privacy" className="text-muted-foreground hover:text-foreground hover:underline">
-              Privacy policy
+              {tr("footer.privacy")}
             </Link>
             <Link href="/terms" className="text-muted-foreground hover:text-foreground hover:underline">
-              Terms of use
+              {tr("footer.terms")}
             </Link>
             <Link href="/guidelines" className="text-muted-foreground hover:text-foreground hover:underline">
-              Community guidelines
+              {tr("footer.guidelines")}
             </Link>
             <Link href="/accessibility" className="text-muted-foreground hover:text-foreground hover:underline">
-              Accessibility statement
+              {tr("footer.a11yStatement")}
             </Link>
             <Link href="/settings/accessibility" className="text-muted-foreground hover:text-foreground hover:underline">
-              Accessibility settings
+              {tr("footer.a11ySettings")}
             </Link>
             <a href={`mailto:${LEGAL_CONTACT_EMAIL}`} className="text-muted-foreground hover:text-foreground hover:underline">
-              Contact
+              {tr("footer.contactLink")}
             </a>
           </nav>
         </div>
         <p className="mt-4 text-sm text-muted-foreground">
-          &copy; {year} {COPYRIGHT_HOLDER}. All rights reserved. ANDA: African Neurodiversity Alliance.
+          &copy; {year} {COPYRIGHT_HOLDER}. {tr("footer.rights")}
         </p>
       </div>
     </footer>

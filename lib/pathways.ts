@@ -1,4 +1,5 @@
 // Home-page pathways (brief §45). Every step links to a feature that exists.
+import { fr as pathwaysFr, pt as pathwaysPt } from "@/lib/i18n/messages/pathways"
 
 export interface Pathway {
   slug: "individual" | "family" | "professional"
@@ -46,4 +47,21 @@ export const PATHWAYS: Pathway[] = [
 
 export function findPathway(slug: string): Pathway | undefined {
   return PATHWAYS.find((p) => p.slug === slug)
+}
+
+/** PATHWAYS in the site language; anything not yet translated stays in English. */
+export function localizePathways(lang: string): Pathway[] {
+  const dict = lang === "fr" ? pathwaysFr : lang === "pt" ? pathwaysPt : null
+  if (!dict) return PATHWAYS
+  const tr = (key: string, fallback: string) => dict[key] ?? fallback
+  return PATHWAYS.map((p) => ({
+    ...p,
+    title: tr(`${p.slug}.title`, p.title),
+    intro: tr(`${p.slug}.intro`, p.intro),
+    steps: p.steps.map((s, i) => ({
+      ...s,
+      label: tr(`${p.slug}.${i}.label`, s.label),
+      detail: tr(`${p.slug}.${i}.detail`, s.detail),
+    })),
+  }))
 }

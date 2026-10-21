@@ -8,6 +8,7 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { Icons } from "@/lib/icons"
 import { Turnstile, TURNSTILE_SITE_KEY } from "@/components/turnstile"
+import { useT } from "@/components/language-provider"
 
 function LoginForm() {
   const [email, setEmail] = useState("")
@@ -19,6 +20,7 @@ function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
+  const tr = useT()
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -47,7 +49,7 @@ function LoginForm() {
       const redirectTo = searchParams.get("redirect")
       router.push(redirectTo && redirectTo.startsWith("/") ? redirectTo : "/dashboard")
     } catch (err) {
-      setError("An error occurred. Please try again.")
+      setError(tr("auth.genericError"))
       setLoading(false)
     }
   }
@@ -61,8 +63,8 @@ function LoginForm() {
               ANDA
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Welcome Back</h1>
-          <p className="text-muted-foreground">Sign in to your ANDA account</p>
+          <h1 className="text-3xl font-bold text-foreground">{tr("auth.welcomeBack")}</h1>
+          <p className="text-muted-foreground">{tr("auth.signInIntro")}</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
@@ -75,7 +77,7 @@ function LoginForm() {
 
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium text-foreground">
-              Email Address
+              {tr("auth.email")}
             </label>
             <input
               id="email"
@@ -90,7 +92,7 @@ function LoginForm() {
 
           <div className="space-y-2">
             <label htmlFor="password" className="text-sm font-medium text-foreground">
-              Password
+              {tr("auth.password")}
             </label>
             <input
               id="password"
@@ -110,7 +112,7 @@ function LoginForm() {
             disabled={loading || (!!TURNSTILE_SITE_KEY && !captchaToken)}
             className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 transition"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? tr("auth.signingIn") : tr("auth.signIn")}
           </button>
         </form>
 
@@ -119,7 +121,7 @@ function LoginForm() {
             <div className="w-full border-t border-input"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-background text-muted-foreground">Don&apos;t have an account?</span>
+            <span className="px-2 bg-background text-muted-foreground">{tr("auth.noAccount")}</span>
           </div>
         </div>
 
@@ -127,7 +129,7 @@ function LoginForm() {
           href="/auth/sign-up"
           className="block w-full text-center py-2 px-4 border border-primary text-primary rounded-lg font-medium hover:bg-primary/5 transition"
         >
-          Create Account
+          {tr("auth.createAccount")}
         </Link>
       </div>
     </div>

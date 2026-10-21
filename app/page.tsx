@@ -6,10 +6,12 @@ import { Partners } from "@/components/partners"
 import { KenteStrip } from "@/components/afro/kente-strip"
 import { ThreadMark } from "@/components/afro/thread-mark"
 import { JourneyLoop, type JourneyStep } from "@/components/afro/journey-loop"
-import { PATHWAYS } from "@/lib/pathways"
+import { localizePathways } from "@/lib/pathways"
 import { getSiteStats } from "@/lib/site-stats"
 import { getSiblingAppUrl } from "@/lib/federation/config"
 import { neuRafikiLinks } from "@/lib/federation/contract"
+import { t, type MessageKey } from "@/lib/i18n"
+import { getSiteLanguage } from "@/lib/i18n/server"
 
 // Re-render hourly: partners and the live counts stay current without a redeploy.
 export const revalidate = 3600
@@ -21,31 +23,19 @@ const PATHWAY_THREAD: Record<string, { ground: string; ink: string }> = {
   professional: { ground: "var(--thread-teal)", ink: "var(--primary)" },
 }
 
-const ECOSYSTEM = [
-  { href: "/self-test", name: "Self-check", text: "A quick, free check-in on neurodivergent traits, linked to NeuRafiki for the full screening.", thread: "var(--thread-indigo)" },
-  { href: "/directory", name: "Find support", text: "Schools, therapists, support groups and helplines across Africa, filterable by condition.", thread: "var(--thread-terracotta)" },
-  { href: "/iep", name: "Support plans", text: "Step-by-step plans with goals, strategies and reviews, shared with the people who help.", thread: "var(--thread-teal)" },
-  { href: "/learning", name: "Learning", text: "Courses, story books, cartoons and the What works? guide to the evidence.", thread: "var(--thread-gold)" },
-  { href: "/news", name: "News & research", text: "African news and open-access research on neurodivergence, updated every day.", thread: "var(--thread-green)" },
-  { href: "/apps-tools", name: "Apps & tools", text: "Assistive tech and apps, rated by the community.", thread: "var(--thread-indigo)" },
-  { href: "/community", name: "Community", text: "Share experiences and find peer support in moderated spaces.", thread: "var(--thread-terracotta)" },
-  { href: "/advocacy", name: "Advocacy", text: "Resources for pushing for inclusive schools and policy.", thread: "var(--thread-teal)" },
+// name/text are i18n keys: `${key}` and `${key}Text` (lib/i18n/en.ts).
+const ECOSYSTEM: { href: string; key: string; thread: string }[] = [
+  { href: "/self-test", key: "home.eco.selfCheck", thread: "var(--thread-indigo)" },
+  { href: "/directory", key: "home.eco.findSupport", thread: "var(--thread-terracotta)" },
+  { href: "/iep", key: "home.eco.plans", thread: "var(--thread-teal)" },
+  { href: "/learning", key: "home.eco.learning", thread: "var(--thread-gold)" },
+  { href: "/news", key: "home.eco.news", thread: "var(--thread-green)" },
+  { href: "/apps-tools", key: "home.eco.apps", thread: "var(--thread-indigo)" },
+  { href: "/community", key: "home.eco.community", thread: "var(--thread-terracotta)" },
+  { href: "/advocacy", key: "home.eco.advocacy", thread: "var(--thread-teal)" },
 ]
 
-const COMMITMENTS = [
-  {
-    title: "No diagnosis needed",
-    text: "Start a support profile and a plan from what you already see at home or in class, then add assessments when you have them.",
-  },
-  {
-    title: "Your senses, your settings",
-    text: "Calm or vibrant colours, larger text, less motion and higher contrast, set once and kept on every page.",
-  },
-  {
-    title: "Free where it counts",
-    text: "The support directory, the research library, the What works? guide and the companion's prompts cost nothing.",
-  },
-]
+const COMMITMENTS = ["home.commit.noDiagnosis", "home.commit.senses", "home.commit.free"]
 
 export default async function HomePage() {
   // NeuRafiki is the assessment entry point; without it configured, fall back
@@ -54,50 +44,24 @@ export default async function HomePage() {
   const startUrl = nrUrl ? neuRafikiLinks(nrUrl).assessment() : "/self-test"
   const nrHome = nrUrl ?? "/self-test"
   const stats = await getSiteStats()
+  const lang = await getSiteLanguage()
+  const tr = (key: string, vars?: Record<string, string | number>) => t(key as MessageKey, vars, lang)
+  const num = (n: number) => n.toLocaleString(lang === "en" ? "en-GB" : lang)
+  const step = (key: string, product: JourneyStep["product"], href: string): JourneyStep => ({
+    name: tr(key),
+    product,
+    text: tr(`${key}Text`),
+    href,
+    action: tr(`${key}Action`),
+  })
 
   const steps: JourneyStep[] = [
-    {
-      name: "Assess",
-      product: "NeuRafiki",
-      text: "A guided, high-depth screening across autism, ADHD, learning, motor, sensory and executive function. It's screening, not a diagnosis.",
-      href: nrHome,
-      action: "See what the screening covers",
-    },
-    {
-      name: "Understand",
-      product: "NeuRafiki",
-      text: "Plain-language results, area by area, with a companion that explains what they mean and what to ask professionals.",
-      href: nrHome,
-      action: "Open NeuRafiki",
-    },
-    {
-      name: "Plan",
-      product: "ANDA",
-      text: "Turn what you learned into a support plan: strengths, what helps, and goals with a starting point, a target and a review date.",
-      href: "/iep",
-      action: "Build a support plan",
-    },
-    {
-      name: "Support",
-      product: "ANDA",
-      text: "Bring parents, teachers and therapists into one team, and find schools, therapists and groups near you.",
-      href: "/directory",
-      action: "Find support",
-    },
-    {
-      name: "Measure",
-      product: "ANDA",
-      text: "Log progress in a tap and see it in calm words: doing better, stable, or needs attention.",
-      href: "/dashboard",
-      action: "Open your dashboard",
-    },
-    {
-      name: "Adapt",
-      product: "ANDA",
-      text: "See what changed, check in with NeuRafiki, and adjust the plan using what the evidence says works.",
-      href: "/learning/what-works",
-      action: "See what works",
-    },
+    step("home.step.assess", "NeuRafiki", nrHome),
+    step("home.step.understand", "NeuRafiki", nrHome),
+    step("home.step.plan", "ANDA", "/iep"),
+    step("home.step.support", "ANDA", "/directory"),
+    step("home.step.measure", "ANDA", "/dashboard"),
+    step("home.step.adapt", "ANDA", "/learning/what-works"),
   ]
 
   return (
@@ -111,24 +75,23 @@ export default async function HomePage() {
           <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-14 grid gap-10 lg:grid-cols-[1fr_minmax(0,26rem)] lg:items-center">
             <div className="max-w-xl min-w-0">
               <h1 id="hero-heading" className="text-5xl sm:text-6xl xl:text-[4.25rem] font-semibold leading-[1.02] text-balance">
-                Understand every mind. <span className="text-primary">Support every journey.</span>
+                {tr("home.heroTitle")} <span className="text-primary">{tr("home.heroTitleAccent")}</span>
               </h1>
               <p className="mt-6 text-xl text-muted-foreground text-pretty leading-relaxed">
-                ANDA helps individuals, families, educators and professionals turn neurodiversity assessment into
-                practical support, meaningful goals and measurable progress.
+                {tr("home.heroText")}
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
                 <Button size="lg" asChild className="h-12 px-7 text-base">
                   <a href={startUrl}>
-                    Start with NeuRafiki <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
+                    {tr("home.start")} <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
                   </a>
                 </Button>
                 <Button size="lg" variant="outline" asChild className="h-12 px-7 text-base bg-background">
-                  <Link href="#pathways">Explore ANDA</Link>
+                  <Link href="#pathways">{tr("home.explore")}</Link>
                 </Button>
               </div>
               <p className="mt-6 text-sm text-muted-foreground">
-                Tap a step on the loop to see what happens there.
+                {tr("home.loopHint")}
               </p>
             </div>
             <JourneyLoop steps={steps} />
@@ -139,23 +102,23 @@ export default async function HomePage() {
 
         {/* What's already here, from the live database (no estimates) */}
         {stats && (
-          <section aria-label="What you'll find" className="border-b bg-secondary/60">
+          <section aria-label={tr("home.statsLabel")} className="border-b bg-secondary/60">
             <p className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-lg text-pretty">
-              Already gathered for you:{" "}
+              {tr("home.statsIntro")}{" "}
               <Link href="/directory" className="font-semibold underline decoration-[var(--thread-terracotta)] decoration-2">
-                {stats.organisations} support organisations
+                {tr("home.statsOrganisations", { n: num(stats.organisations) })}
               </Link>
               ,{" "}
               <Link href="/news/research" className="font-semibold underline decoration-[var(--thread-green)] decoration-2">
-                {stats.papers.toLocaleString("en-GB")} open-access research papers
+                {tr("home.statsPapers", { n: num(stats.papers) })}
               </Link>
               ,{" "}
               <Link href="/learning" className="font-semibold underline decoration-[var(--thread-gold)] decoration-2">
-                {stats.books.toLocaleString("en-GB")} books and story books
+                {tr("home.statsBooks", { n: num(stats.books) })}
               </Link>{" "}
-              and{" "}
+              {tr("home.statsAnd")}{" "}
               <Link href="/apps-tools" className="font-semibold underline decoration-[var(--thread-indigo)] decoration-2">
-                {stats.apps} apps
+                {tr("home.statsApps", { n: num(stats.apps) })}
               </Link>
               .
             </p>
@@ -166,10 +129,10 @@ export default async function HomePage() {
         <section id="pathways" aria-labelledby="pathways-heading" className="scroll-mt-20 py-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h2 id="pathways-heading" className="text-4xl lg:text-5xl font-semibold text-balance max-w-2xl">
-              Where would you like to start?
+              {tr("home.pathwaysTitle")}
             </h2>
             <ul className="mt-10 divide-y border-y">
-              {PATHWAYS.map((p) => {
+              {localizePathways(lang).map((p) => {
                 const t = PATHWAY_THREAD[p.slug]
                 return (
                   <li key={p.slug}>
@@ -209,10 +172,10 @@ export default async function HomePage() {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 grid gap-10 lg:grid-cols-[minmax(0,22rem)_1fr]">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <h2 id="ecosystem-heading" className="text-4xl font-semibold text-balance">
-                Everything in one place
+                {tr("home.ecosystemTitle")}
               </h2>
               <p className="mt-4 text-lg text-muted-foreground text-pretty">
-                From a first check-in to a plan a teacher can follow, and the people and evidence to back it up.
+                {tr("home.ecosystemText")}
               </p>
             </div>
             <ul className="grid sm:grid-cols-2 gap-x-10">
@@ -222,10 +185,10 @@ export default async function HomePage() {
                     <ThreadMark color={e.thread} className="mt-1" />
                     <span>
                       <span className="flex items-center gap-2 font-semibold text-lg group-hover:underline">
-                        {e.name}
+                        {tr(e.key)}
                         <ArrowRight aria-hidden="true" className="h-4 w-4 opacity-0 -translate-x-1 transition duration-300 group-hover:opacity-100 group-hover:translate-x-0" />
                       </span>
-                      <span className="mt-1 block text-muted-foreground text-pretty">{e.text}</span>
+                      <span className="mt-1 block text-muted-foreground text-pretty">{tr(`${e.key}Text`)}</span>
                     </span>
                   </Link>
                 </li>
@@ -241,16 +204,16 @@ export default async function HomePage() {
           <div aria-hidden="true" className="afro-texture absolute inset-0" style={{ ["--texture" as string]: "rgb(243 237 228 / 0.14)" }} />
           <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
             <h2 id="why-heading" className="text-4xl lg:text-5xl font-semibold text-balance max-w-3xl">
-              Made for how support really works in Africa
+              {tr("home.whyTitle")}
             </h2>
             <p className="mt-4 text-xl text-loom-muted text-pretty max-w-2xl">
-              Often there&apos;s no specialist nearby, no diagnosis yet, and a slow connection. ANDA is built for that.
+              {tr("home.whyText")}
             </p>
             <ul className="mt-12 grid gap-10 md:grid-cols-3">
               {COMMITMENTS.map((c, i) => (
-                <li key={c.title} className="border-t-2 pt-5" style={{ borderColor: ["var(--thread-gold)", "var(--thread-terracotta)", "var(--thread-green)"][i] }}>
-                  <h3 className="text-2xl font-semibold">{c.title}</h3>
-                  <p className="mt-2 text-loom-muted text-pretty">{c.text}</p>
+                <li key={c} className="border-t-2 pt-5" style={{ borderColor: ["var(--thread-gold)", "var(--thread-terracotta)", "var(--thread-green)"][i] }}>
+                  <h3 className="text-2xl font-semibold">{tr(c)}</h3>
+                  <p className="mt-2 text-loom-muted text-pretty">{tr(`${c}Text`)}</p>
                 </li>
               ))}
             </ul>
@@ -266,16 +229,15 @@ export default async function HomePage() {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
             <div className="max-w-2xl">
               <h2 id="join-heading" className="text-4xl lg:text-5xl font-semibold text-balance">
-                Join the movement for neurodiversity in Africa
+                {tr("home.joinTitle")}
               </h2>
               <p className="mt-4 text-xl text-pretty opacity-95">
-                Whether you&apos;re neurodivergent, a caregiver, educator, or advocate, there&apos;s a place for you in our
-                community.
+                {tr("home.joinText")}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
               <Button size="lg" asChild className="h-12 px-7 text-base bg-background text-foreground hover:bg-background/90">
-                <Link href="/self-test">Start your journey</Link>
+                <Link href="/self-test">{tr("home.joinStart")}</Link>
               </Button>
               <Button
                 size="lg"
@@ -283,7 +245,7 @@ export default async function HomePage() {
                 asChild
                 className="h-12 px-7 text-base bg-transparent border-terracotta-foreground text-terracotta-foreground hover:bg-terracotta-foreground hover:text-terracotta"
               >
-                <Link href="/donate">Support our mission</Link>
+                <Link href="/donate">{tr("home.joinDonate")}</Link>
               </Button>
             </div>
           </div>

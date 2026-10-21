@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { CommunityReplies } from "@/components/community-replies"
+import { useLang, useT } from "@/components/language-provider"
+import type { MessageKey } from "@/lib/i18n"
 import { LEGAL_CONTACT_EMAIL } from "@/lib/legal"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
@@ -106,18 +108,23 @@ interface PostRow {
   profiles: { first_name: string | null; last_name: string | null } | null
 }
 
-function timeAgo(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime()
-  const mins = Math.floor(diffMs / 60000)
-  if (mins < 1) return "just now"
-  if (mins < 60) return `${mins}m ago`
+function timeAgo(iso: string, lang: string): string {
+  const rtf = new Intl.RelativeTimeFormat(lang, { numeric: "auto", style: "short" })
+  const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
+  if (mins < 60) return rtf.format(-mins, "minute")
   const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.floor(hours / 24)
-  return `${days}d ago`
+  if (hours < 24) return rtf.format(-hours, "hour")
+  return rtf.format(-Math.floor(hours / 24), "day")
 }
 
 export default function CommunityPage() {
+  const tr = useT()
+  const lang = useLang()
+  const cats = forumCategories.map((c) => ({
+    ...c,
+    name: tr(`comm.cat.${c.id}` as MessageKey),
+    description: tr(`comm.cat.${c.id}.text` as MessageKey),
+  }))
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState<string | null>(null)
@@ -128,7 +135,7 @@ export default function CommunityPage() {
   const [openReplies, setOpenReplies] = useState<string | null>(null)
 
   const [postOpen, setPostOpen] = useState(false)
-  const [postCategory, setPostCategory] = useState(forumCategories[0].id)
+  const [postCategory, setPostCategory] = useState(cats[0].id)
   const [postTitle, setPostTitle] = useState("")
   const [postBody, setPostBody] = useState("")
   const [submitting, setSubmitting] = useState(false)
@@ -173,7 +180,7 @@ export default function CommunityPage() {
         body: row.body,
         isPinned: row.is_pinned,
         createdAt: row.created_at,
-        authorName: [row.profiles?.first_name, row.profiles?.last_name].filter(Boolean).join(" ") || "Community member",
+        authorName: [row.profiles?.first_name, row.profiles?.last_name].filter(Boolean).join(" "),
         mine: Boolean(user && row.user_id === user.id),
         likeCount: likeCounts.get(row.id) || 0,
         likedByMe: likedByMe.has(row.id),
@@ -240,7 +247,7 @@ export default function CommunityPage() {
     setSubmitting(false)
 
     if (error) {
-      setPostError("Failed to post. Please try again.")
+      setPostError(tr("comm.postFailed"))
       return
     }
 
@@ -270,7 +277,7 @@ export default function CommunityPage() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
     .map(([categoryId, count]) => ({
-      tag: forumCategories.find((c) => c.id === categoryId)?.name || categoryId,
+      tag: cats.find((c) => c.id === categoryId)?.name || categoryId,
       posts: count,
     }))
 
@@ -282,9 +289,9 @@ export default function CommunityPage() {
       (!query || p.title.toLowerCase().includes(query) || p.body.toLowerCase().includes(query)),
   )
   const filterLabel = [
-    activeCategory && forumCategories.find((c) => c.id === activeCategory)?.name,
-    savedOnly && "your saved posts",
-    query && `posts matching "${search.trim()}"`,
+    activeCategory && cats.find((c) => c.id === activeCategory)?.name,
+    savedOnly && tr("comm.filterSaved"),
+    query && tr("comm.filterMatching", { q: search.trim() }),
   ]
     .filter(Boolean)
     .join(", ")
@@ -298,19 +305,18 @@ export default function CommunityPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="secondary" className="mb-6">
-              Safe Community Space
+              {tr("comm.badge")}
             </Badge>
             <h1 className="text-4xl sm:text-5xl font-bold text-balance mb-6">
-              Connect, Share, and <span className="text-primary">Grow Together</span>
+              {tr("comm.heroA")} <span className="text-primary">{tr("comm.heroB")}</span>
             </h1>
             <p className="text-xl text-muted-foreground text-pretty mb-8 max-w-3xl mx-auto">
-              Join neurodivergent individuals, families, and professionals across Africa in our supportive
-              community forums.
+              {tr("comm.heroText")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="text-lg px-8 py-6" onClick={() => openNewPost()}>
                 <Plus className="mr-2 h-5 w-5" />
-                Start a Discussion
+                {tr("comm.startDiscussion")}
               </Button>
             </div>
           </div>
@@ -322,10 +328,10 @@ export default function CommunityPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { label: "Discussion Categories", value: forumCategories.length, icon: MessageCircle },
-              { label: "Total Posts", value: posts.length, icon: Users },
-              { label: "Countries", value: 54, icon: Globe },
-              { label: "Moderators", value: 0, icon: Shield },
+              { label: tr("comm.statCategories"), value: cats.length, icon: MessageCircle },
+              { label: tr("comm.statPosts"), value: posts.length, icon: Users },
+              { label: tr("comm.statCountries"), value: 54, icon: Globe },
+              { label: tr("comm.statModerators"), value: 0, icon: Shield },
             ].map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="flex items-center justify-center mb-2">
@@ -348,8 +354,8 @@ export default function CommunityPage() {
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                   <TabsList className="grid w-full sm:w-auto grid-cols-2">
-                    <TabsTrigger value="categories">Categories</TabsTrigger>
-                    <TabsTrigger value="recent">Recent Posts</TabsTrigger>
+                    <TabsTrigger value="categories">{tr("comm.tabCategories")}</TabsTrigger>
+                    <TabsTrigger value="recent">{tr("comm.tabRecent")}</TabsTrigger>
                   </TabsList>
 
                   <div className="flex gap-2 w-full sm:w-auto">
@@ -357,8 +363,8 @@ export default function CommunityPage() {
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         type="search"
-                        aria-label="Search discussions"
-                        placeholder="Search discussions..."
+                        aria-label={tr("comm.searchLabel")}
+                        placeholder={tr("comm.searchPlaceholder")}
                         className="pl-10 sm:w-64"
                         value={search}
                         onChange={(e) => {
@@ -369,14 +375,14 @@ export default function CommunityPage() {
                     </div>
                     <Button onClick={() => openNewPost()}>
                       <Plus className="h-4 w-4 mr-2" />
-                      New Post
+                      {tr("comm.newPost")}
                     </Button>
                   </div>
                 </div>
 
                 {/* Categories Tab */}
                 <TabsContent value="categories" className="space-y-4">
-                  {forumCategories.map((category) => {
+                  {cats.map((category) => {
                     const count = posts.filter((p) => p.category === category.id).length
                     return (
                       <Card
@@ -402,7 +408,7 @@ export default function CommunityPage() {
                                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                                     <div className="flex items-center gap-1">
                                       <MessageCircle className="h-3 w-3" />
-                                      {count === 0 ? "No posts yet" : `${count} post${count === 1 ? "" : "s"}`}
+                                      {count === 0 ? tr("comm.noPostsYet") : tr(count === 1 ? "comm.onePost" : "comm.posts", { n: count })}
                                     </div>
                                   </div>
                                 </div>
@@ -432,34 +438,34 @@ export default function CommunityPage() {
                           setSearch("")
                         }}
                       >
-                        Clear filter
+                        {tr("comm.clearFilter")}
                       </Button>
                     </div>
                   )}
                   {loading ? (
-                    <p className="text-center py-12 text-muted-foreground">Loading...</p>
+                    <p className="text-center py-12 text-muted-foreground">{tr("comm.loading")}</p>
                   ) : visiblePosts.length === 0 ? (
                     <div className="text-center py-12 text-muted-foreground">
                       <MessageCircle className="h-10 w-10 mx-auto mb-4 opacity-50" />
                       {filterLabel ? (
-                        <p className="font-medium mb-1">No posts match.</p>
+                        <p className="font-medium mb-1">{tr("comm.noMatch")}</p>
                       ) : (
                         <>
-                          <p className="font-medium mb-1">No discussions yet</p>
-                          <p className="text-sm">Be the first to start a conversation in this community.</p>
+                          <p className="font-medium mb-1">{tr("comm.noDiscussions")}</p>
+                          <p className="text-sm">{tr("comm.beFirst")}</p>
                         </>
                       )}
                     </div>
                   ) : (
                     visiblePosts.map((post) => {
-                      const category = forumCategories.find((c) => c.id === post.category)
+                      const category = cats.find((c) => c.id === post.category)
                       return (
                         <Card key={post.id} className="group transition-colors">
                           <CardContent className="p-6">
                             <div className="flex items-start gap-4">
                               <Avatar className="h-10 w-10">
                                 <AvatarFallback>
-                                  {post.authorName
+                                  {(post.authorName || tr("comm.memberFallback"))
                                     .split(" ")
                                     .map((n) => n[0])
                                     .join("")
@@ -474,7 +480,7 @@ export default function CommunityPage() {
                                       {category?.name || post.category}
                                     </Badge>
                                   </div>
-                                  <div className="text-xs text-muted-foreground">{timeAgo(post.createdAt)}</div>
+                                  <div className="text-xs text-muted-foreground">{timeAgo(post.createdAt, lang)}</div>
                                 </div>
 
                                 <h3 className="text-lg font-semibold group-hover:text-primary transition-colors mb-2">
@@ -482,8 +488,8 @@ export default function CommunityPage() {
                                 </h3>
 
                                 <div className="flex items-center gap-1 mb-3">
-                                  <span className="text-sm text-muted-foreground">by</span>
-                                  <span className="text-sm font-medium">{post.authorName}</span>
+                                  <span className="text-sm text-muted-foreground">{tr("comm.by")}</span>
+                                  <span className="text-sm font-medium">{post.authorName || tr("comm.memberFallback")}</span>
                                 </div>
 
                                 <p
@@ -499,7 +505,7 @@ export default function CommunityPage() {
                                       variant="ghost"
                                       className="gap-1 px-2"
                                       aria-expanded={openReplies === post.id}
-                                      aria-label={`${post.replyCount} ${post.replyCount === 1 ? "reply" : "replies"}. ${openReplies === post.id ? "Hide" : "Show"} replies`}
+                                      aria-label={`${tr(post.replyCount === 1 ? "comm.oneReply" : "comm.replies", { n: post.replyCount })}. ${tr(openReplies === post.id ? "comm.hideReplies" : "comm.showReplies")}`}
                                       onClick={() => setOpenReplies(openReplies === post.id ? null : post.id)}
                                     >
                                       <MessageSquare className="h-4 w-4" aria-hidden="true" />
@@ -514,7 +520,7 @@ export default function CommunityPage() {
                                     <Button
                                       size="sm"
                                       variant={post.likedByMe ? "default" : "ghost"}
-                                      aria-label="Like this post"
+                                      aria-label={tr("comm.like")}
                                       onClick={() => handleToggleLike(post)}
                                     >
                                       <ThumbsUp className="h-4 w-4" aria-hidden="true" />
@@ -522,7 +528,7 @@ export default function CommunityPage() {
                                     <Button
                                       size="sm"
                                       variant={post.savedByMe ? "default" : "ghost"}
-                                      aria-label={post.savedByMe ? "Remove from saved posts" : "Save this post"}
+                                      aria-label={post.savedByMe ? tr("comm.unsave") : tr("comm.save")}
                                       aria-pressed={post.savedByMe}
                                       onClick={() => handleToggleSave(post)}
                                     >
@@ -532,7 +538,7 @@ export default function CommunityPage() {
                                       <Button
                                         size="sm"
                                         variant="ghost"
-                                        aria-label="Delete your post"
+                                        aria-label={tr("comm.deletePost")}
                                         onClick={() => handleDeletePost(post)}
                                       >
                                         <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -540,7 +546,7 @@ export default function CommunityPage() {
                                     )}
                                     <Button size="sm" variant="ghost" asChild>
                                       <a
-                                        aria-label="Report this post"
+                                        aria-label={tr("comm.report")}
                                         href={`mailto:${LEGAL_CONTACT_EMAIL}?subject=${encodeURIComponent(`Report community post ${post.id}`)}&body=${encodeURIComponent(`Post: "${post.title}"
 What's wrong:
 `)}`}
@@ -571,25 +577,25 @@ What's wrong:
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Shield className="h-5 w-5 text-primary" />
-                    Community Guidelines
+                    {tr("comm.guidelines")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
                   <div className="flex items-start gap-2">
                     <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
-                    <div>Be respectful and supportive of all community members</div>
+                    <div>{tr("comm.rule1")}</div>
                   </div>
                   <div className="flex items-start gap-2">
                     <div className="w-2 h-2 bg-terracotta rounded-full mt-2 flex-shrink-0" />
-                    <div>Share experiences and advice constructively</div>
+                    <div>{tr("comm.rule2")}</div>
                   </div>
                   <div className="flex items-start gap-2">
                     <div className="w-2 h-2 bg-terracotta rounded-full mt-2 flex-shrink-0" />
-                    <div>Respect privacy and confidentiality</div>
+                    <div>{tr("comm.rule3")}</div>
                   </div>
                   <div className="flex items-start gap-2">
                     <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
-                    <div>Report inappropriate content to moderators</div>
+                    <div>{tr("comm.rule4")}</div>
                   </div>
                 </CardContent>
               </Card>
@@ -599,12 +605,12 @@ What's wrong:
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="h-5 w-5 text-terracotta" />
-                    Trending Topics
+                    {tr("comm.trending")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {trendingTopics.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No trending topics yet.</p>
+                    <p className="text-sm text-muted-foreground">{tr("comm.noTrending")}</p>
                   ) : (
                     trendingTopics.map((topic, index) => (
                       <div key={index} className="flex items-center justify-between">
@@ -621,13 +627,13 @@ What's wrong:
               {/* Quick Actions */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
+                  <CardTitle>{tr("comm.quickActions")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Button variant="outline" size="sm" className="w-full justify-start bg-transparent" asChild>
                     <Link href="/directory">
                       <Users className="h-4 w-4 mr-2" />
-                      Find Local Groups
+                      {tr("comm.findGroups")}
                     </Link>
                   </Button>
                   <Button
@@ -644,7 +650,7 @@ What's wrong:
                     }}
                   >
                     <Bookmark className="h-4 w-4 mr-2" aria-hidden="true" />
-                    My Saved Posts
+                    {tr("comm.mySaved")}
                   </Button>
                 </CardContent>
               </Card>
@@ -656,13 +662,13 @@ What's wrong:
       {/* CTA Section */}
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">Your Voice Matters in Our Community</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">{tr("comm.ctaTitle")}</h2>
           <p className="text-xl text-muted-foreground text-pretty mb-8 max-w-2xl mx-auto">
-            Share your experiences, ask questions, and connect with others who understand your journey.
+            {tr("comm.ctaText")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="text-lg px-8 py-6" onClick={() => openNewPost()}>
-              Join the Conversation
+              {tr("comm.join")}
             </Button>
           </div>
         </div>
@@ -672,18 +678,18 @@ What's wrong:
       <Dialog open={postOpen} onOpenChange={setPostOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Start a Discussion</DialogTitle>
-            <DialogDescription>Share with the community. Be respectful and constructive.</DialogDescription>
+            <DialogTitle>{tr("comm.startDiscussion")}</DialogTitle>
+            <DialogDescription>{tr("comm.dialogText")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="post-category">Category</Label>
+              <Label htmlFor="post-category">{tr("comm.category")}</Label>
               <Select value={postCategory} onValueChange={setPostCategory}>
                 <SelectTrigger id="post-category">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {forumCategories.map((c) => (
+                  {cats.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.name}
                     </SelectItem>
@@ -692,21 +698,21 @@ What's wrong:
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="post-title">Title</Label>
+              <Label htmlFor="post-title">{tr("comm.title")}</Label>
               <Input id="post-title" value={postTitle} onChange={(e) => setPostTitle(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="post-body">Message</Label>
+              <Label htmlFor="post-body">{tr("comm.message")}</Label>
               <Textarea id="post-body" rows={5} value={postBody} onChange={(e) => setPostBody(e.target.value)} />
             </div>
             {postError && <p className="text-sm text-destructive">{postError}</p>}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPostOpen(false)}>
-              Cancel
+              {tr("comm.cancel")}
             </Button>
             <Button onClick={handleSubmitPost} disabled={submitting || !postTitle.trim() || !postBody.trim()}>
-              {submitting ? "Posting..." : "Post"}
+              {submitting ? tr("comm.posting") : tr("comm.post")}
             </Button>
           </DialogFooter>
         </DialogContent>

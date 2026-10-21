@@ -1,16 +1,47 @@
-// Localisation (brief §40-41). String infrastructure with English as the
-// only language for now, plus education-context terminology used only to
-// adjust labels in the plan. No legal-compliance claims are made.
+// Localisation (brief §40-41). Site pages can be shown in English, French or
+// Portuguese (SITE_LANGUAGES, chosen with the language picker); a learner's
+// plan language (LANGUAGES) is English only for now. Education-context
+// terminology only adjusts labels in the plan. No legal-compliance claims are made.
 import { en, type MessageKey } from "./en"
+import { fr } from "./fr"
+import { pt } from "./pt"
 
+export type { MessageKey }
+
+/** Languages a learner's plan can be written in. */
 export const LANGUAGES = [{ code: "en", label: "English" }] as const
 export type LanguageCode = (typeof LANGUAGES)[number]["code"]
 
-const DICTIONARIES: Record<LanguageCode, Record<MessageKey, string>> = { en }
+/** Languages the site itself can be shown in. Labels are in their own language. */
+export const SITE_LANGUAGES = [
+  { code: "en", label: "English" },
+  { code: "fr", label: "Français" },
+  { code: "pt", label: "Português" },
+] as const
+export type SiteLanguage = (typeof SITE_LANGUAGES)[number]["code"]
+export const SITE_LANGUAGE_COOKIE = "anda-lang"
+
+/**
+ * Languages a native speaker has reviewed (see docs/TRANSLATIONS.md). Until a
+ * language is listed here, every page shows the "translated automatically"
+ * notice in it.
+ */
+export const REVIEWED_LANGUAGES: SiteLanguage[] = []
+
+/** Every message key with its English, French and Portuguese text (for reviewers). */
+export function translationTable(): { key: MessageKey; en: string; fr: string; pt: string }[] {
+  return (Object.keys(en) as MessageKey[]).map((key) => ({ key, en: en[key], fr: fr[key] ?? "", pt: pt[key] ?? "" }))
+}
+
+export function isSiteLanguage(v: unknown): v is SiteLanguage {
+  return typeof v === "string" && SITE_LANGUAGES.some((l) => l.code === v)
+}
+
+const DICTIONARIES: Record<SiteLanguage, Partial<Record<MessageKey, string>>> = { en, fr, pt }
 
 /** t("plan.disclaimer", { plan: "IEP" }) -- falls back to English, then the key. */
 export function t(key: MessageKey, vars: Record<string, string | number> = {}, lang: string = "en"): string {
-  const dict = DICTIONARIES[(LANGUAGES.some((l) => l.code === lang) ? lang : "en") as LanguageCode]
+  const dict = DICTIONARIES[isSiteLanguage(lang) ? lang : "en"]
   const template = dict[key] ?? en[key] ?? key
   return template.replace(/\{(\w+)\}/g, (_, name) => (name in vars ? String(vars[name]) : `{${name}}`))
 }
