@@ -6,7 +6,7 @@ import { Partners } from "@/components/partners"
 import { KenteStrip } from "@/components/afro/kente-strip"
 import { ThreadMark } from "@/components/afro/thread-mark"
 import { JourneyLoop, type JourneyStep } from "@/components/afro/journey-loop"
-import { PATHWAYS } from "@/lib/pathways"
+import { localizePathways } from "@/lib/pathways"
 import { getSiteStats } from "@/lib/site-stats"
 import { getSiblingAppUrl } from "@/lib/federation/config"
 import { neuRafikiLinks } from "@/lib/federation/contract"
@@ -132,7 +132,7 @@ export default async function HomePage() {
               {tr("home.pathwaysTitle")}
             </h2>
             <ul className="mt-10 divide-y border-y">
-              {PATHWAYS.map((p) => {
+              {localizePathways(lang).map((p) => {
                 const t = PATHWAY_THREAD[p.slug]
                 return (
                   <li key={p.slug}>

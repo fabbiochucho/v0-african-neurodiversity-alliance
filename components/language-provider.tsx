@@ -53,3 +53,14 @@ export function DraftTranslationNotice() {
     </p>
   )
 }
+
+/** On legal pages, which stay in English: says the English version applies. */
+export function EnglishOnlyNote() {
+  const lang = useContext(LanguageContext)
+  if (lang === "en") return null
+  return (
+    <p role="note" lang={lang} className="container mx-auto px-4 pt-6 text-sm text-muted-foreground">
+      {t("common.legalEnglishApplies", {}, lang)}
+    </p>
+  )
+}

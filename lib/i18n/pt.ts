@@ -1,5 +1,6 @@
 import type { MessageKey } from "./en"
 import * as auth from "./messages/auth"
+import * as common from "./messages/common"
 
 // Portuguese (European spelling, as used in Angola, Mozambique, Cabo Verde,
 // Guinea-Bissau and São Tomé). Draft machine translation (2026-10-21): have a
@@ -137,4 +138,5 @@ export const pt: Partial<Record<MessageKey, string>> = {
     "Veja o que mudou, faça uma nova verificação com o NeuRafiki e ajuste o plano com base no que as evidências mostram.",
   "home.step.adaptAction": "Ver o que funciona",
   ...auth.pt,
+  ...common.pt,
 }

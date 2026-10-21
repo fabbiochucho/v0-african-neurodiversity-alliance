@@ -1,5 +1,6 @@
 import type { MessageKey } from "./en"
 import * as auth from "./messages/auth"
+import * as common from "./messages/common"
 
 // French. Draft machine translation (2026-10-21): have a native speaker
 // review it before relying on it. Missing keys fall back to English.
@@ -136,4 +137,5 @@ export const fr: Partial<Record<MessageKey, string>> = {
     "Voyez ce qui a changé, refaites le point avec NeuRafiki et ajustez le plan selon ce que les preuves montrent.",
   "home.step.adaptAction": "Voir ce qui marche",
   ...auth.fr,
+  ...common.fr,
 }

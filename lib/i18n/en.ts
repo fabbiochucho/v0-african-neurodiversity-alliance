@@ -1,6 +1,7 @@
 // English strings. Add other languages as sibling files with the same keys.
 // Page-by-page strings live in ./messages/<area>.ts with all three languages side by side.
 import * as auth from "./messages/auth"
+import * as common from "./messages/common"
 export const en = {
   "plan.disclaimer":
     "This {plan} is a planning and tracking tool. It isn't a legal document and doesn't replace your school's or education authority's official plan or process.",
@@ -142,6 +143,7 @@ export const en = {
     "See what changed, check in with NeuRafiki, and adjust the plan using what the evidence says works.",
   "home.step.adaptAction": "See what works",
   ...auth.en,
+  ...common.en,
 } as const
 
 export type MessageKey = keyof typeof en
