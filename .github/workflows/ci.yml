@@ -117,12 +117,23 @@ jobs:
           supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta
           supabase status -o env | sed -n 's/^API_URL=/NEXT_PUBLIC_SUPABASE_URL=/p; s/^ANON_KEY=/NEXT_PUBLIC_SUPABASE_ANON_KEY=/p; s/^SERVICE_ROLE_KEY=/SUPABASE_SERVICE_ROLE_KEY=/p' | tr -d '"' >> "$GITHUB_ENV"
 
+      # ponytail: scripts/ isn't strictly ordered (001 references 002's table),
+      # so apply each file in its own transaction and retry the failures until
+      # a pass makes no progress. Replace with ordered migrations if that grows.
       - name: Apply migrations
         run: |
-          for f in scripts/*.sql; do
-            echo "::group::$f"
-            psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -q -f "$f"
-            echo "::endgroup::"
+          db="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+          pending=$(ls scripts/*.sql)
+          while [ -n "$pending" ]; do
+            failed=""
+            for f in $pending; do
+              psql "$db" -v ON_ERROR_STOP=1 -q --single-transaction -f "$f" > /tmp/mig.log 2>&1 || { failed="$failed $f"; cp /tmp/mig.log "/tmp/$(basename $f).log"; }
+            done
+            if [ "$(echo $failed)" = "$(echo $pending)" ]; then
+              for f in $failed; do echo "::error::$f"; cat "/tmp/$(basename $f).log"; done
+              exit 1
+            fi
+            pending=$(echo $failed)
           done
 
       - name: Build
