@@ -88,18 +88,12 @@ function mapResourceRow(row: ResourceRow): Resource {
   }
 }
 
-const countries = [
-  "All Countries",
-  "Nigeria",
-  "Kenya",
-  "South Africa",
-  "Ghana",
-  "Egypt",
-  "Morocco",
-  "Ethiopia",
-  "Uganda",
-  "Tanzania",
-]
+const SORTS = [
+  { value: "rating", label: "Highest rated" },
+  { value: "reviews", label: "Most reviewed" },
+  { value: "name", label: "Name (A to Z)" },
+] as const
+type Sort = (typeof SORTS)[number]["value"]
 const resourceTypes = [
   { value: "all", label: "All Types", icon: Search },
   { value: "school", label: "Schools", icon: GraduationCap },
@@ -130,6 +124,11 @@ export default function DirectoryPage() {
   const [selectedType, setSelectedType] = useState("all")
   const [selectedCondition, setSelectedCondition] = useState("all")
   const [activeTab, setActiveTab] = useState("list")
+  const [showAdvanced, setShowAdvanced] = useState(false)
+  const [verifiedOnly, setVerifiedOnly] = useState(false)
+  const [minRating, setMinRating] = useState("0")
+  const [contactNeeded, setContactNeeded] = useState<"any" | "phone" | "email" | "website">("any")
+  const [sort, setSort] = useState<Sort>("rating")
 
   const [submitOpen, setSubmitOpen] = useState(false)
   const [submission, setSubmission] = useState(emptySubmission)
@@ -212,8 +211,28 @@ export default function DirectoryPage() {
 
     const matchesConditionFilter = matchesCondition(resource.conditions, selectedCondition)
 
-    return matchesSearch && matchesCountry && matchesType && matchesConditionFilter
+    const matchesAdvanced =
+      (!verifiedOnly || resource.verified) &&
+      resource.rating >= Number(minRating) &&
+      (contactNeeded === "any" || Boolean(resource.contact[contactNeeded]))
+
+    return matchesSearch && matchesCountry && matchesType && matchesConditionFilter && matchesAdvanced
   })
+  filteredResources.sort((a, b) =>
+    sort === "name" ? a.name.localeCompare(b.name) : sort === "reviews" ? b.reviews - a.reviews : b.rating - a.rating,
+  )
+
+  // Countries come from the listings themselves, so every listed country can be picked.
+  const countries = ["All Countries", ...Array.from(new Set(resources.map((r) => r.country).filter(Boolean))).sort()]
+  const byCountry = Object.entries(
+    filteredResources.reduce<Record<string, number>>((acc, r) => {
+      const c = r.country || "Country not given"
+      acc[c] = (acc[c] || 0) + 1
+      return acc
+    }, {}),
+  ).sort((a, b) => b[1] - a[1])
+  const maxCount = byCountry[0]?.[1] || 1
+  const advancedCount = [verifiedOnly, minRating !== "0", contactNeeded !== "any"].filter(Boolean).length
 
   const getTypeIcon = (type: string) => {
     const typeConfig = resourceTypes.find((t) => t.value === type)
@@ -328,11 +347,77 @@ export default function DirectoryPage() {
 
             <div className="flex items-center justify-between mt-4">
               <p className="text-sm text-muted-foreground">{filteredResources.length} resources found</p>
-              <Button variant="outline" size="sm" disabled title="Coming soon">
-                <Filter className="h-4 w-4 mr-2" />
-                Advanced Filters
+              <Button
+                variant="outline"
+                size="sm"
+                aria-expanded={showAdvanced}
+                aria-controls="advanced-filters"
+                onClick={() => setShowAdvanced((v) => !v)}
+              >
+                <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
+                Advanced Filters{advancedCount > 0 && ` (${advancedCount})`}
               </Button>
             </div>
+
+            {showAdvanced && (
+              <div id="advanced-filters" className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4 border-t pt-4">
+                <div className="flex items-center gap-2">
+                  <input
+                    id="verified-only"
+                    type="checkbox"
+                    className="h-4 w-4"
+                    checked={verifiedOnly}
+                    onChange={(e) => setVerifiedOnly(e.target.checked)}
+                  />
+                  <Label htmlFor="verified-only">Verified only</Label>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="min-rating">Minimum rating</Label>
+                  <Select value={minRating} onValueChange={setMinRating}>
+                    <SelectTrigger id="min-rating">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">Any rating</SelectItem>
+                      {[3, 4, 4.5].map((r) => (
+                        <SelectItem key={r} value={String(r)}>
+                          {r} stars or more
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="contact-needed">Can be contacted by</Label>
+                  <Select value={contactNeeded} onValueChange={(v) => setContactNeeded(v as typeof contactNeeded)}>
+                    <SelectTrigger id="contact-needed">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="any">Any way</SelectItem>
+                      <SelectItem value="phone">Phone</SelectItem>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="website">Website</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="sort-by">Sort by</Label>
+                  <Select value={sort} onValueChange={(v) => setSort(v as Sort)}>
+                    <SelectTrigger id="sort-by">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SORTS.map((o) => (
+                        <SelectItem key={o.value} value={o.value}>
+                          {o.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -340,7 +425,7 @@ export default function DirectoryPage() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
             <TabsTrigger value="list">List View</TabsTrigger>
-            <TabsTrigger value="map">Map View</TabsTrigger>
+            <TabsTrigger value="map">By Country</TabsTrigger>
           </TabsList>
 
           <TabsContent value="list" className="space-y-6">
@@ -514,12 +599,44 @@ export default function DirectoryPage() {
           </TabsContent>
 
           <TabsContent value="map">
+            {/* ponytail: a country breakdown, not a geographic map. A real map needs coordinates on each listing and a map-tile provider (a new vendor: DPA, privacy page, CSP). */}
             <Card>
-              <CardContent className="p-12 text-center">
-                <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Interactive Map</h3>
-                <p className="text-muted-foreground mb-4">Map view will show resource locations across Africa</p>
-                <Badge variant="outline">Coming Soon</Badge>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />
+                  Where support is listed
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {byCountry.length === 0 ? (
+                  <p className="text-muted-foreground">No resources match these filters.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {byCountry.map(([country, count]) => (
+                      <li key={country}>
+                        <button
+                          type="button"
+                          className="w-full text-left rounded-md p-2 hover:bg-muted focus-visible:outline focus-visible:outline-2"
+                          disabled={country === "Country not given"}
+                          onClick={() => {
+                            setSelectedCountry(country)
+                            setActiveTab("list")
+                          }}
+                        >
+                          <span className="flex justify-between text-sm mb-1">
+                            <span className="font-medium">{country}</span>
+                            <span>
+                              {count} {count === 1 ? "resource" : "resources"}
+                            </span>
+                          </span>
+                          <span className="block h-2 rounded bg-muted" aria-hidden="true">
+                            <span className="block h-2 rounded bg-primary" style={{ width: `${(count / maxCount) * 100}%` }} />
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
