@@ -64,3 +64,8 @@ export function EnglishOnlyNote() {
     </p>
   )
 }
+
+/** The current site language code, e.g. for Intl date formatting. */
+export function useLang(): SiteLanguage {
+  return useContext(LanguageContext)
+}

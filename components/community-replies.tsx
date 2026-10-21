@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Trash2 } from "lucide-react"
+import { useT } from "@/components/language-provider"
 
 interface Reply {
   id: string
@@ -31,6 +32,7 @@ export function CommunityReplies({
   const [body, setBody] = useState("")
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const tr = useT()
 
   const load = useCallback(async () => {
     const { data } = await createClient()
@@ -55,7 +57,7 @@ export function CommunityReplies({
       .insert({ post_id: postId, user_id: userId, body: body.trim() })
     setSending(false)
     if (error) {
-      setError("Your reply didn't post. Try again.")
+      setError(tr("comm.reply.failed"))
       return
     }
     setBody("")
@@ -74,21 +76,21 @@ export function CommunityReplies({
   return (
     <div className="mt-4 border-t pt-4 space-y-3">
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading replies...</p>
+        <p className="text-sm text-muted-foreground">{tr("comm.reply.loading")}</p>
       ) : replies.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No replies yet.</p>
+        <p className="text-sm text-muted-foreground">{tr("comm.reply.none")}</p>
       ) : (
         <ul className="space-y-3">
           {replies.map((r) => (
             <li key={r.id} className="rounded-md bg-muted/40 p-3 text-sm">
               <div className="flex items-center justify-between gap-2 mb-1">
                 <span className="font-medium">
-                  {[r.profiles?.first_name, r.profiles?.last_name].filter(Boolean).join(" ") || "Community member"}
+                  {[r.profiles?.first_name, r.profiles?.last_name].filter(Boolean).join(" ") || tr("comm.memberFallback")}
                 </span>
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
                   <time dateTime={r.created_at}>{new Date(r.created_at).toLocaleDateString()}</time>
                   {userId === r.user_id && (
-                    <Button size="sm" variant="ghost" aria-label="Delete your reply" onClick={() => remove(r.id)}>
+                    <Button size="sm" variant="ghost" aria-label={tr("comm.reply.delete")} onClick={() => remove(r.id)}>
                       <Trash2 className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   )}
@@ -102,7 +104,7 @@ export function CommunityReplies({
 
       {userId ? (
         <div className="space-y-2">
-          <Label htmlFor={fieldId}>Your reply</Label>
+          <Label htmlFor={fieldId}>{tr("comm.reply.label")}</Label>
           <Textarea
             id={fieldId}
             rows={3}
@@ -116,15 +118,15 @@ export function CommunityReplies({
             </p>
           )}
           <Button size="sm" onClick={send} disabled={sending || !body.trim()}>
-            {sending ? "Posting..." : "Reply"}
+            {sending ? tr("comm.posting") : tr("comm.reply.button")}
           </Button>
         </div>
       ) : (
         <p className="text-sm">
           <a href="/auth/login" className="underline">
-            Sign in
+            {tr("comm.reply.signIn")}
           </a>{" "}
-          to reply.
+          {tr("comm.reply.toReply")}
         </p>
       )}
     </div>
