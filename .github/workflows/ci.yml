@@ -123,7 +123,11 @@ jobs:
       - name: Apply migrations
         run: |
           db="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
-          pending=$(ls scripts/*.sql)
+          # 001 (profiles) and 002 (organizations) reference each other; drop
+          # 001's organization FK in a copy so both can be created.
+          mkdir -p /tmp/mig && cp scripts/*.sql /tmp/mig/
+          sed -i 's/ references public.organizations(id)//' /tmp/mig/001_create_profiles.sql
+          pending=$(ls /tmp/mig/*.sql)
           while [ -n "$pending" ]; do
             failed=""
             for f in $pending; do
