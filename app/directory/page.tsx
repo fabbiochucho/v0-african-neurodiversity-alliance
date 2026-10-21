@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { ALL_NEURODIVERGENT, CONDITIONS, matchesCondition } from "@/lib/conditions"
 import { Navigation } from "@/components/navigation"
+import { AfricaMap } from "@/components/africa-map"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -425,7 +426,7 @@ export default function DirectoryPage() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
             <TabsTrigger value="list">List View</TabsTrigger>
-            <TabsTrigger value="map">By Country</TabsTrigger>
+            <TabsTrigger value="map">Map View</TabsTrigger>
           </TabsList>
 
           <TabsContent value="list" className="space-y-6">
@@ -599,7 +600,6 @@ export default function DirectoryPage() {
           </TabsContent>
 
           <TabsContent value="map">
-            {/* ponytail: a country breakdown, not a geographic map. A real map needs coordinates on each listing and a map-tile provider (a new vendor: DPA, privacy page, CSP). */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -607,11 +607,19 @@ export default function DirectoryPage() {
                   Where support is listed
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="grid gap-6 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] md:items-start">
+                <AfricaMap
+                  counts={Object.fromEntries(byCountry)}
+                  selected={selectedCountry === "All Countries" ? null : selectedCountry}
+                  onSelect={(country) => {
+                    setSelectedCountry(country)
+                    setActiveTab("list")
+                  }}
+                />
                 {byCountry.length === 0 ? (
                   <p className="text-muted-foreground">No resources match these filters.</p>
                 ) : (
-                  <ul className="space-y-2">
+                  <ul className="space-y-2" aria-label="Resources by country">
                     {byCountry.map(([country, count]) => (
                       <li key={country}>
                         <button
