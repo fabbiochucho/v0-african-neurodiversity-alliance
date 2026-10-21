@@ -6,6 +6,7 @@ import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Icons } from "@/lib/icons"
+import { contactHref } from "@/lib/legal"
 import { calmMessage } from "@/lib/calm"
 
 function DonateStatusBanner() {
@@ -258,8 +259,13 @@ export default function DonatePage() {
                 <p className="text-muted-foreground mb-4">
                   Join our team and contribute your skills to support our mission.
                 </p>
-                <Button variant="outline" className="w-full bg-transparent" disabled title="Coming soon">
-                  Learn More
+                <Button variant="outline" className="w-full bg-transparent" asChild>
+                  <a href={contactHref("Volunteering with ANDA", `Where I am:
+Skills I can offer:
+Hours a month:
+`)}>
+                    Volunteer with us
+                  </a>
                 </Button>
               </CardContent>
             </Card>
@@ -275,8 +281,13 @@ export default function DonatePage() {
                 <p className="text-muted-foreground mb-4">
                   Partner with ANDA for corporate sponsorships and matching gifts.
                 </p>
-                <Button variant="outline" className="w-full bg-transparent" disabled title="Coming soon">
-                  Contact Us
+                <Button variant="outline" className="w-full bg-transparent" asChild>
+                  <a href={contactHref("Corporate partnership", `Organisation:
+Your role:
+What you have in mind:
+`)}>
+                    Email us
+                  </a>
                 </Button>
               </CardContent>
             </Card>

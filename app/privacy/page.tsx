@@ -49,7 +49,7 @@ export default function PrivacyPage() {
                   details are handled by our payment providers and never reach us.
                 </li>
                 <li>
-                  <strong>Things you share publicly:</strong> community posts, resource suggestions and ratings.
+                  <strong>Things you share publicly:</strong> community posts and replies (shown with your name), resource suggestions and ratings. Posts you save are visible only to you.
                 </li>
                 <li>
                   <strong>Activity records:</strong> a log of who viewed, changed or exported a person&apos;s records,
