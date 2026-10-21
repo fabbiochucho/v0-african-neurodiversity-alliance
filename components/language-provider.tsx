@@ -2,7 +2,7 @@
 
 import { createContext, useContext } from "react"
 import { useRouter } from "next/navigation"
-import { SITE_LANGUAGE_COOKIE, SITE_LANGUAGES, t, type MessageKey, type SiteLanguage } from "@/lib/i18n"
+import { REVIEWED_LANGUAGES, SITE_LANGUAGE_COOKIE, SITE_LANGUAGES, t, type MessageKey, type SiteLanguage } from "@/lib/i18n"
 
 const LanguageContext = createContext<SiteLanguage>("en")
 
@@ -46,7 +46,7 @@ export function LanguagePicker({ id }: { id: string }) {
 /** Shown on every page when a non-English language is chosen. */
 export function DraftTranslationNotice() {
   const lang = useContext(LanguageContext)
-  if (lang === "en") return null
+  if (lang === "en" || REVIEWED_LANGUAGES.includes(lang)) return null
   return (
     <p role="note" className="bg-secondary px-4 py-2 text-center text-sm">
       {t("i18n.draftNotice", {}, lang)}

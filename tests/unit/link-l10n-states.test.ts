@@ -73,7 +73,7 @@ describe("localisation (brief §40-41)", () => {
 
   it("t() interpolates and falls back to English", () => {
     expect(t("plan.quarterlyReview", { plan: "EHCP" })).toBe("Quarterly EHCP review")
-    expect(t("plan.quarterlyReview", { plan: "IEP" }, "fr")).toBe("Quarterly IEP review")
+    expect(t("plan.quarterlyReview", { plan: "IEP" }, "xx")).toBe("Quarterly IEP review")
   })
 })
 

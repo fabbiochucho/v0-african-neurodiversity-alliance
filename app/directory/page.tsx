@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/client"
 import { ALL_NEURODIVERGENT, CONDITIONS, matchesCondition } from "@/lib/conditions"
 import { Navigation } from "@/components/navigation"
 import { AfricaMap } from "@/components/africa-map"
+import { useT } from "@/components/language-provider"
+import type { MessageKey } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -118,6 +120,8 @@ const emptySubmission = {
 }
 
 export default function DirectoryPage() {
+  const tr = useT()
+  const cond = (c: string) => tr(`dir.cond.${c}` as MessageKey)
   const [resources, setResources] = useState<Resource[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -258,9 +262,9 @@ export default function DirectoryPage() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-balance mb-4">Find Support Directory</h1>
+          <h1 className="text-4xl font-bold text-balance mb-4">{tr("dir.title")}</h1>
           <p className="text-xl text-muted-foreground text-pretty max-w-3xl mx-auto">
-            Connect with verified professionals, schools, support groups, and caregivers across Africa
+            {tr("dir.intro")}
           </p>
         </div>
 
@@ -268,10 +272,7 @@ export default function DirectoryPage() {
         <Card className="mb-8 border-primary/30 bg-primary/5">
           <CardContent className="p-6 flex flex-col md:flex-row md:items-center gap-4">
             <p className="text-sm text-pretty flex-1">
-              <span className="font-semibold">Most organisations here focus on autism.</span> Support for ADHD,
-              dyslexia, dyspraxia, dyscalculia and other neurodivergent conditions is much harder to find across
-              Africa, and very few organisations cover them all. ANDA is bringing that support together in one place.
-              Know an organisation that should be listed?
+              <span className="font-semibold">{tr("dir.gapTitle")}</span> {tr("dir.gapText")}
             </p>
             <Button
               variant="outline"
@@ -281,7 +282,7 @@ export default function DirectoryPage() {
                 setSubmitOpen(true)
               }}
             >
-              Suggest an organisation
+              {tr("dir.suggest")}
             </Button>
           </CardContent>
         </Card>
@@ -294,7 +295,7 @@ export default function DirectoryPage() {
               <div className="md:col-span-2 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search by name, specialty, or location..."
+                  placeholder={tr("dir.searchPlaceholder")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -303,13 +304,13 @@ export default function DirectoryPage() {
 
               {/* Country Filter */}
               <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                <SelectTrigger aria-label="Country">
-                  <SelectValue placeholder="Select Country" />
+                <SelectTrigger aria-label={tr("dir.country")}>
+                  <SelectValue placeholder={tr("dir.selectCountry")} />
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((country) => (
                     <SelectItem key={country} value={country}>
-                      {country}
+                      {country === "All Countries" ? tr("dir.allCountries") : country}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -317,13 +318,13 @@ export default function DirectoryPage() {
 
               {/* Type Filter */}
               <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger aria-label="Resource type">
-                  <SelectValue placeholder="Resource Type" />
+                <SelectTrigger aria-label={tr("dir.typeLabel")}>
+                  <SelectValue placeholder={tr("dir.typePlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {resourceTypes.map((type) => (
                     <SelectItem key={type.value} value={type.value}>
-                      {type.label}
+                      {tr(`dir.type.${type.value}` as MessageKey)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -331,15 +332,15 @@ export default function DirectoryPage() {
 
               {/* Condition Filter */}
               <Select value={selectedCondition} onValueChange={setSelectedCondition}>
-                <SelectTrigger aria-label="Condition">
-                  <SelectValue placeholder="Condition" />
+                <SelectTrigger aria-label={tr("dir.condition")}>
+                  <SelectValue placeholder={tr("dir.condition")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Conditions</SelectItem>
-                  <SelectItem value={ALL_NEURODIVERGENT}>Supports all neurodivergent people</SelectItem>
+                  <SelectItem value="all">{tr("dir.allConditions")}</SelectItem>
+                  <SelectItem value={ALL_NEURODIVERGENT}>{tr("dir.supportsAll")}</SelectItem>
                   {CONDITIONS.map((condition) => (
                     <SelectItem key={condition} value={condition}>
-                      {condition}
+                      {cond(condition)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -347,7 +348,7 @@ export default function DirectoryPage() {
             </div>
 
             <div className="flex items-center justify-between mt-4">
-              <p className="text-sm text-muted-foreground">{filteredResources.length} resources found</p>
+              <p className="text-sm text-muted-foreground">{tr("dir.resultsFound", { n: filteredResources.length })}</p>
               <Button
                 variant="outline"
                 size="sm"
@@ -356,7 +357,7 @@ export default function DirectoryPage() {
                 onClick={() => setShowAdvanced((v) => !v)}
               >
                 <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
-                Advanced Filters{advancedCount > 0 && ` (${advancedCount})`}
+                {tr("dir.advanced")}{advancedCount > 0 && ` (${advancedCount})`}
               </Button>
             </div>
 
@@ -370,40 +371,40 @@ export default function DirectoryPage() {
                     checked={verifiedOnly}
                     onChange={(e) => setVerifiedOnly(e.target.checked)}
                   />
-                  <Label htmlFor="verified-only">Verified only</Label>
+                  <Label htmlFor="verified-only">{tr("dir.verifiedOnly")}</Label>
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="min-rating">Minimum rating</Label>
+                  <Label htmlFor="min-rating">{tr("dir.minRating")}</Label>
                   <Select value={minRating} onValueChange={setMinRating}>
                     <SelectTrigger id="min-rating">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="0">Any rating</SelectItem>
+                      <SelectItem value="0">{tr("dir.anyRating")}</SelectItem>
                       {[3, 4, 4.5].map((r) => (
                         <SelectItem key={r} value={String(r)}>
-                          {r} stars or more
+                          {tr("dir.starsOrMore", { n: r })}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="contact-needed">Can be contacted by</Label>
+                  <Label htmlFor="contact-needed">{tr("dir.contactBy")}</Label>
                   <Select value={contactNeeded} onValueChange={(v) => setContactNeeded(v as typeof contactNeeded)}>
                     <SelectTrigger id="contact-needed">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="any">Any way</SelectItem>
-                      <SelectItem value="phone">Phone</SelectItem>
-                      <SelectItem value="email">Email</SelectItem>
-                      <SelectItem value="website">Website</SelectItem>
+                      <SelectItem value="any">{tr("dir.anyWay")}</SelectItem>
+                      <SelectItem value="phone">{tr("dir.phone")}</SelectItem>
+                      <SelectItem value="email">{tr("dir.email")}</SelectItem>
+                      <SelectItem value="website">{tr("dir.website")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="sort-by">Sort by</Label>
+                  <Label htmlFor="sort-by">{tr("dir.sortBy")}</Label>
                   <Select value={sort} onValueChange={(v) => setSort(v as Sort)}>
                     <SelectTrigger id="sort-by">
                       <SelectValue />
@@ -411,7 +412,7 @@ export default function DirectoryPage() {
                     <SelectContent>
                       {SORTS.map((o) => (
                         <SelectItem key={o.value} value={o.value}>
-                          {o.label}
+                          {tr(`dir.sort.${o.value}` as MessageKey)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -425,21 +426,21 @@ export default function DirectoryPage() {
         {/* View Toggle */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
-            <TabsTrigger value="list">List View</TabsTrigger>
-            <TabsTrigger value="map">Map View</TabsTrigger>
+            <TabsTrigger value="list">{tr("dir.listView")}</TabsTrigger>
+            <TabsTrigger value="map">{tr("dir.mapView")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="list" className="space-y-6">
             {loading ? (
               <Card>
-                <CardContent className="p-12 text-center text-muted-foreground">Loading resources...</CardContent>
+                <CardContent className="p-12 text-center text-muted-foreground">{tr("dir.loading")}</CardContent>
               </Card>
             ) : filteredResources.length === 0 ? (
               <Card>
                 <CardContent className="p-12 text-center">
                   <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No resources found</h3>
-                  <p className="text-muted-foreground">Try adjusting your search criteria or browse all resources</p>
+                  <h3 className="text-lg font-semibold mb-2">{tr("dir.noneFound")}</h3>
+                  <p className="text-muted-foreground">{tr("dir.noneFoundText")}</p>
                   <Button
                     variant="outline"
                     className="mt-4 bg-transparent"
@@ -450,7 +451,7 @@ export default function DirectoryPage() {
                       setSelectedCondition("all")
                     }}
                   >
-                    Clear Filters
+                    {tr("dir.clearFilters")}
                   </Button>
                 </CardContent>
               </Card>
@@ -478,7 +479,7 @@ export default function DirectoryPage() {
                           </div>
                           {resource.verified && (
                             <Badge variant="secondary" className="text-xs">
-                              Verified
+                              {tr("dir.verified")}
                             </Badge>
                           )}
                         </div>
@@ -491,7 +492,7 @@ export default function DirectoryPage() {
                               <Star className="h-4 w-4 fill-yellow-400 text-brand-terracotta" />
                               <span className="ml-1 font-medium">{resource.rating}</span>
                             </div>
-                            <span className="text-sm text-muted-foreground">({resource.reviews} reviews)</span>
+                            <span className="text-sm text-muted-foreground">({tr("dir.reviews", { n: resource.reviews })})</span>
                             <Button
                               variant="link"
                               size="sm"
@@ -503,7 +504,7 @@ export default function DirectoryPage() {
                                 setRatingComment("")
                               }}
                             >
-                              {ratedIds.has(resource.id) ? "Thanks for rating" : "Rate"}
+                              {ratedIds.has(resource.id) ? tr("dir.thanksRating") : tr("dir.rate")}
                             </Button>
                           </div>
 
@@ -516,7 +517,7 @@ export default function DirectoryPage() {
                                   variant={condition === ALL_NEURODIVERGENT ? "default" : "secondary"}
                                   className="text-xs"
                                 >
-                                  {condition === ALL_NEURODIVERGENT ? "Supports all neurodivergent people" : condition}
+                                  {condition === ALL_NEURODIVERGENT ? tr("dir.supportsAll") : cond(condition)}
                                 </Badge>
                               ))}
                             </div>
@@ -565,11 +566,11 @@ export default function DirectoryPage() {
                               asChild={Boolean(resource.contact.phone || resource.contact.email)}
                             >
                               {resource.contact.phone ? (
-                                <a href={`tel:${resource.contact.phone}`}>Call</a>
+                                <a href={`tel:${resource.contact.phone}`}>{tr("dir.call")}</a>
                               ) : resource.contact.email ? (
-                                <a href={`mailto:${resource.contact.email}`}>Email</a>
+                                <a href={`mailto:${resource.contact.email}`}>{tr("dir.email")}</a>
                               ) : (
-                                <span>Contact</span>
+                                <span>{tr("dir.contact")}</span>
                               )}
                             </Button>
                             <Button size="sm" variant="outline" disabled={!resource.contact.website} asChild={Boolean(resource.contact.website)}>
@@ -583,10 +584,10 @@ export default function DirectoryPage() {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                 >
-                                  Visit Website
+                                  {tr("dir.visitWebsite")}
                                 </a>
                               ) : (
-                                <span>Visit Website</span>
+                                <span>{tr("dir.visitWebsite")}</span>
                               )}
                             </Button>
                           </div>
@@ -604,7 +605,7 @@ export default function DirectoryPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />
-                  Where support is listed
+                  {tr("dir.whereListed")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="grid gap-6 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] md:items-start">
@@ -617,9 +618,9 @@ export default function DirectoryPage() {
                   }}
                 />
                 {byCountry.length === 0 ? (
-                  <p className="text-muted-foreground">No resources match these filters.</p>
+                  <p className="text-muted-foreground">{tr("dir.noMatch")}</p>
                 ) : (
-                  <ul className="space-y-2" aria-label="Resources by country">
+                  <ul className="space-y-2" aria-label={tr("dir.byCountry")}>
                     {byCountry.map(([country, count]) => (
                       <li key={country}>
                         <button
@@ -632,9 +633,9 @@ export default function DirectoryPage() {
                           }}
                         >
                           <span className="flex justify-between text-sm mb-1">
-                            <span className="font-medium">{country}</span>
+                            <span className="font-medium">{country === "Country not given" ? tr("dir.noCountry") : country}</span>
                             <span>
-                              {count} {count === 1 ? "resource" : "resources"}
+                              {tr(count === 1 ? "dir.oneResource" : "dir.resources", { n: count })}
                             </span>
                           </span>
                           <span className="block h-2 rounded bg-muted" aria-hidden="true">
@@ -653,8 +654,8 @@ export default function DirectoryPage() {
         {/* Add Resource CTA */}
         <Card className="bg-gradient-to-r from-primary/5 to-terracotta/5 border-primary/20">
           <CardContent className="p-8 text-center">
-            <h3 className="text-xl font-semibold mb-2">Can&apos;t find what you&apos;re looking for?</h3>
-            <p className="text-muted-foreground mb-4">Help us grow our directory by adding resources in your area</p>
+            <h3 className="text-xl font-semibold mb-2">{tr("dir.cantFind")}</h3>
+            <p className="text-muted-foreground mb-4">{tr("dir.helpGrow")}</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 onClick={() => {
@@ -663,7 +664,7 @@ export default function DirectoryPage() {
                   setSubmitOpen(true)
                 }}
               >
-                Add a Resource
+                {tr("dir.addResource")}
               </Button>
               <Button
                 variant="outline"
@@ -673,7 +674,7 @@ export default function DirectoryPage() {
                   setSubmitOpen(true)
                 }}
               >
-                Request Support in Your Area
+                {tr("dir.requestSupport")}
               </Button>
             </div>
           </CardContent>
@@ -686,27 +687,26 @@ export default function DirectoryPage() {
           {submitDone ? (
             <>
               <DialogHeader>
-                <DialogTitle>Thank you!</DialogTitle>
+                <DialogTitle>{tr("dir.thanks")}</DialogTitle>
                 <DialogDescription>
-                  Your submission has been received and will be reviewed before being added to the directory.
+                  {tr("dir.thanksText")}
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
-                <Button onClick={() => setSubmitOpen(false)}>Close</Button>
+                <Button onClick={() => setSubmitOpen(false)}>{tr("dir.close")}</Button>
               </DialogFooter>
             </>
           ) : (
             <>
               <DialogHeader>
-                <DialogTitle>Add a Resource</DialogTitle>
+                <DialogTitle>{tr("dir.addResource")}</DialogTitle>
                 <DialogDescription>
-                  Suggest a school, therapist, support group, or healthcare provider. Submissions are reviewed before
-                  being published.
+                  {tr("dir.addText")}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="sub-name">Name *</Label>
+                  <Label htmlFor="sub-name">{tr("dir.nameRequired")}</Label>
                   <Input
                     id="sub-name"
                     value={submission.name}
@@ -715,7 +715,7 @@ export default function DirectoryPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="sub-category">Type</Label>
+                    <Label htmlFor="sub-category">{tr("dir.type")}</Label>
                     <Select
                       value={submission.category}
                       onValueChange={(value) => setSubmission({ ...submission, category: value })}
@@ -728,14 +728,14 @@ export default function DirectoryPage() {
                           .filter((t) => t.value !== "all")
                           .map((type) => (
                             <SelectItem key={type.value} value={type.value}>
-                              {type.label}
+                              {tr(`dir.type.${type.value}` as MessageKey)}
                             </SelectItem>
                           ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="sub-country">Country</Label>
+                    <Label htmlFor="sub-country">{tr("dir.country")}</Label>
                     <Input
                       id="sub-country"
                       value={submission.country}
@@ -744,7 +744,7 @@ export default function DirectoryPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="sub-location">Location / City</Label>
+                  <Label htmlFor="sub-location">{tr("dir.location")}</Label>
                   <Input
                     id="sub-location"
                     value={submission.location}
@@ -752,7 +752,7 @@ export default function DirectoryPage() {
                   />
                 </div>
                 <fieldset className="space-y-2">
-                  <legend className="text-sm font-medium">Conditions supported</legend>
+                  <legend className="text-sm font-medium">{tr("dir.conditionsSupported")}</legend>
                   <div className="flex flex-wrap gap-2">
                     {[ALL_NEURODIVERGENT, ...CONDITIONS].map((condition) => {
                       const selected = submission.conditions.includes(condition)
@@ -773,14 +773,14 @@ export default function DirectoryPage() {
                             })
                           }
                         >
-                          {condition}
+                          {condition === ALL_NEURODIVERGENT ? tr("dir.supportsAll") : cond(condition)}
                         </Button>
                       )
                     })}
                   </div>
                 </fieldset>
                 <div className="space-y-2">
-                  <Label htmlFor="sub-description">Description</Label>
+                  <Label htmlFor="sub-description">{tr("dir.description")}</Label>
                   <Textarea
                     id="sub-description"
                     value={submission.description}
@@ -789,7 +789,7 @@ export default function DirectoryPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="sub-phone">Phone</Label>
+                    <Label htmlFor="sub-phone">{tr("dir.phone")}</Label>
                     <Input
                       id="sub-phone"
                       value={submission.phone}
@@ -797,7 +797,7 @@ export default function DirectoryPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="sub-email">Email</Label>
+                    <Label htmlFor="sub-email">{tr("dir.email")}</Label>
                     <Input
                       id="sub-email"
                       value={submission.email}
@@ -806,7 +806,7 @@ export default function DirectoryPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="sub-website">Website</Label>
+                  <Label htmlFor="sub-website">{tr("dir.website")}</Label>
                   <Input
                     id="sub-website"
                     value={submission.website}
@@ -814,7 +814,7 @@ export default function DirectoryPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="sub-your-email">Your email (optional, in case we have questions)</Label>
+                  <Label htmlFor="sub-your-email">{tr("dir.yourEmail")}</Label>
                   <Input
                     id="sub-your-email"
                     value={submission.submittedByEmail}
@@ -824,10 +824,10 @@ export default function DirectoryPage() {
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setSubmitOpen(false)}>
-                  Cancel
+                  {tr("dir.cancel")}
                 </Button>
                 <Button onClick={handleSubmitResource} disabled={submitting || !submission.name.trim()}>
-                  {submitting ? "Submitting..." : "Submit"}
+                  {submitting ? tr("dir.submitting") : tr("dir.submit")}
                 </Button>
               </DialogFooter>
             </>
@@ -839,8 +839,8 @@ export default function DirectoryPage() {
       <Dialog open={Boolean(ratingResource)} onOpenChange={(open) => !open && setRatingResource(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Rate {ratingResource?.name}</DialogTitle>
-            <DialogDescription>Share your experience to help other families.</DialogDescription>
+            <DialogTitle>{tr("dir.rateName", { name: ratingResource?.name ?? "" })}</DialogTitle>
+            <DialogDescription>{tr("dir.shareExperience")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex items-center gap-1">
@@ -849,7 +849,7 @@ export default function DirectoryPage() {
                   key={n}
                   type="button"
                   onClick={() => setRatingValue(n)}
-                  aria-label={`${n} star${n > 1 ? "s" : ""}`}
+                  aria-label={tr(n === 1 ? "dir.oneStar" : "dir.stars", { n })}
                 >
                   <Star
                     className={`h-7 w-7 ${n <= ratingValue ? "fill-yellow-400 text-brand-terracotta" : "text-muted-foreground"}`}
@@ -858,7 +858,7 @@ export default function DirectoryPage() {
               ))}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="rating-comment">Comment (optional)</Label>
+              <Label htmlFor="rating-comment">{tr("dir.comment")}</Label>
               <Textarea
                 id="rating-comment"
                 value={ratingComment}
@@ -868,10 +868,10 @@ export default function DirectoryPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRatingResource(null)}>
-              Cancel
+              {tr("dir.cancel")}
             </Button>
             <Button onClick={handleSubmitRating} disabled={ratingSubmitting || ratingValue < 1}>
-              {ratingSubmitting ? "Submitting..." : "Submit Rating"}
+              {ratingSubmitting ? tr("dir.submitting") : tr("dir.submitRating")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -5,10 +5,22 @@ import * as about from "./messages/about"
 import * as donate from "./messages/donate"
 import * as advocacy from "./messages/advocacy"
 import * as community from "./messages/community"
+import * as directory from "./messages/directory"
 
 // French. Draft machine translation (2026-10-21): have a native speaker
 // review it before relying on it. Missing keys fall back to English.
 export const fr: Partial<Record<MessageKey, string>> = {
+  "plan.disclaimer":
+    "Ce {plan} est un outil de planification et de suivi. Ce n'est pas un document juridique et il ne remplace pas le plan ou la procédure officiels de votre école ou de votre autorité éducative.",
+  "plan.fullPlan": "{plan} complet",
+  "plan.title": "{plan} de {name}",
+  "plan.quarterlyReview": "Bilan trimestriel du {plan}",
+  "settings.localisation.title": "Pays, langue et contexte éducatif",
+  "settings.localisation.help": "Sert uniquement à adapter des mots comme le nom du plan. ANDA fonctionne de la même façon partout.",
+  "state.saveFailed": "Une information n'a pas été enregistrée. Vos données sont toujours là. Réessayez.",
+  "state.loadFailed": "Nous n'avons pas pu charger ceci pour le moment. Vos informations sont en sécurité. Réessayez.",
+  "dashboard.empty.title": "Votre parcours commence ici.",
+
   "i18n.language": "Langue",
   "i18n.draftNotice":
     "Cette page a été traduite automatiquement et peut contenir des erreurs. Certaines parties sont encore en anglais.",
@@ -146,4 +158,5 @@ export const fr: Partial<Record<MessageKey, string>> = {
   ...donate.fr,
   ...advocacy.fr,
   ...community.fr,
+  ...directory.fr,
 }

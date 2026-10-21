@@ -1,6 +1,7 @@
 "use client"
 
 import { AFRICA_COUNTRIES, AFRICA_VIEWBOX } from "@/lib/africa-map"
+import { useT } from "@/components/language-provider"
 
 // Self-drawn SVG (no map tiles, no third party). Countries with listings are
 // shaded by how many they have and can be clicked or reached with Tab; the
@@ -14,11 +15,13 @@ export function AfricaMap({
   selected: string | null
   onSelect: (country: string) => void
 }) {
+  const tr = useT()
   const max = Math.max(1, ...Object.values(counts))
-  const label = (name: string, n: number) => `${name}: ${n} ${n === 1 ? "resource" : "resources"}`
+  const label = (name: string, n: number) =>
+    tr("map.count", { name, count: tr(n === 1 ? "dir.oneResource" : "dir.resources", { n }) })
 
   return (
-    <svg viewBox={AFRICA_VIEWBOX} role="group" aria-label="Map of Africa. Countries with listings can be selected." className="w-full h-auto max-h-[36rem]">
+    <svg viewBox={AFRICA_VIEWBOX} role="group" aria-label={tr("map.label")} className="w-full h-auto max-h-[36rem]">
       {AFRICA_COUNTRIES.map((c) => {
         const n = counts[c.name] ?? 0
         const isSelected = selected === c.name
@@ -31,7 +34,7 @@ export function AfricaMap({
         if (!n) {
           return (
             <g key={c.name} aria-hidden="true" className="fill-muted stroke-background" strokeWidth={0.8}>
-              <title>{c.name}: no listings yet</title>
+              <title>{tr("map.none", { name: c.name })}</title>
               {shape}
             </g>
           )

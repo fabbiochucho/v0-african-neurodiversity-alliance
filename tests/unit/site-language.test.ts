@@ -9,7 +9,7 @@ describe("site languages", () => {
     expect(t("nav.about", {}, "fr")).toBe("À propos")
     expect(t("nav.about", {}, "pt")).toBe("Sobre")
     expect(t("nav.about", {}, "xx")).toBe("About")
-    expect(t("plan.title", { name: "Ada", plan: "plan" }, "fr")).toBe("Ada's plan") // not translated yet: English
+    expect(t("plan.title", { name: "Ada", plan: "PEI" }, "fr")).toBe("PEI de Ada")
   })
 
   it("only accepts known languages from the cookie", () => {

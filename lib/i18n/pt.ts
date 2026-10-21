@@ -5,11 +5,23 @@ import * as about from "./messages/about"
 import * as donate from "./messages/donate"
 import * as advocacy from "./messages/advocacy"
 import * as community from "./messages/community"
+import * as directory from "./messages/directory"
 
 // Portuguese (European spelling, as used in Angola, Mozambique, Cabo Verde,
 // Guinea-Bissau and São Tomé). Draft machine translation (2026-10-21): have a
 // native speaker review it before relying on it. Missing keys fall back to English.
 export const pt: Partial<Record<MessageKey, string>> = {
+  "plan.disclaimer":
+    "Este {plan} é uma ferramenta de planeamento e acompanhamento. Não é um documento legal e não substitui o plano ou o processo oficiais da sua escola ou autoridade educativa.",
+  "plan.fullPlan": "{plan} completo",
+  "plan.title": "{plan} de {name}",
+  "plan.quarterlyReview": "Revisão trimestral do {plan}",
+  "settings.localisation.title": "País, idioma e contexto educativo",
+  "settings.localisation.help": "Usado apenas para ajustar palavras como o nome do plano. A ANDA funciona da mesma forma em todo o lado.",
+  "state.saveFailed": "Algo não foi guardado. As suas informações continuam aqui. Tente novamente.",
+  "state.loadFailed": "Não foi possível carregar isto agora. As suas informações estão seguras. Tente novamente.",
+  "dashboard.empty.title": "O seu percurso começa aqui.",
+
   "i18n.language": "Idioma",
   "i18n.draftNotice":
     "Esta página foi traduzida automaticamente e pode conter erros. Algumas partes ainda estão em inglês.",
@@ -147,4 +159,5 @@ export const pt: Partial<Record<MessageKey, string>> = {
   ...donate.pt,
   ...advocacy.pt,
   ...community.pt,
+  ...directory.pt,
 }

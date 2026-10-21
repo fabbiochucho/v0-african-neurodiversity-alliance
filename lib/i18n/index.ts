@@ -21,6 +21,18 @@ export const SITE_LANGUAGES = [
 export type SiteLanguage = (typeof SITE_LANGUAGES)[number]["code"]
 export const SITE_LANGUAGE_COOKIE = "anda-lang"
 
+/**
+ * Languages a native speaker has reviewed (see docs/TRANSLATIONS.md). Until a
+ * language is listed here, every page shows the "translated automatically"
+ * notice in it.
+ */
+export const REVIEWED_LANGUAGES: SiteLanguage[] = []
+
+/** Every message key with its English, French and Portuguese text (for reviewers). */
+export function translationTable(): { key: MessageKey; en: string; fr: string; pt: string }[] {
+  return (Object.keys(en) as MessageKey[]).map((key) => ({ key, en: en[key], fr: fr[key] ?? "", pt: pt[key] ?? "" }))
+}
+
 export function isSiteLanguage(v: unknown): v is SiteLanguage {
   return typeof v === "string" && SITE_LANGUAGES.some((l) => l.code === v)
 }

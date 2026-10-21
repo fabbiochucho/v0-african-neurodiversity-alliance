@@ -6,6 +6,7 @@ import * as about from "./messages/about"
 import * as donate from "./messages/donate"
 import * as advocacy from "./messages/advocacy"
 import * as community from "./messages/community"
+import * as directory from "./messages/directory"
 export const en = {
   "plan.disclaimer":
     "This {plan} is a planning and tracking tool. It isn't a legal document and doesn't replace your school's or education authority's official plan or process.",
@@ -152,6 +153,7 @@ export const en = {
   ...donate.en,
   ...advocacy.en,
   ...community.en,
+  ...directory.en,
 } as const
 
 export type MessageKey = keyof typeof en
