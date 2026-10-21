@@ -8,6 +8,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { SiteFooter } from "@/components/site-footer"
 import { PreferencesSync } from "@/components/preferences-sync"
 import { PREFERENCES_BOOT_SCRIPT } from "@/lib/preferences"
+import { LanguageProvider } from "@/components/language-provider"
+import { getSiteLanguage } from "@/lib/i18n/server"
 import "./globals.css"
 
 // Variable fonts, self-hosted by next/font (no third-party request at
@@ -49,8 +51,9 @@ export default async function RootLayout(
   // Per-request CSP nonce from middleware.ts. Reading headers() also makes
   // every page render per request, which nonces require.
   const nonce = (await headers()).get("x-nonce") ?? undefined
+  const lang = await getSiteLanguage()
   return (
-    <html lang="en" className={`${fraunces.variable} ${sourceSans.variable}`} suppressHydrationWarning>
+    <html lang={lang} className={`${fraunces.variable} ${sourceSans.variable}`} suppressHydrationWarning>
       <head>
         {/* Applies saved display preferences before first paint (no flash). */}
         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: PREFERENCES_BOOT_SCRIPT }} />
@@ -59,8 +62,10 @@ export default async function RootLayout(
         <PreferencesSync />
         {/* System preference by default; the header toggle persists light/dark/system. */}
         <ThemeProvider nonce={nonce} attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <Suspense fallback={null}>{children}</Suspense>
-          <SiteFooter />
+          <LanguageProvider lang={lang}>
+            <Suspense fallback={null}>{children}</Suspense>
+            <SiteFooter lang={lang} />
+          </LanguageProvider>
         </ThemeProvider>
         <Analytics />
       </body>
