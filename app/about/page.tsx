@@ -3,8 +3,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Icons } from "@/lib/icons"
 import Link from "next/link"
+import { t, type MessageKey } from "@/lib/i18n"
+import { getSiteLanguage } from "@/lib/i18n/server"
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const lang = await getSiteLanguage()
+  const tr = (key: MessageKey) => t(key, {}, lang)
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -14,11 +18,10 @@ export default function AboutPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">
-              About the African Neurodiversity Alliance
+              {tr("about.title")}
             </h1>
             <p className="text-xl text-muted-foreground text-pretty mb-8 max-w-3xl mx-auto leading-relaxed">
-              ANDA is a pan-African initiative dedicated to empowering neurodivergent individuals and creating inclusive
-              communities across the continent.
+              {tr("about.intro")}
             </p>
           </div>
         </div>
@@ -32,14 +35,12 @@ export default function AboutPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Icons.Target className="h-6 w-6 text-primary" />
-                  Our Mission
+                  {tr("about.mission")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed">
-                  To provide comprehensive, culturally-sensitive support, education, and advocacy for neurodivergent
-                  individuals across Africa, enabling them to thrive in their communities and reach their full
-                  potential.
+                  {tr("about.missionText")}
                 </p>
               </CardContent>
             </Card>
@@ -48,13 +49,12 @@ export default function AboutPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Icons.Eye className="h-6 w-6 text-terracotta" />
-                  Our Vision
+                  {tr("about.vision")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed">
-                  A world where neurodivergent individuals in Africa are recognized, valued, and supported to live
-                  fulfilling lives with equal opportunities for education, employment, and social inclusion.
+                  {tr("about.visionText")}
                 </p>
               </CardContent>
             </Card>
@@ -66,7 +66,7 @@ export default function AboutPage() {
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">Our Core Values</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">{tr("about.values")}</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
@@ -75,11 +75,11 @@ export default function AboutPage() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <Icons.Heart className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle>Inclusion</CardTitle>
+                <CardTitle>{tr("about.inclusion")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  Creating spaces where all neurodivergent individuals feel valued and accepted.
+                  {tr("about.inclusionText")}
                 </p>
               </CardContent>
             </Card>
@@ -89,11 +89,11 @@ export default function AboutPage() {
                 <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mb-4">
                   <Icons.Lightbulb className="h-6 w-6 text-terracotta" />
                 </div>
-                <CardTitle>Empowerment</CardTitle>
+                <CardTitle>{tr("about.empowerment")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  Providing tools and resources to help individuals reach their full potential.
+                  {tr("about.empowermentText")}
                 </p>
               </CardContent>
             </Card>
@@ -103,11 +103,11 @@ export default function AboutPage() {
                 <div className="w-12 h-12 bg-terracotta/10 rounded-lg flex items-center justify-center mb-4">
                   <Icons.Globe className="h-6 w-6 text-terracotta" />
                 </div>
-                <CardTitle>Cultural Sensitivity</CardTitle>
+                <CardTitle>{tr("about.culture")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  Respecting diverse African cultures while promoting neurodiversity awareness.
+                  {tr("about.cultureText")}
                 </p>
               </CardContent>
             </Card>
@@ -117,11 +117,11 @@ export default function AboutPage() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <Icons.Users className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle>Community</CardTitle>
+                <CardTitle>{tr("about.community")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  Building strong networks of support across all 54 African countries.
+                  {tr("about.communityText")}
                 </p>
               </CardContent>
             </Card>
@@ -133,9 +133,9 @@ export default function AboutPage() {
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">Our Team</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">{tr("about.team")}</h2>
             <p className="text-xl text-muted-foreground text-pretty max-w-3xl mx-auto">
-              Dedicated professionals and neurodivergent advocates working to transform lives across Africa.
+              {tr("about.teamText")}
             </p>
           </div>
 
@@ -143,13 +143,13 @@ export default function AboutPage() {
             {[
               {
                 name: "Pauline Abiola-Oshunniyi",
-                role: "Co-founder and Executive Director",
-                bio: "International development strategist with over two decades of experience spanning governance, sustainability, and institutional collaboration across Africa. Works with governments and development institutions on partnership design and sustainable development outcomes.",
+                role: tr("about.roleDirector"),
+                bio: tr("about.bioPauline"),
               },
               {
                 name: "Abiola Olugbenga Oshunniyi",
-                role: "Co-Founder",
-                bio: "Development strategist with nearly two decades advising governments and international institutions on strengthening public systems. Focuses on policy design, resource mobilization, and large-scale program implementation across African health, governance, and sustainability sectors.",
+                role: tr("about.roleCofounder"),
+                bio: tr("about.bioAbiola"),
               },
             ].map((member) => (
               <Card key={member.name}>
@@ -169,13 +169,13 @@ export default function AboutPage() {
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-primary to-terracotta text-primary-foreground">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">Get Involved</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">{tr("about.getInvolved")}</h2>
           <p className="text-xl opacity-90 text-pretty mb-8 max-w-2xl mx-auto">
-            Join us in our mission to empower neurodivergent individuals across Africa.
+            {tr("about.getInvolvedText")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" asChild className="text-lg px-8 py-6">
-              <Link href="/community">Join Community</Link>
+              <Link href="/community">{tr("about.joinCommunity")}</Link>
             </Button>
             <Button
               size="lg"
@@ -183,7 +183,7 @@ export default function AboutPage() {
               asChild
               className="text-lg px-8 py-6 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary bg-transparent"
             >
-              <Link href="/donate">Support Us</Link>
+              <Link href="/donate">{tr("about.supportUs")}</Link>
             </Button>
           </div>
         </div>
@@ -192,7 +192,7 @@ export default function AboutPage() {
       {/* Footer */}
       <footer className="bg-background border-t py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} African Neurodiversity Alliance. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {tr("about.rights")}</p>
         </div>
       </footer>
     </div>
