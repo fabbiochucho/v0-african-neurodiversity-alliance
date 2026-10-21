@@ -52,6 +52,8 @@ test("community: post a discussion", async ({ page }) => {
   await page.getByLabel("Title").fill(title)
   await page.getByLabel("Message").fill("Posted by the signed-in end-to-end test.")
   await page.getByRole("button", { name: "Post", exact: true }).click()
+  await expect(page.getByText("Failed to post. Please try again.")).toHaveCount(0)
+  await expect(page.getByRole("dialog")).toHaveCount(0)
   await expect(page.getByRole("heading", { name: title })).toBeVisible()
 })
 
