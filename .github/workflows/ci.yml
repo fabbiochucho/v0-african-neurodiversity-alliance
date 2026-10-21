@@ -5,11 +5,9 @@ on:
   push:
     branches: [main]
 
-# NOTE: Playwright/e2e specs (pnpm test:e2e, see playwright.config.ts) are
-# intentionally NOT run here. Those tests need seeded fixture data and a
-# disposable test account, which this repo's real (production) credentials
-# below aren't set up for. Run them locally until a dedicated staging
-# project/fixtures exist.
+# NOTE: the signed-in e2e specs run in the e2e-signed-in job below, against a
+# throwaway local Supabase. iep-flow.spec.ts still needs a seeded account and
+# is run locally only.
 
 jobs:
   build-and-test:
@@ -79,3 +77,60 @@ jobs:
           pnpm start -p 3000 &
           for i in $(seq 1 30); do curl -sf http://localhost:3000/ >/dev/null && break; sleep 2; done
           PLAYWRIGHT_BASE_URL=http://localhost:3000 pnpm exec playwright test tests/e2e/a11y.spec.ts
+
+  # Signed-in journeys (tests/e2e/signed-in.spec.ts) against a throwaway local
+  # Supabase built from scripts/*.sql. No production secrets reach this job.
+  # Turnstile uses Cloudflare's always-pass test site key; local Supabase Auth
+  # doesn't check CAPTCHA, so sign-up and sign-in work without a real token.
+  e2e-signed-in:
+    runs-on: ubuntu-latest
+    env:
+      E2E_LOCAL_SUPABASE: "1"
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11.10.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase
+        run: |
+          supabase init
+          supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta
+          supabase status -o env | sed -n 's/^API_URL=/NEXT_PUBLIC_SUPABASE_URL=/p; s/^ANON_KEY=/NEXT_PUBLIC_SUPABASE_ANON_KEY=/p; s/^SERVICE_ROLE_KEY=/SUPABASE_SERVICE_ROLE_KEY=/p' | tr -d '"' >> "$GITHUB_ENV"
+
+      - name: Apply migrations
+        run: |
+          for f in scripts/*.sql; do
+            echo "::group::$f"
+            psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -q -f "$f"
+            echo "::endgroup::"
+          done
+
+      - name: Build
+        run: pnpm build
+
+      - name: Signed-in tests
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          pnpm start -p 3000 &
+          for i in $(seq 1 30); do curl -sf http://localhost:3000/ >/dev/null && break; sleep 2; done
+          PLAYWRIGHT_BASE_URL=http://localhost:3000 pnpm exec playwright test tests/e2e/signed-in.spec.ts
