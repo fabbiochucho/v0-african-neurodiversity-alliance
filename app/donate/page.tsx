@@ -8,16 +8,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Icons } from "@/lib/icons"
 import { contactHref } from "@/lib/legal"
 import { calmMessage } from "@/lib/calm"
+import { useT } from "@/components/language-provider"
+import type { MessageKey } from "@/lib/i18n"
 
 function DonateStatusBanner() {
   const searchParams = useSearchParams()
+  const tr = useT()
   const success = searchParams.get("success")
   const error = searchParams.get("error")
 
   if (success === "thank_you") {
     return (
       <div className="max-w-md mx-auto p-4 bg-primary/10 border border-primary/30 rounded-lg text-sm text-primary">
-        Thank you! Your donation was received successfully.
+        {tr("donate.thanks")}
       </div>
     )
   }
@@ -25,7 +28,7 @@ function DonateStatusBanner() {
   if (error) {
     return (
       <div className="max-w-md mx-auto p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive">
-        There was a problem processing your donation ({error.replace(/_/g, " ")}). Please try again.
+        {tr("donate.problem")} ({error.replace(/_/g, " ")})
       </div>
     )
   }
@@ -39,6 +42,7 @@ export default function DonatePage() {
   const [donatingTier, setDonatingTier] = useState<string | null>(null)
   const [donateError, setDonateError] = useState<string | null>(null)
   const [provider, setProvider] = useState<PaymentProvider>("flutterwave")
+  const tr = useT()
 
   const handleDonate = async (amount: number, tierName: string) => {
     setDonatingTier(tierName)
@@ -66,27 +70,27 @@ export default function DonatePage() {
     {
       amount: 5,
       name: "Friend",
-      description: "Support our mission with a small contribution",
-      benefits: ["Monthly newsletter", "Community access"],
+      description: tr("donate.friendText"),
+      benefits: [tr("donate.newsletter"), tr("donate.communityAccess")],
     },
     {
       amount: 25,
       name: "Supporter",
-      description: "Make a meaningful impact",
-      benefits: ["All Friend benefits", "Exclusive webinars", "Recognition on website"],
+      description: tr("donate.supporterText"),
+      benefits: [tr("donate.allFriend"), tr("donate.webinars"), tr("donate.recognition")],
       featured: true,
     },
     {
       amount: 100,
       name: "Champion",
-      description: "Become a major supporter",
-      benefits: ["All Supporter benefits", "Annual report", "Direct impact updates"],
+      description: tr("donate.championText"),
+      benefits: [tr("donate.allSupporter"), tr("donate.annualReport"), tr("donate.impactUpdates")],
     },
     {
       amount: 500,
       name: "Founder",
-      description: "Lead transformational change",
-      benefits: ["All Champion benefits", "Advisory board access", "Custom impact report"],
+      description: tr("donate.founderText"),
+      benefits: [tr("donate.allChampion"), tr("donate.advisory"), tr("donate.customReport")],
     },
   ]
 
@@ -98,10 +102,9 @@ export default function DonatePage() {
       <section className="py-20 bg-gradient-to-br from-primary/5 via-terracotta/5 to-terracotta/5">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">Support Our Mission</h1>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">{tr("donate.title")}</h1>
             <p className="text-xl text-muted-foreground text-pretty mb-8 max-w-3xl mx-auto leading-relaxed">
-              Your donation helps us provide free resources, education, and support to neurodivergent individuals across
-              Africa.
+              {tr("donate.intro")}
             </p>
             <Suspense fallback={null}>
               <DonateStatusBanner />
@@ -114,15 +117,15 @@ export default function DonatePage() {
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">Your Impact</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">{tr("donate.impact")}</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto mb-16">
             {[
-              { icon: Icons.BookOpen, amount: "$10", description: "Provides learning resources" },
-              { icon: Icons.Users, amount: "$25", description: "Supports community programs" },
-              { icon: Icons.Globe, amount: "$50", description: "Reaches 100 individuals" },
-              { icon: Icons.Heart, amount: "$100", description: "Funds advocacy campaigns" },
+              { icon: Icons.BookOpen, amount: "$10", description: tr("donate.impact10") },
+              { icon: Icons.Users, amount: "$25", description: tr("donate.impact25") },
+              { icon: Icons.Globe, amount: "$50", description: tr("donate.impact50") },
+              { icon: Icons.Heart, amount: "$100", description: tr("donate.impact100") },
             ].map((item, index) => (
               <Card key={index}>
                 <CardContent className="pt-6 text-center">
@@ -140,7 +143,7 @@ export default function DonatePage() {
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">Choose Your Level of Support</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">{tr("donate.chooseLevel")}</h2>
           </div>
 
           {donateError && (
@@ -150,7 +153,7 @@ export default function DonatePage() {
           )}
 
           <div className="flex items-center justify-center gap-3 mb-8">
-            <span className="text-sm text-muted-foreground">Pay with:</span>
+            <span className="text-sm text-muted-foreground">{tr("donate.payWith")}</span>
             <div className="inline-flex rounded-lg border p-1 bg-background">
               <button
                 type="button"
@@ -180,7 +183,7 @@ export default function DonatePage() {
                 className={`flex flex-col ${tier.featured ? "border-2 border-primary shadow-lg" : ""}`}
               >
                 <CardHeader>
-                  <CardTitle>{tier.name}</CardTitle>
+                  <CardTitle>{tr(`donate.tier.${tier.name}` as MessageKey)}</CardTitle>
                   <CardDescription>{tier.description}</CardDescription>
                   <div className="text-3xl font-bold text-primary mt-4">${tier.amount}</div>
                 </CardHeader>
@@ -199,7 +202,7 @@ export default function DonatePage() {
                     disabled={donatingTier === tier.name}
                     onClick={() => handleDonate(tier.amount, tier.name)}
                   >
-                    {donatingTier === tier.name ? "Redirecting..." : `Donate $${tier.amount}`}
+                    {donatingTier === tier.name ? tr("donate.redirecting") : tr("donate.donateAmount", { amount: `$${tier.amount}` })}
                   </Button>
                 </CardContent>
               </Card>
@@ -212,7 +215,7 @@ export default function DonatePage() {
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">Other Ways to Help</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">{tr("donate.otherWays")}</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -220,12 +223,12 @@ export default function DonatePage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Icons.Share2 className="h-5 w-5 text-primary" />
-                  Share
+                  {tr("donate.share")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-4">
-                  Spread the word about ANDA and help us reach more neurodivergent individuals.
+                  {tr("donate.shareText")}
                 </p>
                 <Button
                   variant="outline"
@@ -243,7 +246,7 @@ export default function DonatePage() {
                     }
                   }}
                 >
-                  Share on Social Media
+                  {tr("donate.shareSocial")}
                 </Button>
               </CardContent>
             </Card>
@@ -252,19 +255,19 @@ export default function DonatePage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Icons.Users className="h-5 w-5 text-terracotta" />
-                  Volunteer
+                  {tr("donate.volunteer")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-4">
-                  Join our team and contribute your skills to support our mission.
+                  {tr("donate.volunteerText")}
                 </p>
                 <Button variant="outline" className="w-full bg-transparent" asChild>
                   <a href={contactHref("Volunteering with ANDA", `Where I am:
 Skills I can offer:
 Hours a month:
 `)}>
-                    Volunteer with us
+                    {tr("donate.volunteerCta")}
                   </a>
                 </Button>
               </CardContent>
@@ -274,19 +277,19 @@ Hours a month:
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Icons.Building2 className="h-5 w-5 text-terracotta" />
-                  Corporate
+                  {tr("donate.corporate")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-4">
-                  Partner with ANDA for corporate sponsorships and matching gifts.
+                  {tr("donate.corporateText")}
                 </p>
                 <Button variant="outline" className="w-full bg-transparent" asChild>
                   <a href={contactHref("Corporate partnership", `Organisation:
 Your role:
 What you have in mind:
 `)}>
-                    Email us
+                    {tr("donate.emailUs")}
                   </a>
                 </Button>
               </CardContent>

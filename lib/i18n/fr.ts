@@ -2,6 +2,7 @@ import type { MessageKey } from "./en"
 import * as auth from "./messages/auth"
 import * as common from "./messages/common"
 import * as about from "./messages/about"
+import * as donate from "./messages/donate"
 
 // French. Draft machine translation (2026-10-21): have a native speaker
 // review it before relying on it. Missing keys fall back to English.
@@ -140,4 +141,5 @@ export const fr: Partial<Record<MessageKey, string>> = {
   ...auth.fr,
   ...common.fr,
   ...about.fr,
+  ...donate.fr,
 }

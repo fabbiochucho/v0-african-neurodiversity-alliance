@@ -2,6 +2,7 @@ import type { MessageKey } from "./en"
 import * as auth from "./messages/auth"
 import * as common from "./messages/common"
 import * as about from "./messages/about"
+import * as donate from "./messages/donate"
 
 // Portuguese (European spelling, as used in Angola, Mozambique, Cabo Verde,
 // Guinea-Bissau and São Tomé). Draft machine translation (2026-10-21): have a
@@ -141,4 +142,5 @@ export const pt: Partial<Record<MessageKey, string>> = {
   ...auth.pt,
   ...common.pt,
   ...about.pt,
+  ...donate.pt,
 }
