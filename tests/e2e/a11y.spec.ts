@@ -32,7 +32,8 @@ for (const [lang, path, heading] of [
 ] as const) {
   test(`accessibility and language: ${path} in ${lang}`, async ({ page, context, baseURL }) => {
     await context.addCookies([{ name: "anda-lang", value: lang, url: baseURL ?? "http://localhost:3000" }])
-    await page.goto(path, { waitUntil: "networkidle" })
+    await page.goto(path, { waitUntil: "load" })
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {})
     await expect(page.locator("html")).toHaveAttribute("lang", lang)
     await expect(page.getByRole("heading", { level: 1 })).toContainText(heading)
     const { violations } = await new AxeBuilder({ page })
