@@ -5,7 +5,8 @@ import { createClient } from "@/lib/supabase/client"
 import { ALL_NEURODIVERGENT, CONDITIONS, matchesCondition } from "@/lib/conditions"
 import { Navigation } from "@/components/navigation"
 import { AfricaMap } from "@/components/africa-map"
-import { useT } from "@/components/language-provider"
+import { useLang, useT } from "@/components/language-provider"
+import { AGE_BRACKETS, CURRICULA, SERVICES, ageLabel, servesAgeBracket } from "@/lib/directory"
 import type { MessageKey } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -35,14 +36,27 @@ import {
   GraduationCap,
   Users,
   Stethoscope,
+  Brain,
+  CalendarCheck,
 } from "lucide-react"
 
 interface Resource {
   id: string
   name: string
-  type: "school" | "therapist" | "support_group" | "healthcare" | "caregiver"
+  type: "school" | "therapist" | "support_group" | "healthcare" | "specialist" | "caregiver"
   location: string
   country: string
+  city: string
+  region: string
+  address: string
+  ageMin: number | null
+  ageMax: number | null
+  services: string[]
+  curriculum: string[]
+  classSize: number | null
+  providerType: string | null
+  sourceUrl: string | null
+  lastVerified: string | null
   rating: number
   reviews: number
   specialties: string[]
@@ -72,6 +86,17 @@ interface ResourceRow {
   conditions: string[] | null
   contact_info: { phone?: string; email?: string; website?: string } | null
   verified: boolean | null
+  city: string | null
+  region: string | null
+  address: string | null
+  age_min: number | null
+  age_max: number | null
+  services: string[] | null
+  curriculum: string[] | null
+  class_size_avg: number | null
+  provider_type: string | null
+  source_url: string | null
+  last_verified_at: string | null
 }
 
 function mapResourceRow(row: ResourceRow): Resource {
@@ -79,8 +104,19 @@ function mapResourceRow(row: ResourceRow): Resource {
     id: row.id,
     name: row.name,
     type: row.category,
-    location: row.location || row.country || "",
+    location: [row.city, row.region].filter(Boolean).join(", ") || row.location || row.country || "",
     country: row.country || "",
+    city: row.city || "",
+    region: row.region || "",
+    address: row.address || "",
+    ageMin: row.age_min,
+    ageMax: row.age_max,
+    services: row.services || [],
+    curriculum: row.curriculum || [],
+    classSize: row.class_size_avg,
+    providerType: row.provider_type,
+    sourceUrl: row.source_url,
+    lastVerified: row.last_verified_at,
     rating: row.rating || 0,
     reviews: row.reviews || 0,
     specialties: row.specialties || [],
@@ -102,7 +138,8 @@ const resourceTypes = [
   { value: "school", label: "Schools", icon: GraduationCap },
   { value: "therapist", label: "Therapists", icon: Heart },
   { value: "support_group", label: "Support Groups", icon: Users },
-  { value: "healthcare", label: "Healthcare", icon: Stethoscope },
+  { value: "healthcare", label: "Medical Practitioners & Clinics", icon: Stethoscope },
+  { value: "specialist", label: "Medical Specialists", icon: Brain },
   { value: "caregiver", label: "Caregivers", icon: Heart },
 ]
 
@@ -134,6 +171,11 @@ export default function DirectoryPage() {
   const [minRating, setMinRating] = useState("0")
   const [contactNeeded, setContactNeeded] = useState<"any" | "phone" | "email" | "website">("any")
   const [sort, setSort] = useState<Sort>("rating")
+  const [ageBracket, setAgeBracket] = useState("any")
+  const [service, setService] = useState("any")
+  const [curriculum, setCurriculum] = useState("any")
+  const [maxClassSize, setMaxClassSize] = useState("any")
+  const lang = useLang()
 
   const [submitOpen, setSubmitOpen] = useState(false)
   const [submission, setSubmission] = useState(emptySubmission)
@@ -209,7 +251,9 @@ export default function DirectoryPage() {
       resource.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       resource.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       resource.specialties.some((specialty) => specialty.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      resource.conditions.some((condition) => condition.toLowerCase().includes(searchTerm.toLowerCase()))
+      resource.conditions.some((condition) => condition.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      [resource.city, resource.region, resource.address].some((place) => place.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      resource.services.some((s) => tr(`dir.service.${s}` as MessageKey).toLowerCase().includes(searchTerm.toLowerCase()))
 
     const matchesCountry = selectedCountry === "All Countries" || resource.country === selectedCountry
     const matchesType = selectedType === "all" || resource.type === selectedType
@@ -219,7 +263,11 @@ export default function DirectoryPage() {
     const matchesAdvanced =
       (!verifiedOnly || resource.verified) &&
       resource.rating >= Number(minRating) &&
-      (contactNeeded === "any" || Boolean(resource.contact[contactNeeded]))
+      (contactNeeded === "any" || Boolean(resource.contact[contactNeeded])) &&
+      (ageBracket === "any" || servesAgeBracket(resource.ageMin, resource.ageMax, ageBracket)) &&
+      (service === "any" || resource.services.includes(service)) &&
+      (curriculum === "any" || resource.curriculum.includes(curriculum)) &&
+      (maxClassSize === "any" || (resource.classSize != null && resource.classSize <= Number(maxClassSize)))
 
     return matchesSearch && matchesCountry && matchesType && matchesConditionFilter && matchesAdvanced
   })
@@ -237,7 +285,15 @@ export default function DirectoryPage() {
     }, {}),
   ).sort((a, b) => b[1] - a[1])
   const maxCount = byCountry[0]?.[1] || 1
-  const advancedCount = [verifiedOnly, minRating !== "0", contactNeeded !== "any"].filter(Boolean).length
+  const advancedCount = [
+    verifiedOnly,
+    minRating !== "0",
+    contactNeeded !== "any",
+    ageBracket !== "any",
+    service !== "any",
+    curriculum !== "any",
+    maxClassSize !== "any",
+  ].filter(Boolean).length
 
   const getTypeIcon = (type: string) => {
     const typeConfig = resourceTypes.find((t) => t.value === type)
@@ -250,6 +306,7 @@ export default function DirectoryPage() {
       therapist: "bg-terracotta/10 text-terracotta",
       support_group: "bg-terracotta/10 text-terracotta",
       healthcare: "bg-primary/10 text-primary",
+      specialist: "bg-primary/10 text-primary",
       caregiver: "bg-terracotta/10 text-terracotta",
     }
     return colors[type as keyof typeof colors] || "bg-muted text-muted-foreground"
@@ -418,6 +475,46 @@ export default function DirectoryPage() {
                     </SelectContent>
                   </Select>
                 </div>
+                {(
+                  [
+                    { id: "age-bracket", label: "dir.ageBracket", any: "dir.anyAge", value: ageBracket, set: setAgeBracket, options: AGE_BRACKETS.map((b) => ({ value: b.key, label: `dir.age.${b.key}` })) },
+                    { id: "service", label: "dir.service", any: "dir.anyService", value: service, set: setService, options: SERVICES.map((v) => ({ value: v, label: `dir.service.${v}` })) },
+                    { id: "curriculum", label: "dir.curriculumLabel", any: "dir.anyCurriculum", value: curriculum, set: setCurriculum, options: CURRICULA.map((v) => ({ value: v, label: `dir.curriculum.${v}` })) },
+                  ] as const
+                ).map((f) => (
+                  <div key={f.id} className="space-y-1">
+                    <Label htmlFor={f.id}>{tr(f.label)}</Label>
+                    <Select value={f.value} onValueChange={f.set}>
+                      <SelectTrigger id={f.id}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="any">{tr(f.any)}</SelectItem>
+                        {f.options.map((o) => (
+                          <SelectItem key={o.value} value={o.value}>
+                            {tr(o.label as MessageKey)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
+                <div className="space-y-1">
+                  <Label htmlFor="class-size">{tr("dir.classSizeLabel")}</Label>
+                  <Select value={maxClassSize} onValueChange={setMaxClassSize}>
+                    <SelectTrigger id="class-size">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="any">{tr("dir.anyClassSize")}</SelectItem>
+                      {[6, 10, 15, 20].map((n) => (
+                        <SelectItem key={n} value={String(n)}>
+                          {tr("dir.classSizeMax", { n })}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             )}
           </CardContent>
@@ -449,6 +546,10 @@ export default function DirectoryPage() {
                       setSelectedCountry("All Countries")
                       setSelectedType("all")
                       setSelectedCondition("all")
+                      setAgeBracket("any")
+                      setService("any")
+                      setCurriculum("any")
+                      setMaxClassSize("any")
                     }}
                   >
                     {tr("dir.clearFilters")}
@@ -523,6 +624,37 @@ export default function DirectoryPage() {
                             </div>
                           )}
 
+                          {/* Who, what and how big */}
+                          {(() => {
+                            const ages = ageLabel(resource.ageMin, resource.ageMax)
+                            const ageText = !ages
+                              ? null
+                              : ages.min != null && ages.max != null
+                                ? tr("dir.ages", { min: ages.min, max: ages.max })
+                                : ages.min != null
+                                  ? tr("dir.agesFrom", { min: ages.min })
+                                  : tr("dir.agesTo", { max: ages.max ?? "" })
+                            const facts = [
+                              ageText,
+                              resource.providerType && tr(`dir.provider.${resource.providerType}` as MessageKey),
+                              ...resource.curriculum.map((c) => tr(`dir.curriculum.${c}` as MessageKey)),
+                              resource.classSize != null && tr("dir.avgClassSize", { n: resource.classSize }),
+                            ].filter(Boolean)
+                            return facts.length > 0 ? <p className="text-sm">{facts.join(" · ")}</p> : null
+                          })()}
+                          {resource.services.length > 0 && (
+                            <ul aria-label={tr("dir.services")} className="flex flex-wrap gap-2">
+                              {resource.services.map((s) => (
+                                <li key={s}>
+                                  <Badge variant="outline" className="text-xs">
+                                    {tr(`dir.service.${s}` as MessageKey)}
+                                  </Badge>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                          {resource.address && <p className="text-xs text-muted-foreground">{resource.address}</p>}
+
                           {/* Specialties */}
                           <div className="flex flex-wrap gap-2">
                             {resource.specialties.map((specialty) => (
@@ -534,6 +666,26 @@ export default function DirectoryPage() {
 
                           {/* Description */}
                           <p className="text-sm text-muted-foreground line-clamp-2">{resource.description}</p>
+                          {(resource.lastVerified || resource.sourceUrl) && (
+                            <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <CalendarCheck className="h-3 w-3" aria-hidden="true" />
+                              {resource.lastVerified &&
+                                tr("dir.lastChecked", {
+                                  date: new Date(resource.lastVerified).toLocaleDateString(lang === "en" ? "en-GB" : lang, {
+                                    month: "short",
+                                    year: "numeric",
+                                  }),
+                                })}
+                              {resource.sourceUrl && (
+                                <>
+                                  {resource.lastVerified && " · "}
+                                  <a href={resource.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline">
+                                    {tr("dir.source")}
+                                  </a>
+                                </>
+                              )}
+                            </p>
+                          )}
 
                           {/* Contact Info */}
                           <div className="space-y-2">
