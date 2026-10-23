@@ -104,7 +104,7 @@ function mapResourceRow(row: ResourceRow): Resource {
     id: row.id,
     name: row.name,
     type: row.category,
-    location: [row.city, row.region].filter(Boolean).join(", ") || row.location || row.country || "",
+    location: [...new Set([row.city, row.region].filter(Boolean))].join(", ") || row.location || row.country || "",
     country: row.country || "",
     city: row.city || "",
     region: row.region || "",

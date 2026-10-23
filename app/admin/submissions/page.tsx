@@ -55,7 +55,7 @@ async function publish(formData: FormData) {
       region: s.region,
       city: s.city ?? s.location,
       address: s.address,
-      location: [s.city ?? s.location, s.region].filter(Boolean).join(", ") || s.country,
+      location: [...new Set([s.city ?? s.location, s.region].filter(Boolean))].join(", ") || s.country,
       age_min: s.age_min,
       age_max: s.age_max,
       services: s.services ?? [],
