@@ -50,9 +50,14 @@ export default async function AdminDashboardPage() {
               Counts from ANDA&apos;s own database. No names, emails or tracking tools.
             </p>
           </div>
-          <Link href="/admin/feeds" className="text-primary underline">
-            Moderate feeds
-          </Link>
+          <span className="flex gap-4">
+            <Link href="/admin/submissions" className="text-primary underline">
+              Directory suggestions
+            </Link>
+            <Link href="/admin/feeds" className="text-primary underline">
+              Moderate feeds
+            </Link>
+          </span>
         </header>
 
         {error || !stats ? (

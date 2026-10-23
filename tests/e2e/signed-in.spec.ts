@@ -82,3 +82,17 @@ test("pro plan: AI chat unlocks", async ({ page }) => {
   // CI has no AI key, so a Pro user sees the "not switched on" message instead of the chat.
   await expect(page.getByText("AI chat isn't switched on yet")).toBeVisible()
 })
+
+test("directory: suggest an organisation", async ({ page }) => {
+  await page.goto("/directory")
+  await page.getByRole("button", { name: "Suggest an organisation" }).click()
+  await page.getByLabel("Name *").fill(`E2E Therapy Centre ${Date.now()}`)
+  await page.getByLabel("Youngest age served").fill("3")
+  await page.getByLabel("Oldest age served").fill("12")
+  await page.getByRole("button", { name: "Speech and language therapy" }).click()
+  const submit = page.getByRole("button", { name: "Submit", exact: true })
+  await expect(submit).toBeDisabled() // until the accuracy box is ticked
+  await page.getByLabel(/These details are accurate/).check()
+  await submit.click()
+  await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible()
+})
