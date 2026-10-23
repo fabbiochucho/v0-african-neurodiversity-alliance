@@ -6,7 +6,7 @@ import { ALL_NEURODIVERGENT, CONDITIONS, matchesCondition } from "@/lib/conditio
 import { Navigation } from "@/components/navigation"
 import { AfricaMap } from "@/components/africa-map"
 import { useLang, useT } from "@/components/language-provider"
-import { AGE_BRACKETS, CURRICULA, SERVICES, ageLabel, servesAgeBracket } from "@/lib/directory"
+import { AGE_BRACKETS, CURRICULA, PROVIDER_TYPES, SERVICES, ageLabel, servesAgeBracket } from "@/lib/directory"
 import type { MessageKey } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -104,7 +104,7 @@ function mapResourceRow(row: ResourceRow): Resource {
     id: row.id,
     name: row.name,
     type: row.category,
-    location: [row.city, row.region].filter(Boolean).join(", ") || row.location || row.country || "",
+    location: [...new Set([row.city, row.region].filter(Boolean))].join(", ") || row.location || row.country || "",
     country: row.country || "",
     city: row.city || "",
     region: row.region || "",
@@ -154,6 +154,24 @@ const emptySubmission = {
   website: "",
   submittedByEmail: "",
   conditions: [] as string[],
+  region: "",
+  address: "",
+  ageMin: "",
+  ageMax: "",
+  services: [] as string[],
+  curriculum: [] as string[],
+  classSize: "",
+  providerType: "",
+  role: "",
+  accurate: false,
+}
+
+const SUBMITTER_ROLES = ["provider", "parent", "professional", "other"] as const
+
+/** Whole number in range, or null for blank/invalid input. */
+function intOrNull(v: string, min: number, max: number): number | null {
+  const n = Number(v)
+  return v.trim() !== "" && Number.isInteger(n) && n >= min && n <= max ? n : null
 }
 
 export default function DirectoryPage() {
@@ -189,7 +207,7 @@ export default function DirectoryPage() {
   const [ratedIds, setRatedIds] = useState<Set<string>>(new Set())
 
   async function handleSubmitResource() {
-    if (!submission.name.trim()) return
+    if (!submission.name.trim() || !submission.accurate) return
     setSubmitting(true)
     const supabase = createClient()
     const { error } = await supabase.from("resource_submissions").insert({
@@ -205,6 +223,17 @@ export default function DirectoryPage() {
       },
       submitted_by_email: submission.submittedByEmail.trim() || null,
       conditions: submission.conditions,
+      city: submission.location.trim() || null,
+      region: submission.region.trim() || null,
+      address: submission.address.trim() || null,
+      age_min: intOrNull(submission.ageMin, 0, 120),
+      age_max: intOrNull(submission.ageMax, 0, 120),
+      services: submission.services,
+      curriculum: submission.category === "school" ? submission.curriculum : [],
+      class_size_avg: submission.category === "school" ? intOrNull(submission.classSize, 1, 200) : null,
+      provider_type: submission.providerType || null,
+      submitter_role: submission.role || null,
+      accurate_and_public: submission.accurate,
     })
     setSubmitting(false)
     if (!error) {
@@ -903,6 +932,134 @@ export default function DirectoryPage() {
                     onChange={(e) => setSubmission({ ...submission, location: e.target.value })}
                   />
                 </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="sub-region">{tr("dir.region")}</Label>
+                    <Input
+                      id="sub-region"
+                      value={submission.region}
+                      onChange={(e) => setSubmission({ ...submission, region: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="sub-address">{tr("dir.address")}</Label>
+                  <Input
+                    id="sub-address"
+                    value={submission.address}
+                    onChange={(e) => setSubmission({ ...submission, address: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="sub-age-min">{tr("dir.ageFrom")}</Label>
+                    <Input
+                      id="sub-age-min"
+                      type="number"
+                      min={0}
+                      max={120}
+                      inputMode="numeric"
+                      value={submission.ageMin}
+                      onChange={(e) => setSubmission({ ...submission, ageMin: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="sub-age-max">{tr("dir.ageTo")}</Label>
+                    <Input
+                      id="sub-age-max"
+                      type="number"
+                      min={0}
+                      max={120}
+                      inputMode="numeric"
+                      value={submission.ageMax}
+                      onChange={(e) => setSubmission({ ...submission, ageMax: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <fieldset className="space-y-2">
+                  <legend className="text-sm font-medium">{tr("dir.servicesOffered")}</legend>
+                  <div className="flex flex-wrap gap-2">
+                    {SERVICES.map((v) => {
+                      const selected = submission.services.includes(v)
+                      return (
+                        <Button
+                          key={v}
+                          type="button"
+                          size="sm"
+                          variant={selected ? "default" : "outline"}
+                          aria-pressed={selected}
+                          className="h-7 text-xs"
+                          onClick={() =>
+                            setSubmission({
+                              ...submission,
+                              services: selected ? submission.services.filter((x) => x !== v) : [...submission.services, v],
+                            })
+                          }
+                        >
+                          {tr(`dir.service.${v}` as MessageKey)}
+                        </Button>
+                      )
+                    })}
+                  </div>
+                </fieldset>
+                {submission.category === "school" && (
+                  <>
+                <fieldset className="space-y-2">
+                  <legend className="text-sm font-medium">{tr("dir.curriculaOffered")}</legend>
+                  <div className="flex flex-wrap gap-2">
+                    {CURRICULA.map((v) => {
+                      const selected = submission.curriculum.includes(v)
+                      return (
+                        <Button
+                          key={v}
+                          type="button"
+                          size="sm"
+                          variant={selected ? "default" : "outline"}
+                          aria-pressed={selected}
+                          className="h-7 text-xs"
+                          onClick={() =>
+                            setSubmission({
+                              ...submission,
+                              curriculum: selected ? submission.curriculum.filter((x) => x !== v) : [...submission.curriculum, v],
+                            })
+                          }
+                        >
+                          {tr(`dir.curriculum.${v}` as MessageKey)}
+                        </Button>
+                      )
+                    })}
+                  </div>
+                </fieldset>
+                  <div className="space-y-2">
+                    <Label htmlFor="sub-class-size">{tr("dir.avgClassSizeLabel")}</Label>
+                    <Input
+                      id="sub-class-size"
+                      type="number"
+                      min={1}
+                      max={200}
+                      inputMode="numeric"
+                      value={submission.classSize}
+                      onChange={(e) => setSubmission({ ...submission, classSize: e.target.value })}
+                    />
+                  </div>
+                  </>
+                )}
+                <div className="space-y-2">
+                  <Label htmlFor="sub-provider-type">{tr("dir.providerTypeLabel")}</Label>
+                  <Select value={submission.providerType || "unsure"} onValueChange={(v) => setSubmission({ ...submission, providerType: v === "unsure" ? "" : v })}>
+                    <SelectTrigger id="sub-provider-type">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unsure">{tr("dir.notSure")}</SelectItem>
+                      {PROVIDER_TYPES.map((v) => (
+                        <SelectItem key={v} value={v}>
+                          {tr(`dir.provider.${v}` as MessageKey)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <fieldset className="space-y-2">
                   <legend className="text-sm font-medium">{tr("dir.conditionsSupported")}</legend>
                   <div className="flex flex-wrap gap-2">
@@ -973,12 +1130,40 @@ export default function DirectoryPage() {
                     onChange={(e) => setSubmission({ ...submission, submittedByEmail: e.target.value })}
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="sub-role">{tr("dir.yourRole")}</Label>
+                  <Select value={submission.role || "unset"} onValueChange={(v) => setSubmission({ ...submission, role: v === "unset" ? "" : v })}>
+                    <SelectTrigger id="sub-role">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unset">{tr("dir.notSure")}</SelectItem>
+                      {SUBMITTER_ROLES.map((r) => (
+                        <SelectItem key={r} value={r}>
+                          {tr(`dir.role.${r}` as MessageKey)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-start gap-2">
+                  <input
+                    id="sub-accurate"
+                    type="checkbox"
+                    className="mt-1 h-4 w-4"
+                    checked={submission.accurate}
+                    onChange={(e) => setSubmission({ ...submission, accurate: e.target.checked })}
+                  />
+                  <Label htmlFor="sub-accurate" className="font-normal leading-snug">
+                    {tr("dir.confirmAccurate")}
+                  </Label>
+                </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setSubmitOpen(false)}>
                   {tr("dir.cancel")}
                 </Button>
-                <Button onClick={handleSubmitResource} disabled={submitting || !submission.name.trim()}>
+                <Button onClick={handleSubmitResource} disabled={submitting || !submission.name.trim() || !submission.accurate}>
                   {submitting ? tr("dir.submitting") : tr("dir.submit")}
                 </Button>
               </DialogFooter>
