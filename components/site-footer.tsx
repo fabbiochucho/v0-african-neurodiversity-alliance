@@ -48,7 +48,7 @@ export function SiteFooter({ lang = "en" }: { lang?: SiteLanguage }) {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div className="space-y-4 max-w-sm sm:col-span-2 lg:col-span-1">
-            <Link href="/" className="inline-block" aria-label="ANDA home">
+            <Link href="/" className="inline-block">
               <AndaLogo />
             </Link>
             <p className="text-muted-foreground text-pretty">
