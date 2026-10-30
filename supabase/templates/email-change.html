@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>Confirm your new email for ANDA</title></head>
+<body style="margin:0;padding:0;background:#f5f5f4;font-family:Segoe UI,Helvetica,Arial,sans-serif;color:#1f2937;">
+<!-- Supabase Auth "email-change" template for African Neurodiversity Alliance (Go template variables: ConfirmationURL, Email, NewEmail). -->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Confirm the change of email address on your ANDA account.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f4;"><tr><td align="center" style="padding:24px 12px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden;">
+    <tr><td style="height:6px;line-height:6px;font-size:0;background:#2a7a69;">&nbsp;</td></tr>
+    <tr><td style="padding:24px 32px 8px 32px;font-size:22px;font-weight:800;color:#2a7a69;">ANDA</td></tr>
+    <tr><td style="padding:12px 32px 24px 32px;">
+      <h1 style="margin:0 0 12px 0;font-size:24px;line-height:1.25;color:#111827;">Confirm your new email address</h1>
+      <p style="margin:0 0 20px 0;font-size:16px;line-height:1.55;color:#374151;">You asked to change the email address on your ANDA account from <strong>{{ .Email }}</strong> to <strong>{{ .NewEmail }}</strong>. Confirm the change below.</p>
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 12px 0;"><tr>
+        <td style="border-radius:8px;background:#2a7a69;"><a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 28px;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:8px;">Confirm new email</a></td>
+      </tr></table>
+      <p style="margin:0 0 4px 0;font-size:13px;line-height:1.5;color:#6b7280;">The button works once. If it doesn't, copy this link into your browser:</p>
+      <p style="margin:0 0 16px 0;font-size:12px;line-height:1.5;word-break:break-all;"><a href="{{ .ConfirmationURL }}" style="color:#1d5a4d;">{{ .ConfirmationURL }}</a></p>
+      <p style="margin:0;font-size:13px;line-height:1.5;color:#6b7280;">If you didn't ask for this, ignore this email: your account keeps its current address.</p>
+    </td></tr>
+    <tr><td style="background:#1f2937;padding:20px 32px;">
+      <p style="margin:0;font-size:12px;line-height:1.5;color:#9ca3af;">ANDA by DiBadili Institute &middot; P.O. Box 2550, Festac Town, Lagos, Nigeria &middot; <a href="https://anda.becomechange.institute/privacy" style="color:#e5e7eb;">Privacy</a></p>
+    </td></tr>
+  </table>
+</td></tr></table>
+</body>
+</html>
