@@ -9,7 +9,7 @@ export const COPYRIGHT_HOLDER = "DiBadili Institute"
 export const LEGAL_POSTAL_ADDRESS = "P.O. Box 2550, Festac Town, Lagos, Nigeria"
 export const LEGAL_CONTACT_EMAIL = "privacy@becomechange.institute"
 export const BECOMECHANGE_URL = "https://becomechange.institute"
-export const LEGAL_UPDATED = "21 October 2026"
+export const LEGAL_UPDATED = "31 October 2026"
 // General enquiries (volunteering, partnerships, campaigns).
 export const ANDA_CONTACT_EMAIL = "anda@becomechange.institute"
 
