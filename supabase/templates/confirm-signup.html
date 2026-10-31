@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Confirm your email for ANDA</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f4;font-family:Segoe UI,Helvetica,Arial,sans-serif;color:#1f2937;">
+<!-- Supabase Auth "Confirm signup" template for African Neurodiversity Alliance (Go template variables: ConfirmationURL, Email, Data.full_name). -->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">One click to confirm your email and join Africa's neurodiversity community.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f4;">
+  <tr><td align="center" style="padding:24px 12px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden;">
+      <tr><td style="height:6px;line-height:6px;font-size:0;background:#2a7a69;">&nbsp;</td></tr>
+      <tr><td style="padding:24px 32px 8px 32px;font-size:22px;font-weight:800;color:#2a7a69;letter-spacing:0.3px;">ANDA<span style="display:block;font-size:12px;font-weight:500;color:#6b7280;letter-spacing:0;">African Neurodiversity Alliance</span></td></tr>
+      <tr><td style="padding:16px 32px 8px 32px;">
+        <h1 style="margin:0 0 12px 0;font-size:26px;line-height:1.25;color:#111827;">Welcome{{ if .Data.full_name }}, {{ .Data.full_name }}{{ end }}! You're one click from joining ANDA.</h1>
+        <p style="margin:0 0 20px 0;font-size:16px;line-height:1.55;color:#374151;">Thanks for joining the African Neurodiversity Alliance, a community for neurodivergent people, families, educators and advocates across Africa. Confirm your email to activate your account.</p>
+        <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 12px 0;"><tr>
+          <td style="border-radius:8px;background:#2a7a69;"><a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 28px;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:8px;">Confirm my email</a></td>
+        </tr></table>
+        <p style="margin:0 0 4px 0;font-size:13px;line-height:1.5;color:#6b7280;">The button works once. If it doesn't, copy this link into your browser:</p>
+        <p style="margin:0 0 8px 0;font-size:12px;line-height:1.5;word-break:break-all;"><a href="{{ .ConfirmationURL }}" style="color:#1d5a4d;">{{ .ConfirmationURL }}</a></p>
+      </td></tr>
+      <tr><td style="padding:20px 32px 4px 32px;"><h2 style="margin:0 0 12px 0;font-size:18px;color:#111827;">What you'll find on ANDA</h2></td></tr>
+      <tr><td style="padding:0 24px 8px 24px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr><td width="50%" valign="top" style="padding:8px;"><div style="border:1px solid #cfe6e0;border-radius:10px;padding:14px;"><p style="margin:0 0 4px 0;font-size:15px;font-weight:700;color:#2a7a69;">Find support near you</p><p style="margin:0 0 8px 0;font-size:13px;line-height:1.5;color:#4b5563;">A directory of services, practitioners and organisations across Africa.</p><a href="https://anda.becomechange.institute/directory" style="font-size:13px;color:#1d5a4d;font-weight:600;">Browse the directory &rarr;</a></div></td><td width="50%" valign="top" style="padding:8px;"><div style="border:1px solid #cfe6e0;border-radius:10px;padding:14px;"><p style="margin:0 0 4px 0;font-size:15px;font-weight:700;color:#2a7a69;">Learn</p><p style="margin:0 0 8px 0;font-size:13px;line-height:1.5;color:#4b5563;">Practical guides on neurodiversity for families, educators and workplaces.</p><a href="https://anda.becomechange.institute/learning" style="font-size:13px;color:#1d5a4d;font-weight:600;">Start learning &rarr;</a></div></td></tr>
+          <tr><td width="50%" valign="top" style="padding:8px;"><div style="border:1px solid #cfe6e0;border-radius:10px;padding:14px;"><p style="margin:0 0 4px 0;font-size:15px;font-weight:700;color:#2a7a69;">Join the community</p><p style="margin:0 0 8px 0;font-size:13px;line-height:1.5;color:#4b5563;">Connect with others who understand, share experiences and ask questions.</p><a href="https://anda.becomechange.institute/community" style="font-size:13px;color:#1d5a4d;font-weight:600;">Meet the community &rarr;</a></div></td><td width="50%" valign="top" style="padding:8px;"><div style="border:1px solid #cfe6e0;border-radius:10px;padding:14px;"><p style="margin:0 0 4px 0;font-size:15px;font-weight:700;color:#2a7a69;">Apps and tools</p><p style="margin:0 0 8px 0;font-size:13px;line-height:1.5;color:#4b5563;">Tools that support communication, calm and everyday routines.</p><a href="https://anda.becomechange.institute/apps-tools" style="font-size:13px;color:#1d5a4d;font-weight:600;">Explore the tools &rarr;</a></div></td></tr>
+        </table>
+      </td></tr>
+      <tr><td style="padding:12px 32px 24px 32px;">
+        <div style="background:#e8f4f1;border-radius:10px;padding:16px;">
+          <p style="margin:0 0 6px 0;font-size:15px;font-weight:700;color:#111827;">Your first step after confirming</p>
+          <p style="margin:0;font-size:14px;line-height:1.55;color:#374151;">Tell us a little about yourself on your account page, so we can point you to the most useful resources.</p>
+        </div>
+      </td></tr>
+      <tr><td style="background:#1f2937;padding:20px 32px;">
+        <p style="margin:0 0 6px 0;font-size:12px;line-height:1.5;color:#d1d5db;">You're receiving this because {{ .Email }} was used to sign up at anda.becomechange.institute. If that wasn't you, ignore this email: nothing happens unless the email is confirmed.</p>
+        <p style="margin:0;font-size:12px;line-height:1.5;color:#9ca3af;">ANDA by DiBadili Institute &middot; P.O. Box 2550, Festac Town, Lagos, Nigeria &middot;
+          <a href="https://anda.becomechange.institute/privacy" style="color:#e5e7eb;">Privacy</a></p>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>
