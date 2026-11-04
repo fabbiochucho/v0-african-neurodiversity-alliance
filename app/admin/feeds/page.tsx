@@ -1,10 +1,10 @@
-import { notFound } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { createServiceClient } from "@/lib/supabase/service"
-import { getAdminEmail } from "@/lib/admin"
+import { requireStaff, staffForAction } from "@/lib/admin"
+import { logAdminAction } from "@/lib/admin/audit"
 
 export const dynamic = "force-dynamic"
 export const metadata = { title: "Moderate feeds | ANDA", robots: { index: false } }
@@ -13,14 +13,20 @@ const TABLES = { news: "news_items", research: "research_feed", resources: "disc
 
 async function setHidden(formData: FormData) {
   "use server"
-  if (!(await getAdminEmail())) return
+  const staff = await staffForAction("feeds.moderate")
+  if (!staff) return
   const table = TABLES[formData.get("table") as keyof typeof TABLES]
   const id = String(formData.get("id") ?? "")
   if (!table || !id) return
-  await createServiceClient()
-    .from(table)
-    .update({ is_hidden: formData.get("hidden") === "true" })
-    .eq("id", id)
+  const hidden = formData.get("hidden") === "true"
+  const { error } = await createServiceClient().from(table).update({ is_hidden: hidden }).eq("id", id)
+  if (error) return console.error("Feed moderation failed:", error)
+  await logAdminAction(staff, hidden ? "feeds.hide" : "feeds.show", {
+    type: table,
+    id,
+    before: { is_hidden: !hidden },
+    after: { is_hidden: hidden },
+  })
   revalidatePath("/admin/feeds")
   revalidatePath("/news")
   revalidatePath("/news/research")
@@ -56,7 +62,7 @@ function ItemList({ table, rows }: { table: keyof typeof TABLES; rows: Row[] }) 
 }
 
 export default async function AdminFeedsPage() {
-  if (!(await getAdminEmail())) notFound()
+  await requireStaff("feeds.moderate")
 
   const supabase = createServiceClient()
   const [{ data: news }, { data: research }, { data: resources }] = await Promise.all([

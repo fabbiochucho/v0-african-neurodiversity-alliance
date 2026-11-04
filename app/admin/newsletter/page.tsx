@@ -1,16 +1,15 @@
 import Link from "next/link"
-import { notFound } from "next/navigation"
 import { Navigation } from "@/components/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { createServiceClient } from "@/lib/supabase/service"
-import { getAdminEmail } from "@/lib/admin"
+import { requireStaff } from "@/lib/admin"
 import { NewsletterComposer } from "./composer"
 
 export const dynamic = "force-dynamic"
 export const metadata = { title: "Newsletter | ANDA admin", robots: { index: false } }
 
 export default async function AdminNewsletterPage() {
-  if (!(await getAdminEmail())) notFound()
+  await requireStaff("newsletter.send")
 
   const service = createServiceClient()
   const subscribers = () => service.from("newsletter_subscribers").select("id", { count: "exact", head: true })

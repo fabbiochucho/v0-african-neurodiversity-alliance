@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { updateSession } from "@/lib/supabase/middleware"
 import { buildCsp } from "@/lib/csp"
+import { ADMIN_COOKIE, adminCookieFresh, adminCookieOptions, signAdminCookie } from "@/lib/admin/session"
 
 // Session refresh only runs on routes that read auth state. Every one of
 // these already does its own supabase.auth.getUser() check server-side, so
@@ -24,6 +25,7 @@ const SESSION_PATHS = [
   "/iep",
   "/settings",
   "/connect",
+  "/admin",
 ]
 
 const needsSession = (path: string) => SESSION_PATHS.some((p) => path === p || path.startsWith(`${p}/`))
@@ -40,6 +42,16 @@ export async function middleware(request: NextRequest) {
     ? await updateSession(request)
     : NextResponse.next({ request })
   response.headers.set("Content-Security-Policy", csp)
+
+  // Admin idle timer: renew it on each admin page view, but only while it's still fresh,
+  // so an expired timer can't be revived by loading a page (lib/admin/session.ts).
+  if (request.nextUrl.pathname.startsWith("/admin")) {
+    const value = request.cookies.get(ADMIN_COOKIE)?.value
+    const userId = value?.split(".")[0] ?? ""
+    if (userId && (await adminCookieFresh(value, userId))) {
+      response.cookies.set(ADMIN_COOKIE, await signAdminCookie(userId), adminCookieOptions)
+    }
+  }
   return response
 }
 

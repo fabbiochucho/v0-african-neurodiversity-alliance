@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
-import { getAdminEmail } from "@/lib/admin"
+import { staffForApi } from "@/lib/admin"
+import { logAdminAction } from "@/lib/admin/audit"
 import { createServiceClient } from "@/lib/supabase/service"
 
 export const dynamic = "force-dynamic"
@@ -12,7 +13,8 @@ const csvCell = (v: unknown) => {
 
 // Every subscription with its consent record, including unsubscribed ones (needed to prove consent).
 export async function GET() {
-  if (!(await getAdminEmail())) return NextResponse.json({ error: "Not found" }, { status: 404 })
+  const staff = await staffForApi("newsletter.export")
+  if (staff instanceof NextResponse) return staff
   const rows: Record<string, unknown>[] = []
   for (let from = 0; ; from += 1000) {
     const { data, error } = await createServiceClient()
@@ -24,6 +26,7 @@ export async function GET() {
     rows.push(...(data ?? []))
     if (!data || data.length < 1000) break
   }
+  await logAdminAction(staff, "newsletter.export", { type: "newsletter_subscribers", after: { rows: rows.length } })
   const cols = ["email", "first_name", "consent_source", "consented_at", "consent_text", "unsubscribed_at"]
   const csv = [cols.join(","), ...rows.map((r) => cols.map((c) => csvCell(r[c])).join(","))].join("\r\n")
   return new NextResponse(csv, {

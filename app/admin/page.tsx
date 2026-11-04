@@ -1,9 +1,9 @@
 import Link from "next/link"
-import { notFound } from "next/navigation"
 import { Navigation } from "@/components/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { createServiceClient } from "@/lib/supabase/service"
-import { getAdminEmail } from "@/lib/admin"
+import { allowed, requireStaff } from "@/lib/admin"
+import { ROLE_LABELS, type Permission } from "@/lib/admin/permissions"
 
 export const dynamic = "force-dynamic"
 export const metadata = { title: "Admin dashboard | ANDA", robots: { index: false } }
@@ -31,10 +31,21 @@ const FUNNEL_STEPS: { key: keyof Stats["funnel"]; label: string }[] = [
   { key: "paid", label: "On a paid plan" },
 ]
 
+// Admin sections, each shown only to staff whose role has its permission.
+const SECTIONS: { href: string; label: string; permission: Permission }[] = [
+  { href: "/admin/submissions", label: "Directory suggestions", permission: "directory.moderate" },
+  { href: "/admin/feeds", label: "Moderate feeds", permission: "feeds.moderate" },
+  { href: "/admin/newsletter", label: "Newsletter", permission: "newsletter.send" },
+  { href: "/admin/translations", label: "Translations", permission: "translations.manage" },
+  { href: "/admin/staff", label: "Staff and roles", permission: "staff.manage" },
+  { href: "/admin/audit", label: "Audit log", permission: "audit.read" },
+]
+
 const pct = (n: number, of: number) => (of ? `${Math.round((n / of) * 100)}%` : "–")
 
 export default async function AdminDashboardPage() {
-  if (!(await getAdminEmail())) notFound()
+  const staff = await requireStaff("dashboard.read")
+  const can = allowed(staff, SECTIONS.map((s) => s.permission))
 
   const { data, error } = await createServiceClient().rpc("admin_stats")
   const stats = data as Stats | null
@@ -49,18 +60,17 @@ export default async function AdminDashboardPage() {
             <p className="text-muted-foreground">
               Counts from ANDA&apos;s own database. No names, emails or tracking tools.
             </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Signed in as {staff.email} ({ROLE_LABELS[staff.role]}).
+            </p>
           </div>
-          <span className="flex gap-4">
-            <Link href="/admin/submissions" className="text-primary underline">
-              Directory suggestions
-            </Link>
-            <Link href="/admin/feeds" className="text-primary underline">
-              Moderate feeds
-            </Link>
-            <Link href="/admin/newsletter" className="text-primary underline">
-              Newsletter
-            </Link>
-          </span>
+          <nav aria-label="Admin sections" className="flex flex-wrap gap-4">
+            {SECTIONS.filter((s) => can.has(s.permission)).map((s) => (
+              <Link key={s.href} href={s.href} className="text-primary underline">
+                {s.label}
+              </Link>
+            ))}
+          </nav>
         </header>
 
         {error || !stats ? (

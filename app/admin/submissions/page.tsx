@@ -1,11 +1,11 @@
 import Link from "next/link"
-import { notFound } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { createServiceClient } from "@/lib/supabase/service"
-import { getAdminEmail } from "@/lib/admin"
+import { requireStaff, staffForAction } from "@/lib/admin"
+import { logAdminAction } from "@/lib/admin/audit"
 
 export const dynamic = "force-dynamic"
 export const metadata = { title: "Directory suggestions | ANDA", robots: { index: false } }
@@ -37,8 +37,9 @@ interface Submission {
 // by contacting it; otherwise the listing shows as unverified.
 async function publish(formData: FormData) {
   "use server"
-  const reviewer = await getAdminEmail()
-  if (!reviewer) return
+  const staff = await staffForAction("directory.moderate")
+  if (!staff) return
+  const reviewer = staff.email
   const id = String(formData.get("id") ?? "")
   const verified = formData.get("verified") === "on"
   const db = createServiceClient()
@@ -80,18 +81,31 @@ async function publish(formData: FormData) {
     .from("resource_submissions")
     .update({ status: "approved", reviewed_at: new Date().toISOString(), reviewed_by: reviewer, resource_id: resource.id })
     .eq("id", id)
+  await logAdminAction(staff, "directory.publish", {
+    type: "resource_submissions",
+    id,
+    before: { status: "pending" },
+    after: { status: "approved", resource_id: resource.id, verified },
+  })
   revalidatePath("/admin/submissions")
 }
 
 async function reject(formData: FormData) {
   "use server"
-  const reviewer = await getAdminEmail()
-  if (!reviewer) return
+  const staff = await staffForAction("directory.moderate")
+  if (!staff) return
+  const reviewer = staff.email
   await createServiceClient()
     .from("resource_submissions")
     .update({ status: "rejected", reviewed_at: new Date().toISOString(), reviewed_by: reviewer })
     .eq("id", String(formData.get("id") ?? ""))
     .eq("status", "pending")
+  await logAdminAction(staff, "directory.reject", {
+    type: "resource_submissions",
+    id: String(formData.get("id") ?? ""),
+    before: { status: "pending" },
+    after: { status: "rejected" },
+  })
   revalidatePath("/admin/submissions")
 }
 
@@ -104,7 +118,7 @@ const row = (label: string, value: React.ReactNode) =>
   ) : null
 
 export default async function SubmissionsPage() {
-  if (!(await getAdminEmail())) notFound()
+  await requireStaff("directory.moderate")
   const { data } = await createServiceClient()
     .from("resource_submissions")
     .select("*")
