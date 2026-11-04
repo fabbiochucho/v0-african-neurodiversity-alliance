@@ -80,14 +80,15 @@ export async function isEnabled(key: FeatureKey, ctx: FeatureContext = {}): Prom
   try {
     const { control, targets } = await load(key)
     // Look up the person's organisation and plan only when a target needs them.
-    if (control && !control.killed && ctx.userId) {
+    const userId = ctx.userId
+    if (control && !control.killed && userId) {
       const db = createServiceClient()
       if (ctx.organizationId === undefined && targets.some((t) => t.scope === "organization")) {
-        const { data } = await db.from("profiles").select("organization_id").eq("id", ctx.userId).maybeSingle()
+        const { data } = await db.from("profiles").select("organization_id").eq("id", userId).maybeSingle()
         ctx = { ...ctx, organizationId: data?.organization_id ?? null }
       }
       if (ctx.plan === undefined && targets.some((t) => t.scope === "plan")) {
-        const { data } = await db.rpc("entitled_tier", { p_user: ctx.userId })
+        const { data } = await db.rpc("entitled_tier", { p_user: userId })
         ctx = { ...ctx, plan: typeof data === "string" ? data : "free" }
       }
     }
