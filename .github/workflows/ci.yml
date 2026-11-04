@@ -140,6 +140,12 @@ jobs:
             pending=$(echo $failed)
           done
 
+      - name: Database checks
+        run: |
+          for f in tests/db/*.sql; do
+            psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -q -f "$f"
+          done
+
       - name: Build
         run: pnpm build
 

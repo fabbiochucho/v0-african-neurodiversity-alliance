@@ -1,7 +1,6 @@
 import Link from "next/link"
-import { notFound } from "next/navigation"
 import { Navigation } from "@/components/navigation"
-import { getAdminEmail } from "@/lib/admin"
+import { requireStaff } from "@/lib/admin"
 import { REVIEWED_LANGUAGES } from "@/lib/i18n"
 import { allTranslations } from "@/lib/i18n/review"
 
@@ -9,7 +8,7 @@ export const dynamic = "force-dynamic"
 export const metadata = { title: "Translations | ANDA", robots: { index: false } }
 
 export default async function TranslationsPage() {
-  if (!(await getAdminEmail())) notFound()
+  await requireStaff("translations.manage")
   const rows = allTranslations()
   const missing = (lang: "fr" | "pt") => rows.filter((r) => !r[lang]).length
 
