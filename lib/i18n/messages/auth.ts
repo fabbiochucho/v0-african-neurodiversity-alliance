@@ -25,6 +25,8 @@ export const en = {
   "auth.agreeTerms": "Terms of Service",
   "auth.agreeAnd": "and",
   "auth.agreePrivacy": "Privacy Policy",
+  "auth.newsletterOptIn":
+    "Send me the ANDA newsletter: news about ANDA and DiBadili Institute programmes and services, new services being developed, and news and offers from partners. Optional; unsubscribe at any time.",
   "auth.haveAccount": "Already have an account?",
   "auth.checkEmail": "Check Your Email",
   "auth.checkEmailText":
@@ -62,6 +64,8 @@ export const fr: Draft = {
   "auth.agreeTerms": "Conditions d'utilisation",
   "auth.agreeAnd": "et notre",
   "auth.agreePrivacy": "Politique de confidentialité",
+  "auth.newsletterOptIn":
+    "Envoyez-moi la newsletter d'ANDA : actualités sur les programmes et services d'ANDA et de DiBadili Institute, nouveaux services en préparation, et actualités et offres de partenaires. Facultatif ; désabonnement à tout moment.",
   "auth.haveAccount": "Vous avez déjà un compte ?",
   "auth.checkEmail": "Vérifiez vos e-mails",
   "auth.checkEmailText":
@@ -97,6 +101,8 @@ export const pt: Draft = {
   "auth.agreeTerms": "Termos de utilização",
   "auth.agreeAnd": "e a nossa",
   "auth.agreePrivacy": "Política de privacidade",
+  "auth.newsletterOptIn":
+    "Enviem-me a newsletter da ANDA: notícias sobre os programas e serviços da ANDA e do DiBadili Institute, novos serviços em desenvolvimento, e notícias e ofertas de parceiros. Opcional; pode cancelar a qualquer momento.",
   "auth.haveAccount": "Já tem conta?",
   "auth.checkEmail": "Verifique o seu e-mail",
   "auth.checkEmailText":

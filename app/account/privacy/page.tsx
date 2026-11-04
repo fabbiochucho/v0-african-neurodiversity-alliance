@@ -2,6 +2,8 @@ import { redirect } from "next/navigation"
 import { aiProvider } from "@/lib/ai"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/service"
+import { NEWSLETTER_CONSENT } from "@/lib/newsletter"
 import { Navigation } from "@/components/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { hasActiveConsent } from "@/lib/companion"
@@ -25,6 +27,15 @@ export default async function PrivacyPage() {
     supabase.from("email_lifecycle").select("reminders_off_at").eq("user_id", user.id).maybeSingle(),
   ])
   const remindersOn = !emailRow?.reminders_off_at
+  // newsletter_subscribers is service-role only (scripts/058); read just this person's row.
+  const { data: newsletterRow } = user.email
+    ? await createServiceClient()
+        .from("newsletter_subscribers")
+        .select("unsubscribed_at")
+        .eq("email", user.email.toLowerCase())
+        .maybeSingle()
+    : { data: null }
+  const newsletterOn = !!newsletterRow && !newsletterRow.unsubscribed_at
 
   const names = new Map((learners ?? []).map((l) => [l.id, l.name]))
   const aiConsents = (learners ?? [])
@@ -141,6 +152,22 @@ export default async function PrivacyPage() {
               url="/api/email/reminders"
               method="PUT"
               body={{ on: !remindersOn }}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Newsletter</CardTitle>
+            <CardDescription>{NEWSLETTER_CONSENT}</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap items-center justify-between gap-2 text-sm">
+            <span>The newsletter is {newsletterOn ? "on" : "off"}.</span>
+            <WithdrawButton
+              label={newsletterOn ? "Unsubscribe" : "Subscribe"}
+              url="/api/newsletter"
+              method="PUT"
+              body={{ on: !newsletterOn }}
             />
           </CardContent>
         </Card>
