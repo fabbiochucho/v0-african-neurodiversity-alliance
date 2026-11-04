@@ -21,6 +21,8 @@ export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null)
   const [captchaToken, setCaptchaToken] = useState<string | null>(null)
   const [captchaKey, setCaptchaKey] = useState(0)
+  // Separate, optional consent: never ticked for the person.
+  const [newsletter, setNewsletter] = useState(false)
   const router = useRouter()
   const supabase = createClient()
   const tr = useT()
@@ -53,6 +55,12 @@ export default function SignUpPage() {
             // Which version of the terms and privacy policy this person agreed to.
             terms_version: LEGAL_UPDATED,
             terms_accepted_at: new Date().toISOString(),
+            // Subscribed only once the email is confirmed (scripts/058), with the wording shown here.
+            ...(newsletter && {
+              newsletter_opt_in: "true",
+              newsletter_consent_text: tr("auth.newsletterOptIn"),
+              newsletter_consented_at: new Date().toISOString(),
+            }),
           },
           emailRedirectTo:
             process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/auth/sign-up-success`,
@@ -176,6 +184,17 @@ export default function SignUpPage() {
               className="w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
+
+          <label htmlFor="newsletter" className="flex items-start gap-3 text-sm text-foreground">
+            <input
+              id="newsletter"
+              type="checkbox"
+              checked={newsletter}
+              onChange={(e) => setNewsletter(e.target.checked)}
+              className="mt-1 h-4 w-4 shrink-0 accent-primary"
+            />
+            <span>{tr("auth.newsletterOptIn")}</span>
+          </label>
 
           <Turnstile key={captchaKey} onToken={setCaptchaToken} />
 

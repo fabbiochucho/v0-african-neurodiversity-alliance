@@ -57,6 +57,9 @@ export default async function AdminDashboardPage() {
             <Link href="/admin/feeds" className="text-primary underline">
               Moderate feeds
             </Link>
+            <Link href="/admin/newsletter" className="text-primary underline">
+              Newsletter
+            </Link>
           </span>
         </header>
 
