@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { FEATURE_OFF_MESSAGE, isEnabled } from "@/lib/features"
 import { dbErrorResponse, upgradeRequiredResponse } from "@/lib/api-error"
 import { FEATURE_MIN_TIER, getEntitlement } from "@/lib/entitlements"
 import { hasActiveConsent } from "@/lib/companion"
@@ -59,6 +60,7 @@ export async function POST(request: Request, props: { params: Promise<{ learnerI
 
   if (body.mode === "ai") {
     if (!aiProvider()) return NextResponse.json({ error: "AI drafting isn't switched on." }, { status: 503 })
+    if (!(await isEnabled("ai.plan_drafts", { userId: user.id }))) return NextResponse.json({ error: FEATURE_OFF_MESSAGE }, { status: 503 })
     if (!(await getEntitlement(supabase, user.id)).can("ai_companion")) {
       return upgradeRequiredResponse("AI-drafted plans are part of the Pro plan.", FEATURE_MIN_TIER.ai_companion)
     }

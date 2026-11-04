@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { FEATURE_OFF_MESSAGE, isEnabled } from "@/lib/features"
 import { aiProvider, generate } from "@/lib/ai"
 import { dbErrorResponse, upgradeRequiredResponse } from "@/lib/api-error"
 import { AI_DAILY_MESSAGES, FEATURE_MIN_TIER, getEntitlement } from "@/lib/entitlements"
@@ -31,6 +32,7 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
   }
+  if (!(await isEnabled("ai.companion", { userId: user.id }))) return NextResponse.json({ error: FEATURE_OFF_MESSAGE }, { status: 503 })
 
   const entitlement = await getEntitlement(supabase, user.id)
   if (!entitlement.can("ai_companion")) {

@@ -5,7 +5,7 @@ import { createServiceClient } from "@/lib/supabase/service"
 import type { Staff } from "@/lib/admin"
 
 export async function logAdminAction(
-  staff: Pick<Staff, "userId" | "email">,
+  staff: { userId: Staff["userId"] | null; email: string }, // email "system:<job>" for scheduled jobs
   action: string,
   target: { type?: string; id?: string | null; before?: unknown; after?: unknown } = {},
 ): Promise<void> {
@@ -13,7 +13,7 @@ export async function logAdminAction(
   const { error } = await createServiceClient()
     .from("admin_audit_log")
     .insert({
-      actor_id: staff.userId,
+      actor_id: staff.userId || null,
       actor_email: staff.email,
       action,
       target_type: target.type ?? null,

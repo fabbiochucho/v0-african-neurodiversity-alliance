@@ -35,6 +35,7 @@ export const en = {
   "nav.advocacy": "Advocacy",
   "nav.research": "Research",
   "nav.news": "News",
+  "nav.blog": "Blog",
   "nav.signIn": "Sign In",
   "nav.donate": "Donate",
   "nav.displaySettings": "Display and sensory settings",

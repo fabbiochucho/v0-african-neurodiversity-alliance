@@ -140,6 +140,8 @@ export default function CommunityPage() {
   const [postBody, setPostBody] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [postError, setPostError] = useState<string | null>(null)
+  // Staff can switch posting off on /admin/features.
+  const [postingOn, setPostingOn] = useState(true)
 
   async function load() {
     const supabase = createClient()
@@ -193,6 +195,10 @@ export default function CommunityPage() {
 
   useEffect(() => {
     load()
+    fetch("/api/features?keys=community.posting")
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((f: { "community.posting"?: boolean }) => setPostingOn(f["community.posting"] !== false))
+      .catch(() => {})
   }, [])
 
   async function handleToggleLike(post: Post) {
@@ -314,10 +320,12 @@ export default function CommunityPage() {
               {tr("comm.heroText")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="text-lg px-8 py-6" onClick={() => openNewPost()}>
-                <Plus className="mr-2 h-5 w-5" />
-                {tr("comm.startDiscussion")}
-              </Button>
+              {postingOn && (
+                <Button size="lg" className="text-lg px-8 py-6" onClick={() => openNewPost()}>
+                  <Plus className="mr-2 h-5 w-5" />
+                  {tr("comm.startDiscussion")}
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -373,10 +381,12 @@ export default function CommunityPage() {
                         }}
                       />
                     </div>
-                    <Button onClick={() => openNewPost()}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      {tr("comm.newPost")}
-                    </Button>
+                    {postingOn && (
+                      <Button onClick={() => openNewPost()}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        {tr("comm.newPost")}
+                      </Button>
+                    )}
                   </div>
                 </div>
 
@@ -667,9 +677,11 @@ What's wrong:
             {tr("comm.ctaText")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="text-lg px-8 py-6" onClick={() => openNewPost()}>
-              {tr("comm.join")}
-            </Button>
+            {postingOn && (
+              <Button size="lg" className="text-lg px-8 py-6" onClick={() => openNewPost()}>
+                {tr("comm.join")}
+              </Button>
+            )}
           </div>
         </div>
       </section>

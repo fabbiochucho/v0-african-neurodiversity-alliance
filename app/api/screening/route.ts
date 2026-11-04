@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { FEATURE_OFF_MESSAGE, isEnabled } from "@/lib/features"
 import { dbErrorResponse, upgradeRequiredResponse } from "@/lib/api-error"
 import { FEATURE_MIN_TIER, getEntitlement } from "@/lib/entitlements"
 import { parseAnswers, screeningFlag } from "@/lib/screening"
@@ -15,6 +16,7 @@ export async function POST(request: Request) {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: "Please sign in again." }, { status: 401 })
+  if (!(await isEnabled("screening", { userId: user.id }))) return NextResponse.json({ error: FEATURE_OFF_MESSAGE }, { status: 503 })
 
   const body = await request.json().catch(() => ({}))
   if (typeof body.learner_id !== "string") return NextResponse.json({ error: "learner_id is required" }, { status: 400 })

@@ -14,6 +14,8 @@ const nextConfig = {
     unoptimized: true,
   },
   poweredByHeader: false,
+  // Cover images on /admin/content are uploaded through a server action (5 MB cap in scripts/060).
+  experimental: { serverActions: { bodySizeLimit: "6mb" } },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }]
   },
