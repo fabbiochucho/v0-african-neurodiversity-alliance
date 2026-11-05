@@ -62,7 +62,7 @@ export async function checkStaff(permission: Permission): Promise<Gate> {
 export async function requireStaff(permission: Permission): Promise<Staff> {
   const gate = await checkStaff(permission)
   if (gate.ok) return gate.staff
-  if (gate.reason === "signed_out") redirect("/auth/login?redirectTo=/admin")
+  if (gate.reason === "signed_out") redirect("/auth/login?redirect=/admin")
   if (gate.reason === "mfa" || gate.reason === "idle") redirect("/admin/verify")
   notFound()
 }

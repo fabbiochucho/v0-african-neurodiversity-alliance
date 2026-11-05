@@ -10,6 +10,7 @@ import { Icons } from "@/lib/icons"
 import { Turnstile, TURNSTILE_SITE_KEY } from "@/components/turnstile"
 import { useT } from "@/components/language-provider"
 import { LEGAL_UPDATED } from "@/lib/legal"
+import { isStrongPassword } from "@/lib/password"
 
 export default function SignUpPage() {
   const [firstName, setFirstName] = useState("")
@@ -36,7 +37,7 @@ export default function SignUpPage() {
       return
     }
 
-    if (password.length < 12 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password) || !/[!@#$%^&*()_+\-=[\]{};'\:"|<>?,./`~]/.test(password)) {
+    if (!isStrongPassword(password)) {
       setError(tr("auth.passwordTooWeak"))
       return
     }

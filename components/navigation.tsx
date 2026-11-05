@@ -68,6 +68,10 @@ export function Navigation() {
             <Link href="/news" className="text-foreground hover:text-primary transition-colors">
               {tr("nav.news")}
             </Link>
+
+            <Link href="/blog" className="text-foreground hover:text-primary transition-colors">
+              {tr("nav.blog")}
+            </Link>
           </div>
 
           {/* Desktop CTA Buttons */}
@@ -175,6 +179,13 @@ export function Navigation() {
                 onClick={() => setIsOpen(false)}
               >
                 {tr("nav.news")}
+              </Link>
+              <Link
+                href="/blog"
+                className="block px-3 py-2 text-foreground hover:text-primary transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                {tr("nav.blog")}
               </Link>
               <div className="flex flex-col space-y-2 px-3 py-2">
                 <LanguagePicker id="site-language-mobile" />

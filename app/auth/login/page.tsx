@@ -103,6 +103,11 @@ function LoginForm() {
               required
               className="w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
+            <p className="text-sm">
+              <Link href="/auth/forgot-password" className="text-primary underline">
+                {tr("auth.forgotPassword")}
+              </Link>
+            </p>
           </div>
 
           <Turnstile key={captchaKey} onToken={setCaptchaToken} />
