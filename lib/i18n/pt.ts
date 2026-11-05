@@ -37,6 +37,7 @@ export const pt: Partial<Record<MessageKey, string>> = {
   "nav.advocacy": "Advocacia",
   "nav.research": "Investigação",
   "nav.news": "Notícias",
+  "nav.blog": "Blog",
   "nav.signIn": "Entrar",
   "nav.donate": "Doar",
   "nav.displaySettings": "Definições de visualização e sensoriais",

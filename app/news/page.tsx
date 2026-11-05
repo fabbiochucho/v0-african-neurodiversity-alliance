@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 import { Navigation } from "@/components/navigation"
 import { DigestSignup } from "@/components/digest-signup"
@@ -36,7 +37,7 @@ export default async function NewsPage(props: { searchParams: Promise<{ digest?:
     const q = supabase.from("research_feed").select("id, title, url, journal, published_on, topics").eq("scope", scope)
     return (topic ? q.contains("topics", [topic]) : q).order("published_on", { ascending: false }).limit(20)
   }
-  const [{ data: news }, { data: africa }, { data: global }] = await Promise.all([
+  const [{ data: news }, { data: africa }, { data: global }, { data: ours }] = await Promise.all([
     supabase
       .from("news_items")
       .select("id, title, url, source, country, published_at")
@@ -45,6 +46,13 @@ export default async function NewsPage(props: { searchParams: Promise<{ digest?:
       .limit(60),
     research("africa"),
     research("global"),
+    // News the team publishes on /admin/content (RLS: published only).
+    supabase
+      .from("content_items")
+      .select("id, slug, title, summary, published_at")
+      .eq("kind", "news")
+      .order("published_at", { ascending: false })
+      .limit(3),
   ])
   const digestMessage = searchParams.digest ? DIGEST_MESSAGES[searchParams.digest] : undefined
 
@@ -64,6 +72,24 @@ export default async function NewsPage(props: { searchParams: Promise<{ digest?:
             </p>
           )}
         </header>
+
+        {!!ours?.length && (
+          <section aria-labelledby="ours-heading" className="space-y-4">
+            <h2 id="ours-heading" className="text-2xl font-semibold">News from ANDA</h2>
+            <ul className="grid md:grid-cols-3 gap-4">
+              {ours.map((n) => (
+                <li key={n.id}>
+                  <Link href={`/blog/${n.slug}`} className="block h-full rounded-lg border p-4 hover:border-primary">
+                    <p className="text-xs text-muted-foreground">{formatDate(n.published_at)}</p>
+                    <p className="font-medium">{n.title}</p>
+                    {n.summary && <p className="text-sm text-muted-foreground mt-1">{n.summary}</p>}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <Link href="/blog?kind=news" className="text-sm text-primary underline">All ANDA news</Link>
+          </section>
+        )}
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <section aria-labelledby="news-heading" className="space-y-4 min-w-0">

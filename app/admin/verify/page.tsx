@@ -8,7 +8,7 @@ export const metadata = { title: "Admin sign-in | ANDA", robots: { index: false 
 
 export default async function AdminVerifyPage() {
   const who = await staffRole()
-  if (!who) redirect("/auth/login?redirectTo=/admin")
+  if (!who) redirect("/auth/login?redirect=/admin")
   if (!who.role) notFound()
 
   return (

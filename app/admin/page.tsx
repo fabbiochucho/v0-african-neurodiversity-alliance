@@ -33,6 +33,11 @@ const FUNNEL_STEPS: { key: keyof Stats["funnel"]; label: string }[] = [
 
 // Admin sections, each shown only to staff whose role has its permission.
 const SECTIONS: { href: string; label: string; permission: Permission }[] = [
+  { href: "/admin/users", label: "Users", permission: "users.read" },
+  { href: "/admin/payments", label: "Payments", permission: "billing.read" },
+  { href: "/admin/content", label: "Blog, news and training", permission: "content.edit" },
+  { href: "/admin/features", label: "Feature switches", permission: "features.edit" },
+  { href: "/admin/health", label: "System health", permission: "health.read" },
   { href: "/admin/submissions", label: "Directory suggestions", permission: "directory.moderate" },
   { href: "/admin/feeds", label: "Moderate feeds", permission: "feeds.moderate" },
   { href: "/admin/newsletter", label: "Newsletter", permission: "newsletter.send" },
