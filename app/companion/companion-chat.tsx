@@ -9,7 +9,7 @@ import { calmMessage } from "@/lib/calm"
 export function CompanionChat({ learners }: { learners: { id: string; name: string; consented: boolean }[] }) {
   const [learnerId, setLearnerId] = useState("")
   // Conversation lives only in this component's memory.
-  const [turns, setTurns] = useState<(ChatTurn & { crisis?: boolean })[]>([])
+  const [turns, setTurns] = useState<(ChatTurn & { crisis?: boolean; sources?: { n: number; question: string }[] })[]>([])
   const [draft, setDraft] = useState("")
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -37,7 +37,7 @@ export function CompanionChat({ learners }: { learners: { id: string; name: stri
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error || "Something went wrong")
-      setTurns([...next, { role: "assistant", content: data.reply, crisis: data.crisis }])
+      setTurns([...next, { role: "assistant", content: data.reply, crisis: data.crisis, sources: data.sources }])
       if (typeof data.remainingToday === "number") setRemaining(data.remainingToday)
     } catch (err) {
       setTurns(turns)
@@ -64,6 +64,19 @@ export function CompanionChat({ learners }: { learners: { id: string; name: stri
           >
             <span className="sr-only">{turn.role === "user" ? "You said:" : "Companion said:"}</span>
             {turn.content}
+            {turn.sources && turn.sources.length > 0 && (
+              <span className="mt-3 block border-t pt-2 text-xs text-muted-foreground">
+                From ANDA reviewed answers:{" "}
+                {turn.sources.map((s) => (
+                  <span key={s.n} className="block">
+                    [{s.n}]{" "}
+                    <Link href={`/ask?q=${encodeURIComponent(s.question)}`} className="text-primary hover:underline">
+                      {s.question}
+                    </Link>
+                  </span>
+                ))}
+              </span>
+            )}
           </li>
         ))}
         {busy && <li className="text-sm text-muted-foreground">Thinking...</li>}

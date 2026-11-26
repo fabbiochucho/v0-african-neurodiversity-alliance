@@ -17,6 +17,7 @@ ANDA uses AI in two places only. Both run server-side through `lib/ai.ts` (provi
   - A match gets a fixed reply pointing to local emergency services, findahelpline.com, a trusted person and ANDA's Find Support directory. That message is never sent to the model.
   - Model refusals get a safe fixed reply.
   - Limitation: English keywords only.
+- **Grounded in reviewed answers** (`docs/REVIEWED_ANSWERS.md`). Each message is searched against ANDA's approved answers in ANDA's own database. Matches (at most 3) go into the system prompt with an instruction to stay inside them and name them; the reply lists them as sources. With no match the prompt tells the model to say so and point to `/ask`, where an expert can answer.
 - **No content storage.** The browser holds the conversation. The server records only (user, time) per message, for rate limits, and logs no message text.
 
 ## 2. IEP drafting (`/plan/[id]`, `app/api/plan/[learnerId]`)

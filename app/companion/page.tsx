@@ -131,6 +131,13 @@ export default async function CompanionPage() {
             <p role="note" className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
               {DISCLAIMER} Conversations aren&apos;t saved: closing or refreshing this page clears them. Built with Llama.
             </p>
+            <p className="text-sm">
+              Replies draw on{" "}
+              <Link href="/ask" className="text-primary hover:underline">
+                ANDA&apos;s reviewed answers
+              </Link>{" "}
+              where one covers your question, and name it. You can also send a question to an ANDA expert there (free).
+            </p>
             {!canChat ? (
               <UpgradePrompt
                 message="Free-text chat with ANDA's AI companion. Everything above stays free."

@@ -1,7 +1,7 @@
 // Admin roles and what each may do. The one place permissions are defined: server checks
 // (lib/admin.ts) and the links shown in the admin panel both read from here.
 
-export const STAFF_ROLES = ["super_admin", "support", "finance", "engineering", "read_only"] as const
+export const STAFF_ROLES = ["super_admin", "support", "finance", "engineering", "clinical_reviewer", "read_only"] as const
 export type StaffRole = (typeof STAFF_ROLES)[number]
 
 export const ROLE_LABELS: Record<StaffRole, string> = {
@@ -9,6 +9,7 @@ export const ROLE_LABELS: Record<StaffRole, string> = {
   support: "Support",
   finance: "Finance",
   engineering: "Engineering",
+  clinical_reviewer: "Clinical reviewer",
   read_only: "Read-only",
 }
 
@@ -35,6 +36,8 @@ export const PERMISSIONS = [
   "exports.run",
   "bulk.run",
   "health.read",
+  "answers.write", // write reviewed answers and reply to questions for an expert
+  "clinical.approve", // approve a reviewed answer someone else wrote (scripts/061)
 ] as const
 export type Permission = (typeof PERMISSIONS)[number]
 
@@ -42,9 +45,10 @@ const READ: Permission[] = ["dashboard.read", "users.read", "billing.read", "hea
 
 export const ROLE_PERMISSIONS: Record<StaffRole, readonly Permission[]> = {
   super_admin: PERMISSIONS,
-  support: [...READ, "users.reveal_pii", "users.view_as", "users.suspend", "users.manage", "support.notes", "directory.moderate", "feeds.moderate"],
+  support: [...READ, "users.reveal_pii", "users.view_as", "users.suspend", "users.manage", "support.notes", "directory.moderate", "feeds.moderate", "answers.write"],
   finance: [...READ, "billing.refund", "users.reveal_pii", "exports.run"],
   engineering: [...READ, "audit.read", "features.edit", "translations.manage"],
+  clinical_reviewer: ["dashboard.read", "answers.write", "clinical.approve"],
   read_only: READ,
 }
 

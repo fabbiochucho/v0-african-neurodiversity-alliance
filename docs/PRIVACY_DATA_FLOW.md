@@ -10,6 +10,8 @@ ANDA is designed to support applicable data-protection requirements. This docume
 |---|---|---|
 | Accounts, learners, plans, check-ins, records, consents, audit log | Supabase project `exhgecucrtbzjrpnqtht` (Postgres, RLS on every table) | owner/team access through RLS and `has_permission()` |
 | Uploaded assessment documents | Supabase Storage `learner-files` (private) | owner-only; served through 60-second signed URLs |
+| Questions for an expert and replies | `expert_questions` (scripts/061) | the asker reads their own (RLS); staff with `answers.write` reply; deleted with the account |
+| Reviewed answers | `reviewed_answers` (scripts/061) | public once approved; contain no personal data |
 | Logos | Supabase Storage `branding` (public read) | contains no personal data |
 | Display preferences | browser localStorage and `user_preferences` | presentation choices only |
 | NeuRafiki data | NeuRafiki's own Supabase project `eyouboihrzqtmvkbmais` | only the summaries below cross into ANDA |
@@ -53,5 +55,6 @@ ANDA is designed to support applicable data-protection requirements. This docume
 ## Retention
 
 - AI chat: nothing stored.
+- Questions for an expert: kept until the account is deleted. ponytail: no time limit yet; add a sweep in the lifecycle cron if the owner sets one (NeuRafiki is considering 12 months).
 - Records are append-only for traceability; the owner can delete them.
 - Invite tokens: stored only as SHA-256 hashes, and expire after 7 days.
