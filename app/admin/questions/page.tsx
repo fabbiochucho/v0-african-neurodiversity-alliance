@@ -45,7 +45,7 @@ async function answer(formData: FormData) {
     .eq("status", "open")
   if (error) return
   await logAdminAction(staff, "questions.answer", { type: "expert_questions", id, before: { status: "open" }, after: { status: "answered", reviewed_answer_id: reviewedId } })
-  await notifyAnswered(q)
+  await notifyAnswered(q, reply)
   revalidatePath("/admin/questions")
 }
 
@@ -79,7 +79,7 @@ export default async function QuestionsPage() {
           <h1 className="text-3xl font-bold">Questions for an expert</h1>
           <p className="text-muted-foreground">
             {open.length} waiting, safety matches first. Reply in plain language, don&apos;t diagnose, and point to local
-            professionals where needed. The person is emailed that a reply is waiting.
+            professionals where needed. The person is emailed that a reply is waiting. A question asked on Telegram gets your reply there in full.
           </p>
           <p className="flex gap-4">
             <Link href="/admin" className="text-primary underline">
