@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { FEATURE_OFF_MESSAGE, isEnabled } from "@/lib/features"
 import { aiProvider, generate } from "@/lib/ai"
+import { findReviewedAnswers, groundingPrompt, withContext } from "@/lib/reviewed-answers"
+import { resolveCountry } from "@/lib/country"
 import { dbErrorResponse, upgradeRequiredResponse } from "@/lib/api-error"
 import { AI_DAILY_MESSAGES, FEATURE_MIN_TIER, getEntitlement } from "@/lib/entitlements"
 import {
@@ -99,9 +101,16 @@ export async function POST(request: Request) {
   const { error: insertError } = await supabase.from("ai_companion_usage").insert({ user_id: user.id })
   if (insertError) return dbErrorResponse(insertError, 500)
 
+  // Ground the reply in ANDA's reviewed answers (scripts/061). The search runs in ANDA's own
+  // database; only the matching approved answers are added to what the model sees.
+  // Local context for the visitor's country (Vercel's country header; the IP is never read or stored).
+  const country = resolveCountry(typeof body?.country === "string" ? body.country : null, request.headers)
+  const reviewed = await withContext(supabase, await findReviewedAnswers(supabase, history[history.length - 1].content), country)
+  const system = [SYSTEM_PROMPT, groundingPrompt(reviewed), learnerContext].filter(Boolean).join("\n\n")
+
   // lib/ai.ts logs only the provider status, never the conversation.
   const result = await generate({
-    system: learnerContext ? `${SYSTEM_PROMPT}\n\n${learnerContext}` : SYSTEM_PROMPT,
+    system,
     messages: history,
     maxTokens: 1024, // short conversational replies
   })
@@ -124,5 +133,6 @@ export async function POST(request: Request) {
     reply: result.text || "Sorry, I don't have an answer for that.",
     remainingToday: limit.remainingToday - 1,
     usedLearnerData: Boolean(learnerContext),
+    sources: reviewed.map((a, i) => ({ n: i + 1, question: a.question })),
   })
 }

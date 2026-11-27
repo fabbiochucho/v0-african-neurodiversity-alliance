@@ -39,6 +39,8 @@ const SECTIONS: { href: string; label: string; permission: Permission }[] = [
   { href: "/admin/features", label: "Feature switches", permission: "features.edit" },
   { href: "/admin/health", label: "System health", permission: "health.read" },
   { href: "/admin/submissions", label: "Directory suggestions", permission: "directory.moderate" },
+  { href: "/admin/questions", label: "Questions for an expert", permission: "answers.write" },
+  { href: "/admin/answers", label: "Reviewed answers", permission: "answers.write" },
   { href: "/admin/feeds", label: "Moderate feeds", permission: "feeds.moderate" },
   { href: "/admin/newsletter", label: "Newsletter", permission: "newsletter.send" },
   { href: "/admin/translations", label: "Translations", permission: "translations.manage" },
