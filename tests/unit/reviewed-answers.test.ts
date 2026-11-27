@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { findReviewedAnswers, groundingPrompt, reviewDueDate } from "@/lib/reviewed-answers"
+import { DIAGNOSIS_NOTE, findReviewedAnswers, groundingPrompt, reviewDueDate, reviewLabel } from "@/lib/reviewed-answers"
 import { can } from "@/lib/admin/permissions"
 
 const answer = { id: "a1", question: "How can we make bedtime calmer?", answer: "Keep the same short routine every night.", sources: "Sleep guide", lang: "en" }
@@ -23,12 +23,21 @@ describe("reviewed answers", () => {
     expect(await findReviewedAnswers(failing, "   ")).toEqual([])
   })
 
+  it("labels answers honestly and always points to a professional assessment", () => {
+    expect(reviewLabel({})).toContain("Not yet reviewed by a clinician")
+    expect(reviewLabel({ review_level: "clinical" })).toContain("reviewed by a clinician")
+    expect(DIAGNOSIS_NOTE).toContain("not a diagnosis")
+    expect(groundingPrompt([answer])).toContain("assessment from a qualified professional")
+  })
+
   it("re-checks approved answers a year later", () => {
     expect(reviewDueDate(new Date("2026-11-26T00:00:00Z"))).toBe("2027-11-26")
   })
 
-  it("super admins and clinical reviewers approve; support can write", () => {
-    expect(can("super_admin", "clinical.approve")).toBe(true)
+  it("super admins approve against sources; only clinical reviewers confirm clinically", () => {
+    expect(can("super_admin", "answers.approve")).toBe(true)
+    expect(can("super_admin", "clinical.approve")).toBe(false)
+    expect(can("clinical_reviewer", "answers.approve")).toBe(true)
     expect(can("clinical_reviewer", "clinical.approve")).toBe(true)
     expect(can("clinical_reviewer", "users.read")).toBe(false)
     expect(can("support", "clinical.approve")).toBe(false)

@@ -20,6 +20,8 @@ interface Row {
   sources: string
   lang: string
   status: "draft" | "approved" | "retired"
+  review_level: "evidence" | "clinical"
+  clinical_reviewer: string | null
   written_by: string
   approved_by: string | null
   review_due: string | null
@@ -46,6 +48,9 @@ async function save(formData: FormData) {
     written_by: staff.email,
     approved_by: null,
     approved_at: null,
+    review_level: "evidence",
+    clinical_reviewer: null,
+    clinical_reviewed_at: null,
     updated_at: new Date().toISOString(),
   }
   if (fields.question.length < 5 || fields.answer.length < 20) return
@@ -60,20 +65,46 @@ async function save(formData: FormData) {
 
 async function approve(formData: FormData) {
   "use server"
-  const staff = await staffForAction("clinical.approve")
+  const staff = await staffForAction("answers.approve")
   if (!staff) return
   const id = text(formData, "id", 36)
   const now = new Date()
+  // A clinician approving a draft confirms it clinically in the same step.
+  const clinical = can(staff.role, "clinical.approve")
   // The database also refuses an approval by the author (reviewed_answers_two_person).
   const { data, error } = await createServiceClient()
     .from("reviewed_answers")
-    .update({ status: "approved", approved_by: staff.email, approved_at: now.toISOString(), review_due: reviewDueDate(now) })
+    .update({
+      status: "approved",
+      approved_by: staff.email,
+      approved_at: now.toISOString(),
+      review_due: reviewDueDate(now),
+      ...(clinical ? { review_level: "clinical", clinical_reviewer: staff.email, clinical_reviewed_at: now.toISOString() } : {}),
+    })
     .eq("id", id)
     .eq("status", "draft")
     .neq("written_by", staff.email)
     .select("id")
   if (error || !data?.length) return
-  await logAdminAction(staff, "answers.approve", { type: "reviewed_answers", id, before: { status: "draft" }, after: { status: "approved" } })
+  await logAdminAction(staff, "answers.approve", { type: "reviewed_answers", id, before: { status: "draft" }, after: { status: "approved", clinical } })
+  revalidatePath("/admin/answers")
+}
+
+// A clinician confirms an answer that was approved against its sources.
+async function confirmClinical(formData: FormData) {
+  "use server"
+  const staff = await staffForAction("clinical.approve")
+  if (!staff) return
+  const id = text(formData, "id", 36)
+  const { data, error } = await createServiceClient()
+    .from("reviewed_answers")
+    .update({ review_level: "clinical", clinical_reviewer: staff.email, clinical_reviewed_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("status", "approved")
+    .eq("review_level", "evidence")
+    .select("id")
+  if (error || !data?.length) return
+  await logAdminAction(staff, "answers.clinical_confirm", { type: "reviewed_answers", id, before: { review_level: "evidence" }, after: { review_level: "clinical" } })
   revalidatePath("/admin/answers")
 }
 
@@ -129,13 +160,14 @@ export default async function AnswersPage() {
   const staff = await requireStaff("answers.write")
   const { data } = await createServiceClient()
     .from("reviewed_answers")
-    .select("id, question, other_phrasings, answer, sources, lang, status, written_by, approved_by, review_due, helpful, not_helpful")
+    .select("id, question, other_phrasings, answer, sources, lang, status, review_level, clinical_reviewer, written_by, approved_by, review_due, helpful, not_helpful")
     .order("status")
     .order("updated_at", { ascending: false })
     .limit(500)
   const rows = (data ?? []) as Row[]
   const today = new Date().toISOString().slice(0, 10)
-  const mayApprove = can(staff.role, "clinical.approve")
+  const mayApprove = can(staff.role, "answers.approve")
+  const isClinician = can(staff.role, "clinical.approve")
 
   return (
     <div className="min-h-screen bg-background">
@@ -144,9 +176,10 @@ export default async function AnswersPage() {
         <header className="space-y-2">
           <h1 className="text-3xl font-bold">Reviewed answers</h1>
           <p className="text-muted-foreground">
-            The only answers /ask, the companion and Telegram give. Someone other than the writer approves each one, and
-            approved answers are re-checked after a year. Base answers on sources you can name; no diagnosis or medication
-            advice.
+            The only answers /ask, the companion and Telegram give. Someone other than the writer approves each one after
+            checking it against the sources it names, and approved answers are re-checked after a year. Until a clinician
+            confirms an answer, it is shown as &quot;not yet reviewed by a clinician&quot;. No diagnosis, dosing or
+            medication advice.
           </p>
           <p className="flex gap-4">
             <Link href="/admin" className="text-primary underline">
@@ -171,6 +204,9 @@ export default async function AnswersPage() {
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <Badge variant={r.status === "approved" ? "default" : "outline"}>{r.status}</Badge>
                 <Badge variant="secondary">{r.lang}</Badge>
+                {r.status === "approved" && (
+                  <Badge variant="outline">{r.review_level === "clinical" ? `clinician: ${r.clinical_reviewer}` : "not yet clinician-reviewed"}</Badge>
+                )}
                 {r.status === "approved" && r.review_due && r.review_due < today && <Badge variant="destructive">Re-check due</Badge>}
                 <span className="text-muted-foreground">
                   Written by {r.written_by}
@@ -186,6 +222,14 @@ export default async function AnswersPage() {
                     <input type="hidden" name="id" value={r.id} />
                     <Button type="submit" size="sm">
                       Approve
+                    </Button>
+                  </form>
+                )}
+                {r.status === "approved" && r.review_level === "evidence" && isClinician && (
+                  <form action={confirmClinical}>
+                    <input type="hidden" name="id" value={r.id} />
+                    <Button type="submit" size="sm">
+                      Confirm as clinician
                     </Button>
                   </form>
                 )}

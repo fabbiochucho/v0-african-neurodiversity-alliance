@@ -5,8 +5,15 @@ knowledge (scripts/061, `lib/reviewed-answers.ts`).
 
 - **The library** (`/admin/answers`, permission `answers.write`): a question, other ways people ask it, the answer and
   its sources. Saving creates a draft; editing an approved answer puts it back to draft.
-- **Approval** (`clinical.approve`: super admins and the "Clinical reviewer" staff role): someone other than the writer approves. The database refuses a
-  self-approval. Approved answers are re-checked after a year ("Re-check due").
+- **Approval** (`answers.approve`: super admins and the "Clinical reviewer" role): someone other than the writer checks
+  the answer against the sources it names and approves it. The database refuses a self-approval. Approved answers are
+  re-checked after a year ("Re-check due").
+- **Two levels, always shown with the answer** (`review_level`): `evidence` = "Written from WHO guidance and published
+  research, and checked by ANDA. Not yet reviewed by a clinician."; `clinical` = confirmed by someone with the
+  "Clinical reviewer" role (`clinical.approve`, which super admins deliberately don't have). Owner decision
+  (2026-11-27): go live at `evidence` level until a clinician is found, then have them confirm each answer.
+- **Every answer points to a professional assessment** (`DIAGNOSIS_NOTE`, on /ask and Telegram, and in the companion
+  prompt).
 - **Where it is used:**
   - `/ask` (free, no AI, signed out too) shows the approved answers verbatim with their sources and "Did this help?".
   - The AI companion adds matching approved answers to its prompt and lists them as sources (`docs/AI_BEHAVIOUR.md`).
@@ -29,6 +36,7 @@ knowledge (scripts/061, `lib/reviewed-answers.ts`).
 
 ## Before switching on
 
-- Write and approve a first set of answers (say 20) with the clinician reviewer, then add "Ask a question" to the
+- Approve the drafted answers (scripts/063) after checking each against its sources, then add "Ask a question" to the
   navigation (it needs FR/PT drafts for the new key).
-- Add the clinician in `/admin/staff` with the "Clinical reviewer" role (2FA required, like all staff).
+- When a clinician is found: add them in `/admin/staff` as "Clinical reviewer" (2FA required) and have them confirm or
+  edit each answer.

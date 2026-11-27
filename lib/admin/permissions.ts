@@ -37,18 +37,19 @@ export const PERMISSIONS = [
   "bulk.run",
   "health.read",
   "answers.write", // write reviewed answers and reply to questions for an expert
-  "clinical.approve", // approve a reviewed answer someone else wrote (scripts/061)
+  "answers.approve", // approve a reviewed answer someone else wrote, checked against its sources (scripts/061)
+  "clinical.approve", // confirm an answer as a clinician; only the clinical_reviewer role, never by being super admin
 ] as const
 export type Permission = (typeof PERMISSIONS)[number]
 
 const READ: Permission[] = ["dashboard.read", "users.read", "billing.read", "health.read"]
 
 export const ROLE_PERMISSIONS: Record<StaffRole, readonly Permission[]> = {
-  super_admin: PERMISSIONS,
+  super_admin: PERMISSIONS.filter((p) => p !== "clinical.approve"),
   support: [...READ, "users.reveal_pii", "users.view_as", "users.suspend", "users.manage", "support.notes", "directory.moderate", "feeds.moderate", "answers.write"],
   finance: [...READ, "billing.refund", "users.reveal_pii", "exports.run"],
   engineering: [...READ, "audit.read", "features.edit", "translations.manage"],
-  clinical_reviewer: ["dashboard.read", "answers.write", "clinical.approve"],
+  clinical_reviewer: ["dashboard.read", "answers.write", "answers.approve", "clinical.approve"],
   read_only: READ,
 }
 
