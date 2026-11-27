@@ -1,9 +1,7 @@
--- Level 1 retrieval checks on ANDA's real draft library (scripts/063), run in CI. The drafts are approved
--- inside a transaction that is rolled back, so this tests how the library would answer once approved.
+-- Level 1 retrieval checks on ANDA's real answer library (scripts/063), run in CI, inside a rolled-back transaction.
 -- When a real question misses, add it here with the answer it should find.
 \set ON_ERROR_STOP on
 begin;
-update public.reviewed_answers set status = 'approved', approved_by = 'ci-approver', approved_at = now() where written_by = 'claude-ai-draft';
 
 do $$
 declare
