@@ -9,6 +9,8 @@ import { getEntitlement } from "@/lib/entitlements"
 import { andaEntitlementsPayload, neuRafikiLinks } from "@/lib/federation/contract"
 import { getNeuRafikiPlan } from "@/lib/federation/remote"
 import { getSiblingAppUrl } from "@/lib/federation/config"
+import { telegramConfigured } from "@/lib/telegram"
+import { TelegramLink } from "@/components/telegram-link"
 
 const ANDA_LABELS = { iep: "IEP", goals: "Goals", progress: "Progress", reports: "Reports", support_team: "Support team" } as const
 const NR_LABELS = { assessment: "Assessment", ai_companion: "AI Companion", check_ins: "Check-ins", follow_up: "Follow-up" } as const
@@ -99,6 +101,17 @@ export default async function AccountPage() {
               </CardContent>
             </Card>
           </div>
+
+          {telegramConfigured() && process.env.TELEGRAM_BOT_USERNAME && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Telegram</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TelegramLink />
+              </CardContent>
+            </Card>
+          )}
 
           <nav aria-label="Account settings" className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
             <Link href="/settings/connections" className="hover:underline">
