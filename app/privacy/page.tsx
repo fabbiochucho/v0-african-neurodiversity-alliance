@@ -57,6 +57,12 @@ export default function PrivacyPage() {
                   personal details and added to ANDA&apos;s reviewed answers.
                 </li>
                 <li>
+                  <strong>Your country, for local information:</strong> on Ask a question and in the AI companion, our
+                  hosting provider tells us which country a visit comes from, so we can show local laws, services and
+                  emergency numbers. We don&apos;t see or keep your IP address and don&apos;t store the country; you can
+                  choose another country or none.
+                </li>
+                <li>
                   <strong>Activity records:</strong> a log of who viewed, changed or exported a person&apos;s records,
                   so you can see who has had access.
                 </li>

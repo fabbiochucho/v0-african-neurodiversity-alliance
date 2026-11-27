@@ -45,3 +45,26 @@ describe("reviewed answers", () => {
     expect(can("read_only", "answers.write")).toBe(false)
   })
 })
+
+describe("local context", async () => {
+  const { resolveCountry, countryName } = await import("@/lib/country")
+  const { contextText } = await import("@/lib/reviewed-answers")
+  const h = (cc: string | null) => ({ get: (n: string) => (n === "x-vercel-ip-country" ? cc : null) })
+
+  it("uses the person's choice first, then the country header, and only African countries", () => {
+    expect(resolveCountry("ke", h("NG"))).toBe("KE")
+    expect(resolveCountry(null, h("NG"))).toBe("NG")
+    expect(resolveCountry(null, h("US"))).toBeNull()
+    expect(resolveCountry("none", h("NG"))).toBeNull()
+    expect(resolveCountry("xx", h(null))).toBeNull()
+    expect(countryName("ZA")).toBe("South Africa")
+  })
+
+  it("puts beliefs to correct before local notes", () => {
+    const a = { id: "1", question: "Q", answer: "A", sources: "", lang: "en", context: [
+      { answer_id: "1", scope: "africa", kind: "myth" as const, note: "Not a curse.", sources: "" },
+      { answer_id: "1", scope: "NG", kind: "local" as const, note: "Call 112.", sources: "" },
+    ] }
+    expect(contextText(a, "Nigeria")).toBe("What people often hear: Not a curse.\n\nIn Nigeria: Call 112.")
+  })
+})

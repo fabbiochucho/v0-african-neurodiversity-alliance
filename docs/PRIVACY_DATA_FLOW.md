@@ -12,6 +12,7 @@ ANDA is designed to support applicable data-protection requirements. This docume
 | Uploaded assessment documents | Supabase Storage `learner-files` (private) | owner-only; served through 60-second signed URLs |
 | Questions for an expert and replies | `expert_questions` (scripts/061) | the asker reads their own (RLS); staff with `answers.write` reply; deleted with the account |
 | Linked Telegram chats, link codes | `telegram_links`, `telegram_link_codes` (scripts/062, service role only) | chat id + account; codes hashed, 15 minutes; deleted with the account or on unlink |
+| Country for local context | Vercel's `x-vercel-ip-country` request header, or `?country=` | used for that page view only; ANDA never reads the IP or stores the country |
 | Reviewed answers | `reviewed_answers` (scripts/061) | public once approved; contain no personal data |
 | Logos | Supabase Storage `branding` (public read) | contains no personal data |
 | Display preferences | browser localStorage and `user_preferences` | presentation choices only |
