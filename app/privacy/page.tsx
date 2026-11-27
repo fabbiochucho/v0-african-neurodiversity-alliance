@@ -52,6 +52,11 @@ export default function PrivacyPage() {
                   <strong>Things you share publicly:</strong> community posts and replies (shown with your name), resource suggestions and ratings. Posts you save are visible only to you.
                 </li>
                 <li>
+                  <strong>Questions for an expert:</strong> a question you send from Ask a question, and the reply. ANDA
+                  staff who answer questions read it. If a reply is useful to others, it may be rewritten without any
+                  personal details and added to ANDA&apos;s reviewed answers.
+                </li>
+                <li>
                   <strong>Activity records:</strong> a log of who viewed, changed or exported a person&apos;s records,
                   so you can see who has had access.
                 </li>
@@ -267,7 +272,7 @@ export default function PrivacyPage() {
           body: (
             <p>
               We keep your information while your account is open. When you delete your account, we delete your
-              profiles, plans, progress, reports, uploaded documents, consents and team memberships. Payment records
+              profiles, plans, progress, reports, uploaded documents, consents, team memberships and questions you sent to an expert. Payment records
               are kept, anonymised, for as long as the law requires.
             </p>
           ),
