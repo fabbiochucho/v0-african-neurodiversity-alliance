@@ -12,8 +12,20 @@ export interface ReviewedAnswer {
   answer: string
   sources: string
   lang: string
+  review_level?: "evidence" | "clinical"
   coverage?: number
 }
+
+/** Shown with every answer, so people know exactly how it was checked. */
+export const REVIEW_LABEL = {
+  evidence: "Written from WHO guidance and published research, and checked by ANDA. Not yet reviewed by a clinician.",
+  clinical: "Written from WHO guidance and published research, and reviewed by a clinician.",
+} as const
+export const reviewLabel = (a: Pick<ReviewedAnswer, "review_level">) => REVIEW_LABEL[a.review_level === "clinical" ? "clinical" : "evidence"]
+
+/** Shown with every answer on every channel: ANDA's answers never replace an assessment. */
+export const DIAGNOSIS_NOTE =
+  "This is general information, not a diagnosis. Only a qualified professional (a doctor, paediatrician, child psychologist, psychiatrist or developmental specialist) can assess and diagnose. If you're worried, ask a health worker or clinic for a referral, or find a service in ANDA's Find Support directory."
 
 type Rpc = {
   rpc: (fn: string, args: Record<string, unknown>) => PromiseLike<{ data: unknown; error: unknown }>
@@ -43,7 +55,7 @@ export function groundingPrompt(answers: ReviewedAnswer[]): string {
   return `ANDA reviewed answers that cover this question (written and checked by people at ANDA):
 ${blocks.join("\n\n")}
 
-Base your reply on these. Don't add facts, numbers or advice that they don't contain. Name the answer you used, like "(ANDA reviewed answer [1])". If they don't fully answer the question, say what is missing and suggest sending it to an ANDA expert at /ask.`
+Base your reply on these. Don't add facts, numbers or advice that they don't contain. Name the answer you used, like "(ANDA reviewed answer [1])". If they don't fully answer the question, say what is missing and suggest sending it to an ANDA expert at /ask. Where a worry about development, behaviour or health comes up, encourage getting an assessment from a qualified professional; never suggest that ANDA's answers replace one.`
 }
 
 export function reviewDueDate(from: Date = new Date()): string {

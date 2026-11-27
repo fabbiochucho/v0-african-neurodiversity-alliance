@@ -3,7 +3,7 @@ import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
 import { CRISIS_RESPONSE, detectCrisis } from "@/lib/companion"
-import { findReviewedAnswers, MAX_QUESTION_CHARS } from "@/lib/reviewed-answers"
+import { DIAGNOSIS_NOTE, findReviewedAnswers, MAX_QUESTION_CHARS, reviewLabel } from "@/lib/reviewed-answers"
 import { AnswerFeedback, AskExpert } from "./ask-client"
 
 export const dynamic = "force-dynamic"
@@ -28,8 +28,9 @@ export default async function AskPage({ searchParams }: { searchParams: Promise<
           <header className="space-y-2">
             <h1 className="text-4xl font-bold text-balance">Ask a question</h1>
             <p className="text-muted-foreground">
-              Answers here were written by people at ANDA and checked by a second person before they were published. If
-              none covers your question, you can send it to an ANDA expert. This is general guidance, not a diagnosis or
+              Answers here are written from WHO guidance and published research, and a second person at ANDA checks each
+              one against its sources before it is published. Each answer says whether a clinician has reviewed it yet.
+              If none covers your question, you can send it to ANDA. This is general guidance, not a diagnosis or
               treatment plan.
             </p>
           </header>
@@ -69,9 +70,18 @@ export default async function AskPage({ searchParams }: { searchParams: Promise<
                   <h3 className="text-lg font-semibold">{a.question}</h3>
                   <p className="whitespace-pre-wrap text-sm">{a.answer}</p>
                   {a.sources && <p className="text-xs text-muted-foreground">Sources: {a.sources}</p>}
+                  <p className="text-xs text-muted-foreground">{reviewLabel(a)}</p>
                   <AnswerFeedback id={a.id} />
                 </article>
               ))}
+              {answers.length > 0 && (
+                <p role="note" className="rounded-lg border p-4 text-sm">
+                  {DIAGNOSIS_NOTE}{" "}
+                  <Link href="/directory" className="text-primary underline">
+                    Open Find Support
+                  </Link>
+                </p>
+              )}
               <div className="rounded-lg border border-primary/30 bg-primary/5 p-5 space-y-3">
                 <h2 className="text-lg font-semibold">{answers.length > 0 ? "Not what you needed?" : "Ask an ANDA expert"}</h2>
                 {auth.user ? (

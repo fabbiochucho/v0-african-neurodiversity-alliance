@@ -15,6 +15,11 @@ create table if not exists public.reviewed_answers (
   written_by text not null,
   approved_by text,
   approved_at timestamptz,
+  -- How it was checked: 'evidence' = checked by ANDA against named guidelines and research;
+  -- 'clinical' = also confirmed by a clinician (staff role clinical_reviewer). Shown with the answer.
+  review_level text not null default 'evidence' check (review_level in ('evidence', 'clinical')),
+  clinical_reviewer text,
+  clinical_reviewed_at timestamptz,
   review_due date, -- approved answers are re-checked by this date
   helpful integer not null default 0,
   not_helpful integer not null default 0,
@@ -26,12 +31,15 @@ create table if not exists public.reviewed_answers (
   -- Two people: whoever approves an answer did not write it.
   constraint reviewed_answers_two_person check (
     status <> 'approved' or (approved_by is not null and approved_at is not null and lower(approved_by) <> lower(written_by))
+  ),
+  constraint reviewed_answers_clinical check (
+    review_level <> 'clinical' or (clinical_reviewer is not null and clinical_reviewed_at is not null)
   )
 );
 create index if not exists reviewed_answers_search_idx on public.reviewed_answers using gin (search);
 alter table public.reviewed_answers enable row level security;
 revoke all on public.reviewed_answers from anon, authenticated;
-grant select (id, question, answer, sources, lang, status, approved_at) on public.reviewed_answers to anon, authenticated;
+grant select (id, question, answer, sources, lang, status, approved_at, review_level) on public.reviewed_answers to anon, authenticated;
 drop policy if exists reviewed_answers_public_read on public.reviewed_answers;
 create policy reviewed_answers_public_read on public.reviewed_answers
   for select to anon, authenticated
@@ -42,7 +50,7 @@ create policy reviewed_answers_public_read on public.reviewed_answers
 -- the library doesn't cover returns nothing and goes to an expert instead of a near miss.
 -- ponytail: word matching only; add embeddings (pgvector + Workers AI) if real questions miss.
 create or replace function public.search_reviewed_answers(q text, max_results integer default 3)
-returns table (id uuid, question text, answer text, sources text, lang text, coverage real)
+returns table (id uuid, question text, answer text, sources text, lang text, review_level text, coverage real)
 language sql
 stable
 security definer
@@ -56,7 +64,7 @@ as $$
       else array_to_string(array(select quote_literal(w) from unnest(lex) w), ' | ')::tsquery end as tsq
     from words
   )
-  select a.id, a.question, a.answer, a.sources, a.lang,
+  select a.id, a.question, a.answer, a.sources, a.lang, a.review_level,
     (select count(*) from unnest(aw.lex) w where a.search @@ quote_literal(w)::tsquery)::real / cardinality(aw.lex) as coverage
   from public.reviewed_answers a, any_word aw
   where aw.tsq is not null
