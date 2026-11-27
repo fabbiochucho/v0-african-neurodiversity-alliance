@@ -5,7 +5,7 @@ import AxeBuilder from "@axe-core/playwright"
 // Runs in CI against `pnpm start` (see .github/workflows/ci.yml). Waits for
 // "load", then up to 5s for the network to settle: pages with many outside
 // images (e.g. /learning book covers) may never go fully network-idle in CI.
-const PAGES = ["/", "/directory", "/community", "/news", "/learning", "/apps-tools", "/research", "/privacy", "/terms", "/accessibility", "/auth/login", "/auth/sign-up", "/donate", "/pathways/family", "/no-such-page", "/learning/what-works", "/settings/accessibility", "/check"]
+const PAGES = ["/", "/directory", "/community", "/news", "/learning", "/apps-tools", "/research", "/privacy", "/terms", "/accessibility", "/auth/login", "/auth/sign-up", "/donate", "/pathways/family", "/no-such-page", "/learning/what-works", "/settings/accessibility", "/check", "/check/adult"]
 
 for (const path of PAGES) {
   test(`accessibility: ${path}`, async ({ page }) => {

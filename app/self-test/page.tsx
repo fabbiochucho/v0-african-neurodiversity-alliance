@@ -72,6 +72,10 @@ export default function SelfTestPage() {
                 <Link href="/check" className="text-primary underline">
                   Use the early development check
                 </Link>
+                . Wondering about yourself as an adult?{" "}
+                <Link href="/check/adult" className="text-primary underline">
+                  Use the adult self-check
+                </Link>
                 .
               </p>
             </div>

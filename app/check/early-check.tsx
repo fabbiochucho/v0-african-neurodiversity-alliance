@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { PrintButton } from "@/components/print-button"
+import { useSpeech } from "@/lib/use-speech"
 import { evaluate, LEVEL_TEXT, MAX_MONTHS, MIN_MONTHS, questionsForAge, type Answer } from "@/lib/early-check"
 
 // Everything stays in this page's memory: nothing is sent to ANDA or stored (children's data).
@@ -20,18 +21,6 @@ const WHO = ["Mother", "Father", "Grandparent", "Another relative", "Nanny or ca
 
 const AGES = Array.from({ length: MAX_MONTHS - MIN_MONTHS + 1 }, (_, i) => MIN_MONTHS + i)
 const ageLabel = (m: number) => (m % 12 === 0 ? `${m} months (${m / 12} year${m === 12 ? "" : "s"})` : `${m} months`)
-
-function useSpeech() {
-  const [supported, setSupported] = useState(false)
-  useEffect(() => setSupported(typeof window !== "undefined" && "speechSynthesis" in window), [])
-  const speak = (text: string) => {
-    if (!supported) return
-    window.speechSynthesis.cancel()
-    window.speechSynthesis.speak(new SpeechSynthesisUtterance(text))
-  }
-  useEffect(() => () => (supported ? window.speechSynthesis.cancel() : undefined), [supported])
-  return { supported, speak }
-}
 
 export function EarlyCheck() {
   const [step, setStep] = useState<"intro" | "questions" | "result">("intro")
@@ -116,6 +105,13 @@ export function EarlyCheck() {
           Written by ANDA for families in Africa and the global south. It looks at the same early signs as recognised
           screening tools, in our own words, but it has not yet been tested in a research study. If you are worried
           about a child of any age, see a health worker.
+        </p>
+        <p className="text-sm">
+          Wondering about yourself as an adult?{" "}
+          <Link href="/check/adult" className="text-primary underline">
+            Use the adult self-check
+          </Link>
+          .
         </p>
       </div>
     )
