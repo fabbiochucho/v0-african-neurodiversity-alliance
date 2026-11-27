@@ -1,6 +1,9 @@
 -- Level 1 retrieval checks for scripts/061 (docs/REVIEWED_ANSWERS.md), run in CI against the
 -- local Supabase. Fixture answers only exist in this test database.
 \set ON_ERROR_STOP on
+-- Runs in a transaction that is rolled back; the real library (scripts/063) is set aside so only fixtures count.
+begin;
+update public.reviewed_answers set status = 'retired' where written_by = 'claude-ai-draft';
 
 insert into public.reviewed_answers (question, other_phrasings, answer, status, written_by, approved_by, approved_at) values
   ('How can we make bedtime calmer?', 'My child won''t sleep at night', 'CI fixture: keep the same short routine every night, dim the lights and avoid screens in the last hour.', 'approved', 'a@example.invalid', 'b@example.invalid', now()),
@@ -63,4 +66,4 @@ end;
 $$;
 reset role;
 
-delete from public.reviewed_answers where answer like 'CI fixture:%';
+rollback;
