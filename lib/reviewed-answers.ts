@@ -1,6 +1,7 @@
 // Reviewed answers (scripts/061, docs/REVIEWED_ANSWERS.md): ANDA answers from answers a person
 // wrote and someone else approved, and sends anything the library doesn't cover to an expert.
 // Used by /ask, the AI companion and (later) Telegram. Pure helpers here; callers do the I/O.
+import type { SupabaseClient } from "@supabase/supabase-js"
 
 export const MAX_QUESTION_CHARS = 1000
 export const MAX_OPEN_QUESTIONS = 3 // per person, so the expert queue stays answerable
@@ -14,6 +15,44 @@ export interface ReviewedAnswer {
   lang: string
   review_level?: "evidence" | "clinical"
   coverage?: number
+  /** Approved local context for the visitor's country and Africa-wide (scripts/064), when looked up. */
+  context?: AnswerContext[]
+}
+
+export interface AnswerContext {
+  answer_id: string
+  scope: string // 'africa' or an ISO country code
+  kind: "myth" | "local"
+  note: string
+  sources: string
+}
+
+export const CONTEXT_HEADING = { myth: "What people often hear", local: "Where you live" } as const
+
+/** Adds approved context notes (Africa-wide, plus the visitor's country) to each answer. Never throws. */
+export async function withContext(db: Pick<SupabaseClient, "from">, answers: ReviewedAnswer[], country: string | null): Promise<ReviewedAnswer[]> {
+  if (answers.length === 0) return answers
+  const scopes = country ? ["africa", country] : ["africa"]
+  const { data, error } = await db
+    .from("reviewed_answer_context")
+    .select("answer_id, scope, kind, note, sources")
+    .in("answer_id", answers.map((a) => a.id))
+    .in("scope", scopes)
+  if (error) {
+    console.error("answer context lookup failed")
+    return answers
+  }
+  const rows = (data ?? []) as AnswerContext[]
+  // Myths first (what to unlearn), then where you live; country notes after Africa-wide ones.
+  const order = (c: AnswerContext) => (c.kind === "myth" ? 0 : 2) + (c.scope === "africa" ? 0 : 1)
+  return answers.map((a) => ({ ...a, context: rows.filter((r) => r.answer_id === a.id).sort((x, y) => order(x) - order(y)) }))
+}
+
+/** The context notes as plain text, for Telegram and the companion prompt. */
+export function contextText(a: ReviewedAnswer, countryName: string | null): string {
+  return (a.context ?? [])
+    .map((c) => `${c.kind === "local" && countryName && c.scope !== "africa" ? `In ${countryName}` : CONTEXT_HEADING[c.kind]}: ${c.note}`)
+    .join("\n\n")
 }
 
 /** Shown with every answer, so people know exactly how it was checked. */
@@ -51,11 +90,14 @@ export function groundingPrompt(answers: ReviewedAnswer[]): string {
   if (answers.length === 0) {
     return `No ANDA reviewed answer covers this question. Say so in one short sentence, keep any general suggestions brief and practical, and tell the person they can send the question to an ANDA expert at /ask.`
   }
-  const blocks = answers.map((a, i) => `[${i + 1}] ${a.question}\n${a.answer}${a.sources ? `\nSources: ${a.sources}` : ""}`)
+  const blocks = answers.map((a, i) => {
+    const context = contextText(a, null)
+    return `[${i + 1}] ${a.question}\n${a.answer}${context ? `\n${context}` : ""}${a.sources ? `\nSources: ${a.sources}` : ""}`
+  })
   return `ANDA reviewed answers that cover this question (written and checked by people at ANDA):
 ${blocks.join("\n\n")}
 
-Base your reply on these. Don't add facts, numbers or advice that they don't contain. Name the answer you used, like "(ANDA reviewed answer [1])". If they don't fully answer the question, say what is missing and suggest sending it to an ANDA expert at /ask. Where a worry about development, behaviour or health comes up, encourage getting an assessment from a qualified professional; never suggest that ANDA's answers replace one.`
+Base your reply on these. Don't add facts, numbers or advice that they don't contain. Name the answer you used, like "(ANDA reviewed answer [1])". If they don't fully answer the question, say what is missing and suggest sending it to an ANDA expert at /ask. If a reviewed answer corrects a common belief (for example about curses, vaccines or "cures"), correct it gently and respectfully, without mocking the belief or the person. Where a worry about development, behaviour or health comes up, encourage getting an assessment from a qualified professional; never suggest that ANDA's answers replace one.`
 }
 
 export function reviewDueDate(from: Date = new Date()): string {
