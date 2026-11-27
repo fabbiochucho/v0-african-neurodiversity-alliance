@@ -24,6 +24,19 @@ knowledge (scripts/061, `lib/reviewed-answers.ts`).
 - **Search:** Postgres full-text search. An answer is returned only if it contains at least half of the question's
   words, so a near miss goes to an expert. If real questions miss too often, add embeddings (pgvector + Workers AI).
 
+## Local context (scripts/064)
+
+Each answer can carry approved notes, shown under it on /ask and given to the companion:
+- **What people often hear** (`kind = 'myth'`, usually `scope = 'africa'`): a common belief, rumour or practice (curses,
+  vaccine rumours, deliverance "cures", tongue-clipping, beating for meltdowns) and what the evidence says. Correct the
+  belief, never mock the person; faith can stay, harm can't.
+- **Where you live** (`kind = 'local'`, `scope` = ISO country code): laws, where to get assessed, emergency numbers.
+- **Country:** `?country=XX` (the person's choice, a selector on /ask) or Vercel's `x-vercel-ip-country` header. ANDA
+  never reads or stores the IP; "No country" switches it off. Verified directory services for that country are listed
+  too. Telegram has no country yet (add `/country` when it is needed).
+- Same two-person approval as answers; one note per answer, place and kind. Drafted first for all of Africa plus
+  Nigeria, Kenya, Ghana and South Africa (25 notes, drafts).
+
 ## Testing before rollout
 
 1. **Retrieval** (CI, `tests/db/reviewed-answers.sql`): parent-style questions must find the right answer; drafts,

@@ -4,6 +4,7 @@ import { detectCrisis } from "@/lib/companion"
 import { answeredEmail, MAX_OPEN_QUESTIONS, MAX_QUESTION_CHARS } from "@/lib/reviewed-answers"
 import { sendInviteEmail } from "@/lib/support-team-invite"
 import { appUrl } from "@/lib/app-url"
+import { sendTelegram, telegramConfigured } from "@/lib/telegram"
 
 export type QueueResult = { ok: true; crisis: boolean } | { ok: false; error: string; status: number }
 
@@ -36,13 +37,29 @@ export async function queueExpertQuestion(
   return { ok: true, crisis }
 }
 
-/** Tell the person their question has a reply. Never throws; the reply is saved either way. */
-export async function notifyAnswered(question: { user_id: string }): Promise<void> {
+/**
+ * Tell the person their question has a reply: by email, and in any linked Telegram chat. A question
+ * asked on Telegram gets the reply there in full; otherwise Telegram gets a notice only, so text
+ * written on the website doesn't travel through Telegram. Never throws; the reply is saved either way.
+ */
+export async function notifyAnswered(question: { user_id: string; channel: string }, reply: string): Promise<void> {
+  const db = createServiceClient()
   try {
-    const { data } = await createServiceClient().auth.admin.getUserById(question.user_id)
+    const { data } = await db.auth.admin.getUserById(question.user_id)
     const email = data.user?.email
     if (email) await sendInviteEmail(email, answeredEmail(`${appUrl()}/ask/mine`))
   } catch {
-    console.error("answer notice failed")
+    console.error("answer email failed")
   }
+  if (!telegramConfigured()) return
+  const { data: chats } = await db.from("telegram_links").select("chat_id").eq("user_id", question.user_id)
+  const text =
+    question.channel === "telegram"
+      ? `An ANDA expert replied to your question:
+
+${reply}
+
+General guidance, not a diagnosis.`
+      : "An ANDA expert has replied to the question you sent on the website. Sign in to ANDA to read it (Ask a question → Your questions)."
+  await Promise.all((chats ?? []).map((c) => sendTelegram(c.chat_id, text)))
 }

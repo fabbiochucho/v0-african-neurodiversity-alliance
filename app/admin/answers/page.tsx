@@ -8,6 +8,9 @@ import { requireStaff, staffForAction } from "@/lib/admin"
 import { logAdminAction } from "@/lib/admin/audit"
 import { can } from "@/lib/admin/permissions"
 import { reviewDueDate } from "@/lib/reviewed-answers"
+import { AFRICAN_COUNTRIES, countryName } from "@/lib/country"
+
+const isCountryCode = (c: string) => c in AFRICAN_COUNTRIES
 
 export const dynamic = "force-dynamic"
 export const metadata = { title: "Reviewed answers | ANDA", robots: { index: false } }
@@ -119,6 +122,82 @@ async function retire(formData: FormData) {
   revalidatePath("/admin/answers")
 }
 
+// ---- Local context notes (scripts/064): Africa-wide or per-country, same two-person rule ----
+
+interface ContextRow {
+  id: string
+  answer_id: string
+  scope: string
+  kind: "myth" | "local"
+  note: string
+  sources: string
+  status: "draft" | "approved" | "retired"
+  written_by: string
+  approved_by: string | null
+}
+
+async function saveContext(formData: FormData) {
+  "use server"
+  const staff = await staffForAction("answers.write")
+  if (!staff) return
+  const rawScope = text(formData, "scope", 10)
+  const scope = rawScope.toLowerCase() === "africa" ? "africa" : rawScope.toUpperCase()
+  const kind = text(formData, "kind", 5) === "local" ? "local" : "myth"
+  const fields = {
+    answer_id: text(formData, "answer_id", 36),
+    scope,
+    kind,
+    note: text(formData, "note", 1500),
+    sources: text(formData, "sources", 1000),
+    status: "draft",
+    written_by: staff.email,
+    approved_by: null,
+    approved_at: null,
+    updated_at: new Date().toISOString(),
+  }
+  if (fields.note.length < 20 || !(scope === "africa" || isCountryCode(scope))) return
+  // One note per answer, place and kind: saving again replaces it and puts it back to draft.
+  const { data, error } = await createServiceClient()
+    .from("reviewed_answer_context")
+    .upsert(fields, { onConflict: "answer_id,scope,kind" })
+    .select("id")
+    .single()
+  if (error || !data) return
+  await logAdminAction(staff, "answers.context_save", { type: "reviewed_answer_context", id: data.id, after: { scope, kind, status: "draft" } })
+  revalidatePath("/admin/answers")
+}
+
+async function approveContext(formData: FormData) {
+  "use server"
+  const staff = await staffForAction("answers.approve")
+  if (!staff) return
+  const id = text(formData, "id", 36)
+  const { data, error } = await createServiceClient()
+    .from("reviewed_answer_context")
+    .update({ status: "approved", approved_by: staff.email, approved_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("status", "draft")
+    .neq("written_by", staff.email)
+    .select("id")
+  if (error || !data?.length) return
+  await logAdminAction(staff, "answers.context_approve", { type: "reviewed_answer_context", id, after: { status: "approved" } })
+  revalidatePath("/admin/answers")
+}
+
+async function retireContext(formData: FormData) {
+  "use server"
+  const staff = await staffForAction("answers.write")
+  if (!staff) return
+  const id = text(formData, "id", 36)
+  const { error } = await createServiceClient()
+    .from("reviewed_answer_context")
+    .update({ status: "retired", updated_at: new Date().toISOString() })
+    .eq("id", id)
+  if (error) return
+  await logAdminAction(staff, "answers.context_retire", { type: "reviewed_answer_context", id, after: { status: "retired" } })
+  revalidatePath("/admin/answers")
+}
+
 const input = "w-full px-3 py-2 border rounded-lg bg-background"
 
 function AnswerForm({ row }: { row?: Row }) {
@@ -165,6 +244,12 @@ export default async function AnswersPage() {
     .order("updated_at", { ascending: false })
     .limit(500)
   const rows = (data ?? []) as Row[]
+  const { data: contextData } = await createServiceClient()
+    .from("reviewed_answer_context")
+    .select("id, answer_id, scope, kind, note, sources, status, written_by, approved_by")
+    .neq("status", "retired")
+    .order("scope")
+  const contextFor = (answerId: string) => ((contextData ?? []) as ContextRow[]).filter((c) => c.answer_id === answerId)
   const today = new Date().toISOString().slice(0, 10)
   const mayApprove = can(staff.role, "answers.approve")
   const isClinician = can(staff.role, "clinical.approve")
@@ -242,6 +327,76 @@ export default async function AnswersPage() {
                   </form>
                 )}
               </div>
+              {contextFor(r.id).map((c) => (
+                <div key={c.id} className="rounded-lg bg-secondary p-3 text-sm space-y-2">
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <Badge variant={c.status === "approved" ? "default" : "outline"}>{c.status}</Badge>
+                    <Badge variant="secondary">{c.scope === "africa" ? "All of Africa" : (countryName(c.scope) ?? c.scope)}</Badge>
+                    <Badge variant="secondary">{c.kind === "myth" ? "What people often hear" : "Where you live"}</Badge>
+                    <span className="text-muted-foreground">
+                      Written by {c.written_by}
+                      {c.approved_by ? `, approved by ${c.approved_by}` : ""}
+                    </span>
+                  </div>
+                  <p className="whitespace-pre-wrap">{c.note}</p>
+                  {c.sources && <p className="text-xs text-muted-foreground">Sources: {c.sources}</p>}
+                  <div className="flex gap-3">
+                    {c.status === "draft" && mayApprove && c.written_by.toLowerCase() !== staff.email.toLowerCase() && (
+                      <form action={approveContext}>
+                        <input type="hidden" name="id" value={c.id} />
+                        <Button type="submit" size="sm">
+                          Approve note
+                        </Button>
+                      </form>
+                    )}
+                    <form action={retireContext}>
+                      <input type="hidden" name="id" value={c.id} />
+                      <Button type="submit" size="sm" variant="outline">
+                        Retire note
+                      </Button>
+                    </form>
+                  </div>
+                </div>
+              ))}
+              <details className="text-sm">
+                <summary className="cursor-pointer">Add or replace a local context note</summary>
+                <form action={saveContext} className="space-y-3 pt-3">
+                  <input type="hidden" name="answer_id" value={r.id} />
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <label className="block space-y-1">
+                      <span className="font-medium">Where it applies</span>
+                      <select name="scope" defaultValue="africa" className={input}>
+                        <option value="africa">All of Africa</option>
+                        {Object.entries(AFRICAN_COUNTRIES)
+                          .sort((a, b) => a[1].localeCompare(b[1]))
+                          .map(([code, name]) => (
+                            <option key={code} value={code}>
+                              {name}
+                            </option>
+                          ))}
+                      </select>
+                    </label>
+                    <label className="block space-y-1">
+                      <span className="font-medium">Kind</span>
+                      <select name="kind" defaultValue="myth" className={input}>
+                        <option value="myth">What people often hear (a belief to correct)</option>
+                        <option value="local">Where you live (laws, services, next steps)</option>
+                      </select>
+                    </label>
+                  </div>
+                  <label className="block space-y-1">
+                    <span className="font-medium">Note (respectful: correct the belief, not the person)</span>
+                    <textarea name="note" required minLength={20} maxLength={1500} rows={4} className={input} />
+                  </label>
+                  <label className="block space-y-1">
+                    <span className="font-medium">Sources</span>
+                    <input name="sources" maxLength={1000} className={input} />
+                  </label>
+                  <Button type="submit" size="sm">
+                    Save note as a draft
+                  </Button>
+                </form>
+              </details>
               <details className="text-sm">
                 <summary className="cursor-pointer">Edit</summary>
                 <div className="pt-3">
