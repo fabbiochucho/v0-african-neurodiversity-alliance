@@ -3,7 +3,7 @@
 // replies are approved answers, the crisis reply, or an expert's answer.
 // Pure helpers first (unit tested), then the Bot API calls. TELEGRAM_BOT_TOKEN unset = off.
 import { createHash } from "node:crypto"
-import type { ReviewedAnswer } from "@/lib/reviewed-answers"
+import { DIAGNOSIS_NOTE, reviewLabel, type ReviewedAnswer } from "@/lib/reviewed-answers"
 
 export type Command = { name: "start" | "ask" | "mine" | "stop" | "help"; arg: string }
 
@@ -21,7 +21,7 @@ export const HELP = [
   "ANDA (African Neurodiversity Alliance) on Telegram.",
   "",
   "Type a question, for example: How can we make bedtime calmer?",
-  "You'll get answers written and checked by people at ANDA. If none covers it, you can send it to an ANDA expert.",
+  "You'll get answers ANDA wrote from WHO guidance and research and checked against their sources. If none covers it, you can send it to ANDA.",
   "",
   "/mine your questions for an expert",
   "/stop unlink this chat from your ANDA account",
@@ -45,7 +45,8 @@ export const clip = (text: string, max = 3500) => (text.length <= max ? text : `
 
 export function answerMessage(a: ReviewedAnswer): { text: string; buttons: Button[][] } {
   return {
-    text: clip(`ANDA reviewed answer: ${a.question}\n\n${a.answer}${a.sources ? `\n\nSources: ${a.sources}` : ""}`),
+    // The answer is clipped first so the label and the diagnosis note always fit.
+    text: `ANDA reviewed answer: ${a.question}\n\n${clip(a.answer, 2400)}${a.sources ? `\n\nSources: ${clip(a.sources, 500)}` : ""}\n\n${reviewLabel(a)}\n${DIAGNOSIS_NOTE}`,
     // callback_data is limited to 64 bytes: "f:" + uuid + ":1" is 40.
     buttons: [[{ text: "This helped", callback_data: `f:${a.id}:1` }, { text: "It didn't help", callback_data: `f:${a.id}:0` }]],
   }

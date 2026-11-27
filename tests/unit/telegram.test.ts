@@ -19,6 +19,13 @@ describe("telegram bot", () => {
     expect(parseFeedback("f:not-a-uuid:1")).toBeNull()
   })
 
+  it("always says how an answer was checked and points to a professional, even for a long answer", () => {
+    const m = answerMessage({ id: "x", question: "Q?", answer: "a".repeat(5000), sources: "s".repeat(1000), lang: "en" })
+    expect(m.text).toContain("Not yet reviewed by a clinician")
+    expect(m.text).toContain("not a diagnosis")
+    expect(m.text.length).toBeLessThan(4096)
+  })
+
   it("cuts long messages under Telegram's 4096 limit", () => {
     expect(clip("x".repeat(5000)).length).toBeLessThanOrEqual(3500)
     expect(clip("short")).toBe("short")
