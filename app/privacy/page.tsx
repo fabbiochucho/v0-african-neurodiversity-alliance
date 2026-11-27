@@ -163,6 +163,12 @@ export default function PrivacyPage() {
                   <strong>Cloudflare:</strong> AI features, only as described above, and the Turnstile security
                   check on sign-up and sign-in.
                 </li>
+                <li>
+                  <strong>Telegram:</strong> only if you use ANDA on Telegram. Your questions, the answers and your
+                  Telegram chat number pass through Telegram, under Telegram&apos;s own privacy policy. We send reviewed
+                  answers and expert replies there, never plans, records or reports. Unlinking (on Your account, or /stop
+                  in the chat) stops it.
+                </li>
               </ul>
               <p>
                 We don&apos;t sell personal information, and we don&apos;t use it for advertising. News, research,
