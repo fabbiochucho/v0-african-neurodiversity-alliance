@@ -67,6 +67,13 @@ export default function SelfTestPage() {
                 A {questions.length}-question starting point, culturally adapted for African contexts. It takes about
                 a minute and is not a diagnosis or clinical screening tool.
               </p>
+              <p className="mt-3 text-sm">
+                Asking about a child aged 12 to 36 months?{" "}
+                <Link href="/check" className="text-primary underline">
+                  Use the early development check
+                </Link>
+                .
+              </p>
             </div>
 
             <Card>
