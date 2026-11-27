@@ -26,6 +26,7 @@ const SESSION_PATHS = [
   "/settings",
   "/connect",
   "/admin",
+  "/ask",
 ]
 
 const needsSession = (path: string) => SESSION_PATHS.some((p) => path === p || path.startsWith(`${p}/`))

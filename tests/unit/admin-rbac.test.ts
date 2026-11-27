@@ -3,8 +3,9 @@ import { PERMISSIONS, ROLE_PERMISSIONS, STAFF_ROLES, can } from "@/lib/admin/per
 import { IDLE_MS, adminCookieFresh, signAdminCookie } from "@/lib/admin/session"
 
 describe("admin permissions", () => {
-  it("gives super admins everything and nobody else staff management", () => {
-    for (const p of PERMISSIONS) expect(can("super_admin", p)).toBe(true)
+  it("gives super admins everything except clinical sign-off, and nobody else staff management", () => {
+    for (const p of PERMISSIONS) expect(can("super_admin", p)).toBe(p !== "clinical.approve")
+
     for (const r of STAFF_ROLES.filter((r) => r !== "super_admin")) expect(can(r, "staff.manage")).toBe(false)
   })
 
